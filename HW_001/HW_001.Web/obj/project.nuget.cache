@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "5WnNws0prcw=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\aspid\\RiderProjects\\HW_ASP.NET\\HW_001\\HW_001.Web\\HW_001.Web.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\aspid\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.7\\microsoft.aspnetcore.openapi.10.0.7.nupkg.sha512",
+    "C:\\Users\\aspid\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
