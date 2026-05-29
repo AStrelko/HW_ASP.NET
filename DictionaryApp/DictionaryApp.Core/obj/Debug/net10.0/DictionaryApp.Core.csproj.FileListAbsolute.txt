@@ -1,0 +1,12 @@
+C:\Users\aspid\RiderProjects\HW_ASP.NET\DictionaryApp\DictionaryApp.Core\bin\Debug\net10.0\DictionaryApp.Core.deps.json
+C:\Users\aspid\RiderProjects\HW_ASP.NET\DictionaryApp\DictionaryApp.Core\bin\Debug\net10.0\DictionaryApp.Core.dll
+C:\Users\aspid\RiderProjects\HW_ASP.NET\DictionaryApp\DictionaryApp.Core\bin\Debug\net10.0\DictionaryApp.Core.pdb
+C:\Users\aspid\RiderProjects\HW_ASP.NET\DictionaryApp\DictionaryApp.Core\obj\Debug\net10.0\DictionaryApp.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\aspid\RiderProjects\HW_ASP.NET\DictionaryApp\DictionaryApp.Core\obj\Debug\net10.0\DictionaryApp.Core.AssemblyInfoInputs.cache
+C:\Users\aspid\RiderProjects\HW_ASP.NET\DictionaryApp\DictionaryApp.Core\obj\Debug\net10.0\DictionaryApp.Core.AssemblyInfo.cs
+C:\Users\aspid\RiderProjects\HW_ASP.NET\DictionaryApp\DictionaryApp.Core\obj\Debug\net10.0\DictionaryApp.Core.csproj.CoreCompileInputs.cache
+C:\Users\aspid\RiderProjects\HW_ASP.NET\DictionaryApp\DictionaryApp.Core\obj\Debug\net10.0\DictionaryApp.Core.sourcelink.json
+C:\Users\aspid\RiderProjects\HW_ASP.NET\DictionaryApp\DictionaryApp.Core\obj\Debug\net10.0\DictionaryApp.Core.dll
+C:\Users\aspid\RiderProjects\HW_ASP.NET\DictionaryApp\DictionaryApp.Core\obj\Debug\net10.0\refint\DictionaryApp.Core.dll
+C:\Users\aspid\RiderProjects\HW_ASP.NET\DictionaryApp\DictionaryApp.Core\obj\Debug\net10.0\DictionaryApp.Core.pdb
+C:\Users\aspid\RiderProjects\HW_ASP.NET\DictionaryApp\DictionaryApp.Core\obj\Debug\net10.0\ref\DictionaryApp.Core.dll

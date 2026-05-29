@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DictionaryApp.Web", "DictionaryApp.Web\DictionaryApp.Web.csproj", "{E4E51899-A635-4FA0-9ED7-AB0DA4E93459}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DictionaryApp.Core", "DictionaryApp.Core\DictionaryApp.Core.csproj", "{18FF6ABD-7DF4-40C1-B041-92870FA3B2FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DictionaryApp.Storage", "DictionaryApp.Storage\DictionaryApp.Storage.csproj", "{161F763B-A7AC-40D5-928C-053DC4A5073C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E4E51899-A635-4FA0-9ED7-AB0DA4E93459}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4E51899-A635-4FA0-9ED7-AB0DA4E93459}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4E51899-A635-4FA0-9ED7-AB0DA4E93459}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4E51899-A635-4FA0-9ED7-AB0DA4E93459}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18FF6ABD-7DF4-40C1-B041-92870FA3B2FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18FF6ABD-7DF4-40C1-B041-92870FA3B2FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18FF6ABD-7DF4-40C1-B041-92870FA3B2FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18FF6ABD-7DF4-40C1-B041-92870FA3B2FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{161F763B-A7AC-40D5-928C-053DC4A5073C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{161F763B-A7AC-40D5-928C-053DC4A5073C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{161F763B-A7AC-40D5-928C-053DC4A5073C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{161F763B-A7AC-40D5-928C-053DC4A5073C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

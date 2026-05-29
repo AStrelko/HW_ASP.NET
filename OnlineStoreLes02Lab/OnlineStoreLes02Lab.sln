@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineStoreLes02Lab.Web", "OnlineStoreLes02Lab.Web\OnlineStoreLes02Lab.Web.csproj", "{92E5D8D7-E701-45D5-80A3-99EBB439F4EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineStoreLes02Lab.Core", "OnlineStoreLes02Lab.Core\OnlineStoreLes02Lab.Core.csproj", "{3BA050FB-9C07-450C-A83E-6BBEE7727A7E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineStoreLes02Lab.Storage", "OnlineStoreLes02Lab.Storage\OnlineStoreLes02Lab.Storage.csproj", "{06DF24BF-6D89-4231-B7FC-AE2159953E77}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{92E5D8D7-E701-45D5-80A3-99EBB439F4EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92E5D8D7-E701-45D5-80A3-99EBB439F4EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92E5D8D7-E701-45D5-80A3-99EBB439F4EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92E5D8D7-E701-45D5-80A3-99EBB439F4EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BA050FB-9C07-450C-A83E-6BBEE7727A7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BA050FB-9C07-450C-A83E-6BBEE7727A7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BA050FB-9C07-450C-A83E-6BBEE7727A7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BA050FB-9C07-450C-A83E-6BBEE7727A7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06DF24BF-6D89-4231-B7FC-AE2159953E77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06DF24BF-6D89-4231-B7FC-AE2159953E77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06DF24BF-6D89-4231-B7FC-AE2159953E77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06DF24BF-6D89-4231-B7FC-AE2159953E77}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
