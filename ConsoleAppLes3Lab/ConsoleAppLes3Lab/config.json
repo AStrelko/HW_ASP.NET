@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "Local": "Server=localhost;Database=lesson_03Lab;Integrated Security=True;Encrypt=False"
+  }
+}

@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppLes3Lab", "ConsoleAppLes3Lab\ConsoleAppLes3Lab.csproj", "{E33866D0-E7E8-41C1-8F87-BC74C97C72FB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E33866D0-E7E8-41C1-8F87-BC74C97C72FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E33866D0-E7E8-41C1-8F87-BC74C97C72FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E33866D0-E7E8-41C1-8F87-BC74C97C72FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E33866D0-E7E8-41C1-8F87-BC74C97C72FB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

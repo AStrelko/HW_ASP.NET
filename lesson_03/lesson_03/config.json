@@ -1,0 +1,12 @@
+{
+  "_comment1": "Файл для збереження даних",
+  "_comment2": "Налаштувати файл: Build Action = Content, Copy to Output Directory = Copy always",
+  "_comment3": "В NuGet зробити Restore",
+
+  "ConnectionStrings": {
+    "Local": "Server=localhost;Database=lesson_03;Integrated Security=True;Encrypt=False",
+    "Production": "Server=адреса і мережі"
+  },
+
+  "ApiKey": "1234567890"
+}

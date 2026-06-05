@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "Local": "Server=localhost;Database=HW_03;Integrated Security=True;Encrypt=False"
+  }
+}
