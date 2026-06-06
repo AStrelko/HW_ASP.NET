@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ConsoleAppLes3Lab")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cdfa41ae7ca81811275a64541ff20054d8ae6d41")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+be42b957e06a7ce983790b40526cabc5b0d93251")]
 [assembly: System.Reflection.AssemblyProductAttribute("ConsoleAppLes3Lab")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ConsoleAppLes3Lab")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
