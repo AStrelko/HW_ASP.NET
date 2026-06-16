@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DictionaryApp.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e5bd0e1eb7ffa30456240793c89687b6833bd63c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7d298ee8bcd468d6dafbf5e33d54b32b40f78c9b")]
 [assembly: System.Reflection.AssemblyProductAttribute("DictionaryApp.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DictionaryApp.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

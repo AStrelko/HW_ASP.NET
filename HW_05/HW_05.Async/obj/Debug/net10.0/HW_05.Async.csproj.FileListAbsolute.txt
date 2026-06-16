@@ -1,0 +1,15 @@
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_05\HW_05.Async\bin\Debug\net10.0\HW_05.Async.exe
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_05\HW_05.Async\bin\Debug\net10.0\HW_05.Async.deps.json
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_05\HW_05.Async\bin\Debug\net10.0\HW_05.Async.runtimeconfig.json
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_05\HW_05.Async\bin\Debug\net10.0\HW_05.Async.dll
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_05\HW_05.Async\bin\Debug\net10.0\HW_05.Async.pdb
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_05\HW_05.Async\obj\Debug\net10.0\HW_05.Async.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_05\HW_05.Async\obj\Debug\net10.0\HW_05.Async.AssemblyInfoInputs.cache
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_05\HW_05.Async\obj\Debug\net10.0\HW_05.Async.AssemblyInfo.cs
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_05\HW_05.Async\obj\Debug\net10.0\HW_05.Async.csproj.CoreCompileInputs.cache
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_05\HW_05.Async\obj\Debug\net10.0\HW_05.Async.sourcelink.json
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_05\HW_05.Async\obj\Debug\net10.0\HW_05.Async.dll
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_05\HW_05.Async\obj\Debug\net10.0\refint\HW_05.Async.dll
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_05\HW_05.Async\obj\Debug\net10.0\HW_05.Async.pdb
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_05\HW_05.Async\obj\Debug\net10.0\HW_05.Async.genruntimeconfig.cache
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_05\HW_05.Async\obj\Debug\net10.0\ref\HW_05.Async.dll
