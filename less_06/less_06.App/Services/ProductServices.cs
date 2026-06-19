@@ -62,44 +62,49 @@ public class ProductServices
     }
     
     */
-    
+    // Get all products
+    // Add, update, delete products
+    // Get product by id    
        private readonly DataContext _context;
-
+    
     public ProductServices(DataContext context)
     {
         _context = context;
     }
-    public async Task<Product> GetById(int id)
+    //отримую продукт по id
+    public async Task<Product?> GetById(int id, CancellationToken cancellationToken)
     {
-        var product = await _context.Set<Product>().FindAsync(id);
-
-        return product;
+        return await _context.Set<Product>().FindAsync([id], cancellationToken);
     }
-
+    
+    // отримую всі продукти
     public async Task<List<Product>> GetAll(ProductsFilter filter, CancellationToken cancellationToken)
     {
         var productsQuery = _context.Set<Product>()
             .AsNoTracking();
-
+        //якщо у нас є  ключіве слово
         if(!string.IsNullOrEmpty(filter.SearchQuery))
-            productsQuery = productsQuery.Where(p => p.Name.Contains(filter.SearchQuery) || p.Description.Contains(filter.SearchQuery));
-
+            //шукає по запитуємоьу слову в назві або в описі
+            productsQuery = productsQuery.Where(p => 
+                p.Name.Contains(filter.SearchQuery) || p.Description.Contains(filter.SearchQuery));
+        // якщо маю ключ
         if(filter.SortingKey == "price")
+            //сортую по ключу
             productsQuery = productsQuery.OrderBy(p => p.Price);
         else if(filter.SortingKey == "name")
             productsQuery = productsQuery.OrderBy(p => p.Name);
         else productsQuery = productsQuery.OrderBy(p => p.Id);
 
         return await productsQuery
-            .Skip(filter.Offset)
-            .Take(filter.Limit)
-            .ToListAsync(cancellationToken);
+            .Skip(filter.Offset)//скільки пропустити
+            .Take(filter.Limit)//скільки взяти
+            .ToListAsync(cancellationToken);// вертаю ToList - Async!!!
     }
     //оновленя за id
     public async Task<Product> Update(int id, Product updated, CancellationToken cancellationToken)
     {
-        ValidateProduct(updated);
-
+        ValidateProduct(updated);//додаю метод валідації( перевірка правильності даних)
+        //шукаю продукт по [id]
         var product = await _context.Set<Product>().FindAsync([id], cancellationToken);
         if (product is null) return null;
 
@@ -113,7 +118,7 @@ public class ProductServices
     //додавання 
     public async Task<Product> Add(Product product, CancellationToken cancellationToken)
     {
-        ValidateProduct(product);
+        ValidateProduct(product);//додаю метод валідації( перевірка правильності даних)
 
         _context.Set<Product>().Add(product);
         await _context.SaveChangesAsync(cancellationToken);
@@ -122,8 +127,7 @@ public class ProductServices
     //вадалення за id
     public async Task Delete(int id, CancellationToken cancellationToken)
     {
-        await _context.Set<Product>()
-            .Where(p => p.Id == id)
+        await _context.Set<Product>().Where(p => p.Id == id)
             //видалення та закінчення транзакції
             .ExecuteDeleteAsync(cancellationToken);
     }
@@ -138,6 +142,26 @@ public class ProductServices
 
         if(product.Description?.Length > 200)
             throw new ArgumentException("Product description must be less than 200 characters");
+    }
+    
+    public async Task Restore(CancellationToken cancellationToken)
+    {
+        var now = DateTime.UtcNow;
+        var borderDate = now.AddDays(-30);
+
+        // видоляю товари старійше 30 днів
+        await _context.Set<Product>()
+            .Where(p => p.CreatedAt < borderDate)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        // випровляю товари із майбутного
+        await _context.Set<Product>()
+            .Where(p => p.CreatedAt > now)
+            .ExecuteUpdateAsync(
+                p => p.SetProperty(
+                    product => product.CreatedAt,
+                    now),
+                cancellationToken);
     }
 }
 
