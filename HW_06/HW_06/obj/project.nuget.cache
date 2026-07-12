@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "vwnbmGIHVHI=",
+  "dgSpecHash": "68fZoJ4mRgU=",
   "success": true,
   "projectFilePath": "C:\\Users\\aspid\\RiderProjects\\HW_ASP.NET\\HW_06\\HW_06\\HW_06.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\aspid\\.nuget\\packages\\automapper\\13.0.1\\automapper.13.0.1.nupkg.sha512",
     "C:\\Users\\aspid\\.nuget\\packages\\azure.core\\1.47.1\\azure.core.1.47.1.nupkg.sha512",
     "C:\\Users\\aspid\\.nuget\\packages\\azure.identity\\1.14.2\\azure.identity.1.14.2.nupkg.sha512",
     "C:\\Users\\aspid\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
@@ -54,5 +55,30 @@
     "C:\\Users\\aspid\\.nuget\\packages\\system.security.cryptography.pkcs\\9.0.4\\system.security.cryptography.pkcs.9.0.4.nupkg.sha512",
     "C:\\Users\\aspid\\.nuget\\packages\\system.security.cryptography.protecteddata\\9.0.4\\system.security.cryptography.protecteddata.9.0.4.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x",
+      "projectPath": "C:\\Users\\aspid\\RiderProjects\\HW_ASP.NET\\HW_06\\HW_06\\HW_06.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\aspid\\RiderProjects\\HW_ASP.NET\\HW_06\\HW_06\\HW_06.csproj",
+      "libraryId": "AutoMapper",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "message": "Package 'Microsoft.OpenApi' 2.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-v5pm-xwqc-g5wc",
+      "projectPath": "C:\\Users\\aspid\\RiderProjects\\HW_ASP.NET\\HW_06\\HW_06\\HW_06.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\aspid\\RiderProjects\\HW_ASP.NET\\HW_06\\HW_06\\HW_06.csproj",
+      "libraryId": "Microsoft.OpenApi",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
 }

@@ -157,3 +157,4 @@ C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_06\HW_06\obj\Debug\net10.0\refint\HW_
 C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_06\HW_06\obj\Debug\net10.0\HW_06.pdb
 C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_06\HW_06\obj\Debug\net10.0\HW_06.genruntimeconfig.cache
 C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_06\HW_06\obj\Debug\net10.0\ref\HW_06.dll
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_06\HW_06\bin\Debug\net10.0\AutoMapper.dll

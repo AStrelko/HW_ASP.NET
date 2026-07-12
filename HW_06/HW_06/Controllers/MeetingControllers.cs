@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace HW_06.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/meetings")]
 public class MeetingsController : ControllerBase
 {
     private readonly MeetingServices _service;

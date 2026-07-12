@@ -1,9 +1,8 @@
 using less_06.App.Services;
 using less_06.App.Storage;
 using Microsoft.EntityFrameworkCore;
-
+/*
 var builder = WebApplication.CreateBuilder(args);
-
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -27,3 +26,33 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+*/
+
+var db = new SQLDatabase();
+    
+//створю інтерфейс який містить базові операції по работі з BD
+interface IDatabase
+{
+    string Insert(string data);
+}
+
+void PrintCommand(SQLDatabase database)
+{
+    Console.WriteLine(database.Insert("123"));
+}
+
+class SQLDatabase: IDatabase
+{
+    public string Insert(string data)
+    {
+        return $"insert table values ('{data}')";
+    }
+}
+
+ class RedisDatabase: IDatabase
+ {
+     public string Insert(string data)
+     {
+         return $"Redis inserted ('{data}')";
+     }
+ }
