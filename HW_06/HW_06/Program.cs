@@ -17,7 +17,7 @@ builder.Services.AddScoped<MeetingServices>();
 builder.Services.AddScoped<MeetingDTOService>();
 builder.Services.AddAutoMapper(typeof(MeetingMappingProfile));
 builder.Services.AddScoped<ParticipantDTOService>();
-//builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -31,8 +31,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     
-   // app.UseSwagger();
-    //app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();

@@ -3,6 +3,9 @@ using HW_06.Models;
 
 namespace HW_06.Helpers;
 
+/// <summary>
+/// Клас для заповнення бази даних тестовими даними.
+/// </summary>
 public static class SeedData
 {
     public static void Initialize(DataContext context)

@@ -4,6 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HW_06.Controllers;
 
+/// <summary>
+/// Контролер для керування зустрічами.
+/// Надає CRUD-операції, пошук, сортування, фільтрацію,
+/// пагінацію та отримання зустрічей за учасником.
+/// </summary>
 [ApiController]
 [Route("api/meetingsDTO")]
 public class MeetingControllersDTO : ControllerBase
@@ -113,7 +118,12 @@ public class MeetingControllersDTO : ControllerBase
     /// <summary>
     /// Отримання всіх зустрічей конкретного учасника.
     /// </summary>
-    /// <param name="participantId">Ідентифікатор учасника.</param>
+    /// <param name="participantId">
+    /// Ідентифікатор учасника.
+    /// </param>
+    /// <returns>
+    /// Список зустрічей, у яких бере участь зазначений учасник.
+    /// </returns>
     [HttpGet("by-participant/{participantId}")]
     public async Task<IActionResult> GetByParticipant(int participantId)
     {

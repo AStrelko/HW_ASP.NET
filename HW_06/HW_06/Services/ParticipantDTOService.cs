@@ -1,11 +1,17 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using HW_06.DTOs.Meeting;
 using HW_06.DTOs.Participant;
 using HW_06.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HW_06.Services;
 
+/// <summary>
+/// Сервіс для роботи з учасниками.
+/// Забезпечує отримання, створення, оновлення та видалення учасників,
+/// а також отримання списку зустрічей конкретного учасника.
+/// </summary>
 public class ParticipantDTOService
 {
     private readonly DataContext _context;
@@ -19,7 +25,10 @@ public class ParticipantDTOService
         _mapper = mapper;
     }
     
-    // Отримання списку всіх учасників
+    /// <summary>
+    /// Отримує список усіх учасників.
+    /// </summary>
+    /// <returns>Список учасників.</returns>
     public async Task<List<ParticipantReadDTO>> GetParticipants()
     {
         return await _context.Participants
@@ -28,7 +37,11 @@ public class ParticipantDTOService
             .ToListAsync();
     }
     
-    // Отримання учасника за id
+    /// <summary>
+    /// Отримує інформацію про учасника за його ідентифікатором.
+    /// </summary>
+    /// <param name="id">Ідентифікатор учасника.</param>
+    /// <returns>Інформація про учасника або null, якщо його не знайдено.</returns>
     public async Task<ParticipantReadDTO?> GetById(int id)
     {
         return await _context.Participants
@@ -38,7 +51,10 @@ public class ParticipantDTOService
             .FirstOrDefaultAsync();
     }
     
-    // Створення нового учасника
+    /// <summary>
+    /// Створює нового учасника.
+    /// </summary>
+    /// <param name="dto">Дані нового учасника.</param>
     public async Task Create(ParticipantCreateDTO dto)
     {
         var participant = _mapper.Map<Participant>(dto);
@@ -48,7 +64,10 @@ public class ParticipantDTOService
         await _context.SaveChangesAsync();
     }
     
-    // Повне оновлення учасника
+    /// <summary>
+    /// Повністю оновлює інформацію про учасника.
+    /// </summary>
+    /// <param name="dto">Нові дані учасника.</param>
     public async Task Update(ParticipantUpdateDTO dto)
     {
         var participant = _mapper.Map<Participant>(dto);
@@ -58,7 +77,11 @@ public class ParticipantDTOService
         await _context.SaveChangesAsync();
     }
     
-    // Часткове оновлення учасника
+    /// <summary>
+    /// Частково оновлює інформацію про учасника.
+    /// </summary>
+    /// <param name="id">Ідентифікатор учасника.</param>
+    /// <param name="dto">Поля, які необхідно оновити.</param>
     public async Task PartialUpdate(int id, ParticipantPartialUpdateDTO dto)
     {
         var participant = await _context.Participants.FindAsync(id);
@@ -81,7 +104,24 @@ public class ParticipantDTOService
         await _context.SaveChangesAsync();
     }
     
-    // Видалення учасника за id
+    /// <summary>
+    /// Отримує всі зустрічі, у яких бере участь вказаний учасник.
+    /// </summary>
+    /// <param name="participantId">Ідентифікатор учасника.</param>
+    public async Task<List<MeetingreadDTO>> GetByParticipant(int participantId)
+    {
+        return await _context.Meetings
+            .AsNoTracking()
+            .Where(m => m.MeetingParticipants
+                .Any(mp => mp.ParticipantId == participantId))
+            .ProjectTo<MeetingreadDTO>(_mapper.ConfigurationProvider)
+            .ToListAsync();
+    }
+    
+    /// <summary>
+    /// Видаляє учасника за його ідентифікатором.
+    /// </summary>
+    /// <param name="id">Ідентифікатор учасника.</param>
     public async Task Delete(int id)
     {
         var participant = await _context.Participants.FindAsync(id);

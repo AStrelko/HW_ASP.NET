@@ -6,6 +6,11 @@ using AutoMapper.QueryableExtensions;
 
 namespace HW_06.Services;
 
+/// <summary>
+/// Сервіс для роботи із зустрічами.
+/// Забезпечує отримання, створення, оновлення та видалення зустрічей,
+/// а також пошук, сортування, фільтрацію та пагінацію.
+/// </summary>
 public class MeetingDTOService
 {
     private readonly DataContext _context;
@@ -19,6 +24,12 @@ public class MeetingDTOService
         _mapper = mapper;
     }
 
+    /// <summary>
+    /// Отримує список зустрічей.
+    /// Підтримує пошук, сортування, фільтрацію та пагінацію.
+    /// </summary>
+    /// <param name="filter">Параметри пошуку, сортування та фільтрації.</param>
+    /// <returns>Список зустрічей у скороченому вигляді.</returns>
     public async Task<List<MeetingreadDTO>> GetMeetings(MeetingFilter filter)
     {
         var query = _context.Meetings
@@ -63,6 +74,11 @@ public class MeetingDTOService
         return _mapper.Map<List<MeetingreadDTO>>(meetings);
     }
     
+    /// <summary>
+    /// Отримує детальну інформацію про зустріч за її ідентифікатором.
+    /// </summary>
+    /// <param name="id">Ідентифікатор зустрічі.</param>
+    /// <returns>Повна інформація про зустріч або null, якщо її не знайдено.</returns>
     public async Task<MeetingditeylDTO?> GetById(int id)
     {
         var meeting = await _context.Meetings
@@ -78,6 +94,11 @@ public class MeetingDTOService
         return _mapper.Map<MeetingditeylDTO>(meeting);
     }
 
+    /// <summary>
+    /// Створює нову зустріч.
+    /// До зустрічі можна одразу додати кімнату та учасників.
+    /// </summary>
+    /// <param name="dto">Дані нової зустрічі.</param>
     public async Task Create(MeetingcreateDTO dto)
     {
         var meeting = _mapper.Map<Meeting>(dto);
@@ -95,6 +116,14 @@ public class MeetingDTOService
         await _context.SaveChangesAsync();
     }
     
+    /// <summary>
+    /// Повністю оновлює інформацію про зустріч.
+    /// </summary>
+    /// <param name="id">Ідентифікатор зустрічі.</param>
+    /// <param name="dto">Нові дані зустрічі.</param>
+    /// <returns>
+    /// True, якщо зустріч успішно оновлено; інакше False.
+    /// </returns>
     public async Task<bool> Update(int id, MeetingupdateDTO dto)
     {
         if (id != dto.MeetingId)
@@ -130,6 +159,14 @@ public class MeetingDTOService
         return true;
     }
     
+    /// <summary>
+    /// Частково оновлює інформацію про зустріч.
+    /// </summary>
+    /// <param name="id">Ідентифікатор зустрічі.</param>
+    /// <param name="dto">Поля, які необхідно оновити.</param>
+    /// <returns>
+    /// True, якщо зустріч успішно оновлено; інакше False.
+    /// </returns>
     public async Task<bool> PartialUpdate(int id, MeetingpartialUpdateDTO dto)
     {
         var meeting = await _context.Meetings
@@ -157,6 +194,13 @@ public class MeetingDTOService
         return true;
     }
     
+    /// <summary>
+    /// Видаляє зустріч за її ідентифікатором.
+    /// </summary>
+    /// <param name="id">Ідентифікатор зустрічі.</param>
+    /// <returns>
+    /// True, якщо зустріч успішно видалена; інакше False.
+    /// </returns>
     public async Task<bool> Delete(int id)
     {
         var meeting = await _context.Meetings
@@ -172,7 +216,11 @@ public class MeetingDTOService
         return true;
     }
     
-    // Отримання всіх зустрічей конкретного учасника
+    /// <summary>
+    /// Отримує всі зустрічі, у яких бере участь вказаний учасник.
+    /// </summary>
+    /// <param name="participantId">Ідентифікатор учасника.</param>
+    /// <returns>Список зустрічей.</returns>
     public async Task<List<MeetingreadDTO>> GetByParticipant(int participantId)
     {
         return await _context.Meetings

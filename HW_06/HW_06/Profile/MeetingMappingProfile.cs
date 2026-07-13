@@ -6,14 +6,15 @@ using HW_06.Models;
 
 namespace HW_06.Profile;
 
+/// <summary>
+/// Профіль AutoMapper для мапінгу моделей Meeting та Participant
+/// у відповідні DTO та навпаки.
+/// </summary>
 public class MeetingMappingProfile : AutoMapper.Profile
 {
     public MeetingMappingProfile()
     {
-        // ============================
-        // Meeting -> DTO
-        // ============================
-
+        //// Meeting -> DTO
         CreateMap<Meeting, MeetingreadDTO>()
             .ForMember(
                 d => d.RoomNumber,
@@ -35,16 +36,10 @@ public class MeetingMappingProfile : AutoMapper.Profile
                 o => o.MapFrom(s =>
                     s.MeetingParticipants.Select(mp => mp.Participant)));
 
-        // ============================
-        // Participant -> DTO
-        // ============================
-
+        //// Participant -> DTO
         CreateMap<Participant, ParticipantDTO>();
-
-        // ============================
-        // DTO -> Meeting
-        // ============================
-
+        
+        //// DTO -> Meeting
         CreateMap<MeetingcreateDTO, Meeting>()
             .ForMember(
                 d => d.MeetingParticipants,
@@ -59,11 +54,8 @@ public class MeetingMappingProfile : AutoMapper.Profile
             .ForMember(
                 d => d.MeetingParticipants,
                 o => o.Ignore());
-
-        // ============================
-        // Meeting -> DTO для редактирования
-        // ============================
-
+        
+        //// Meeting -> DTO для редогування
         CreateMap<Meeting, MeetingupdateDTO>();
         
         CreateMap<Meeting, MeetingpartialUpdateDTO>();

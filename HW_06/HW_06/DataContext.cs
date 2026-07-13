@@ -3,6 +3,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HW_06;
 
+/// <summary>
+/// Контекст бази даних застосунку.
+/// Містить набори сутностей та конфігурацію зв'язків між ними.
+/// </summary>
 public class DataContext : DbContext
 {
     public DataContext(DbContextOptions<DataContext> options)

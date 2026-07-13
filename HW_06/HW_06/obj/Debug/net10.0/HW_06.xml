@@ -88,6 +88,13 @@
             <param name="id">Ідентифікатор учасника.</param>
             <param name="dto">Поля для оновлення.</param>
         </member>
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.GetByParticipant(System.Int32)">
+            <summary>
+            Отримання всіх зустрічей, у яких бере участь вказаний учасник.
+            </summary>
+            <param name="participantId">Ідентифікатор учасника.</param>
+            <returns>Список зустрічей.</returns>
+        </member>
         <member name="M:HW_06.Controllers.ParticipantControllersDTO.Delete(System.Int32)">
             <summary>
             Видалення учасника.
