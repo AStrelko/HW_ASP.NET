@@ -56,6 +56,44 @@
             </summary>
             <param name="participantId">Ідентифікатор учасника.</param>
         </member>
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.GetParticipants">
+            <summary>
+            Отримання списку всіх учасників.
+            </summary>
+        </member>
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.GetById(System.Int32)">
+            <summary>
+            Отримання інформації про учасника за його ідентифікатором.
+            </summary>
+            <param name="id">Ідентифікатор учасника.</param>
+            <returns>Інформація про учасника.</returns>
+        </member>
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.Create(HW_06.DTOs.Participant.ParticipantCreateDTO)">
+            <summary>
+            Створення нового учасника.
+            </summary>
+            <param name="dto">Дані нового учасника.</param>
+        </member>
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.Update(System.Int32,HW_06.DTOs.Participant.ParticipantUpdateDTO)">
+            <summary>
+            Повне оновлення інформації про учасника.
+            </summary>
+            <param name="id">Ідентифікатор учасника.</param>
+            <param name="dto">Нові дані учасника.</param>
+        </member>
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.PartialUpdate(System.Int32,HW_06.DTOs.Participant.ParticipantPartialUpdateDTO)">
+            <summary>
+            Часткове оновлення інформації про учасника.
+            </summary>
+            <param name="id">Ідентифікатор учасника.</param>
+            <param name="dto">Поля для оновлення.</param>
+        </member>
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.Delete(System.Int32)">
+            <summary>
+            Видалення учасника.
+            </summary>
+            <param name="id">Ідентифікатор учасника.</param>
+        </member>
         <member name="T:HW_06.Migrations.Initial">
             <inheritdoc />
         </member>

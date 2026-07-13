@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using HW_06.DTOs.Meeting;
-
+using HW_06.DTOs.Participant;
 using HW_06.Models;
 
 namespace HW_06.Profile;
@@ -65,8 +65,16 @@ public class MeetingMappingProfile : AutoMapper.Profile
         // ============================
 
         CreateMap<Meeting, MeetingupdateDTO>();
-
+        
         CreateMap<Meeting, MeetingpartialUpdateDTO>();
+        
+        CreateMap<Participant, ParticipantReadDTO>();
+
+        CreateMap<ParticipantCreateDTO, Participant>();
+
+        CreateMap<ParticipantUpdateDTO, Participant>();
+
+        CreateMap<Participant, ParticipantUpdateDTO>();
         
     }
 }

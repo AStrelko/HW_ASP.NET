@@ -16,6 +16,7 @@ builder.Services.AddDbContext<DataContext>(opt =>
 builder.Services.AddScoped<MeetingServices>();
 builder.Services.AddScoped<MeetingDTOService>();
 builder.Services.AddAutoMapper(typeof(MeetingMappingProfile));
+builder.Services.AddScoped<ParticipantDTOService>();
 //builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
