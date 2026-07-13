@@ -158,3 +158,9 @@ C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_06\HW_06\obj\Debug\net10.0\HW_06.pdb
 C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_06\HW_06\obj\Debug\net10.0\HW_06.genruntimeconfig.cache
 C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_06\HW_06\obj\Debug\net10.0\ref\HW_06.dll
 C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_06\HW_06\bin\Debug\net10.0\AutoMapper.dll
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_06\HW_06\bin\Debug\net10.0\Bogus.dll
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_06\HW_06\bin\Debug\net10.0\HW_06.xml
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_06\HW_06\bin\Debug\net10.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_06\HW_06\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_06\HW_06\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\aspid\RiderProjects\HW_ASP.NET\HW_06\HW_06\obj\Debug\net10.0\HW_06.xml

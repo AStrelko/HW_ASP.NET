@@ -6,7 +6,7 @@ public class MeetingConfiguration : IEntityTypeConfiguration<Meeting>
 {
     public void Configure(EntityTypeBuilder<Meeting> builder)
     {
-        builder.HasKey(x => x.Id);
+        builder.HasKey(x => x.MeetingId);
 
         builder.Property(x => x.Title)
             .HasMaxLength(100)

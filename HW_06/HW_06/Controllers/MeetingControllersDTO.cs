@@ -1,6 +1,4 @@
-using AutoMapper;
 using HW_06.DTOs.Meeting;
-using HW_06.Models;
 using HW_06.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,96 +8,117 @@ namespace HW_06.Controllers;
 [Route("api/meetingsDTO")]
 public class MeetingControllersDTO : ControllerBase
 {
-    private readonly MeetingServices _service;
-    private readonly IMapper _mapper;
+    private readonly MeetingDTOService _service;
 
-    public MeetingControllersDTO(
-        MeetingServices service,
-        IMapper mapper)
+    public MeetingControllersDTO(MeetingDTOService service)
     {
         _service = service;
-        _mapper = mapper;
+        
     }
 
-    // Отримання списку зустрічей
+    /// <summary>
+    /// Отримання списку зустрічей.
+    /// Підтримує пошук, сортування, фільтрацію та пагінацію.
+    /// </summary>
+    /// <param name="filter">Параметри пошуку, сортування та пагінації.</param>
+    /// <returns>Список зустрічей у скороченому вигляді.</returns>
     [HttpGet]
     public async Task<IActionResult> GetMeetings([FromQuery] MeetingFilter filter)
     {
         var meetings = await _service.GetMeetings(filter);
 
-        var result = _mapper.Map<List<MeetingreadDTO>>(meetings);
-
-        return Ok(result);
+        return Ok(meetings);
     }
 
-    // Отримання зустрічі за id
+    /// <summary>
+    /// Отримання детальної інформації про зустріч за її ідентифікатором.
+    /// </summary>
+    /// <param name="id">Ідентифікатор зустрічі.</param>
+    /// <returns>Повна інформація про зустріч.</returns>
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
         var meeting = await _service.GetById(id);
-
+        
         if (meeting == null)
             return NotFound();
-
-        var result = _mapper.Map<MeetingditeylDTO>(meeting);
-
-        return Ok(result);
+        return Ok(meeting);
     }
 
-    // Створення нової зустрічі
+    /// <summary>
+    /// Створення нової зустрічі.
+    /// До зустрічі можна одразу прив'язати кімнату та учасників.
+    /// </summary>
+    /// <param name="dto">Дані нової зустрічі.</param>
+    /// <returns>Результат створення зустрічі.</returns>
     [HttpPost]
     public async Task<IActionResult> Create(MeetingcreateDTO dto)
     {
-        var meeting = _mapper.Map<Meeting>(dto);
-
-        await _service.Add(meeting);
-
+        await _service.Create(dto);
         return Ok();
     }
-
-    // Оновлення зустрічі
+    
+    /// <summary>
+    /// Повне оновлення зустрічі.
+    /// </summary>
+    /// <param name="id">Ідентифікатор зустрічі.</param>
+    /// <param name="dto">Нові дані зустрічі.</param>
+    /// <returns>Результат оновлення.</returns>
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, MeetingupdateDTO dto)
     {
-        var meeting = _mapper.Map<Meeting>(dto);
+        var result = await _service.Update(id, dto);
 
-        if (id != meeting.Id)
-            return BadRequest();
-
-        await _service.Update(meeting);
+        if (!result)
+            return NotFound();
 
         return Ok();
     }
     
-    //Часткове оновлення зустрічи
+    /// <summary>
+    /// Часткове оновлення зустрічі.
+    /// </summary>
+    /// <param name="id">Ідентифікатор зустрічі.</param>
+    /// <param name="dto">Поля, які необхідно оновити.</param>
+    /// <returns>Результат часткового оновлення.</returns>
     [HttpPatch("{id}")]
-    public async Task<IActionResult> PartialUpdate(int id, MeetingpartialUpdateDTO dto)
+    public async Task<IActionResult> PartialUpdate(
+        int id,
+        MeetingpartialUpdateDTO dto)
     {
-        var meeting = await _service.GetById(id);
+        var result = await _service.PartialUpdate(id, dto);
 
-        if (meeting == null)
+        if (!result)
             return NotFound();
-
-        if (dto.Title != null)
-            meeting.Title = dto.Title;
-
-        if (dto.Description != null)
-            meeting.Description = dto.Description;
-
-        if (dto.DateTime.HasValue)
-            meeting.DateTime = dto.DateTime.Value;
-
-        await _service.Update(meeting);
 
         return Ok();
     }
-
-    // Видалення зустрічі
+    
+    /// <summary>
+    /// Видалення зустрічі за її ідентифікатором.
+    /// </summary>
+    /// <param name="id">Ідентифікатор зустрічі.</param>
+    /// <returns>Результат видалення.</returns>
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        await _service.Delete(id);
+        var result = await _service.Delete(id);
 
-        return Ok();
+        if (!result)
+            return NotFound();
+
+        return NoContent();
+    }
+    
+    /// <summary>
+    /// Отримання всіх зустрічей конкретного учасника.
+    /// </summary>
+    /// <param name="participantId">Ідентифікатор учасника.</param>
+    [HttpGet("by-participant/{participantId}")]
+    public async Task<IActionResult> GetByParticipant(int participantId)
+    {
+        var meetings = await _service.GetByParticipant(participantId);
+
+        return Ok(meetings);
     }
 }

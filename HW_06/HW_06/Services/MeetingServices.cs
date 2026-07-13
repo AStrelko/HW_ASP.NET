@@ -86,7 +86,7 @@ public class MeetingServices
     public async Task DeleteMany(List<int> ids)
     {
         var meetings = await _context.Meetings
-            .Where(x => ids.Contains(x.Id))
+            .Where(x => ids.Contains(x.MeetingId))
             .ToListAsync();
 
         _context.Meetings.RemoveRange(meetings);

@@ -78,7 +78,7 @@ public class MeetingsController : ControllerBase
         int id,
         Meeting meeting)
     {
-        if (id != meeting.Id)
+        if (id != meeting.MeetingId)
             return BadRequest();
 
         await _service.Update(meeting);

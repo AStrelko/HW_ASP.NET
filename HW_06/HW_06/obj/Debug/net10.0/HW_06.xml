@@ -1,0 +1,145 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>HW_06</name>
+    </assembly>
+    <members>
+        <member name="M:HW_06.Controllers.MeetingControllersDTO.GetMeetings(HW_06.Services.MeetingFilter)">
+            <summary>
+            Отримання списку зустрічей.
+            Підтримує пошук, сортування, фільтрацію та пагінацію.
+            </summary>
+            <param name="filter">Параметри пошуку, сортування та пагінації.</param>
+            <returns>Список зустрічей у скороченому вигляді.</returns>
+        </member>
+        <member name="M:HW_06.Controllers.MeetingControllersDTO.GetById(System.Int32)">
+            <summary>
+            Отримання детальної інформації про зустріч за її ідентифікатором.
+            </summary>
+            <param name="id">Ідентифікатор зустрічі.</param>
+            <returns>Повна інформація про зустріч.</returns>
+        </member>
+        <member name="M:HW_06.Controllers.MeetingControllersDTO.Create(HW_06.DTOs.Meeting.MeetingcreateDTO)">
+            <summary>
+            Створення нової зустрічі.
+            До зустрічі можна одразу прив'язати кімнату та учасників.
+            </summary>
+            <param name="dto">Дані нової зустрічі.</param>
+            <returns>Результат створення зустрічі.</returns>
+        </member>
+        <member name="M:HW_06.Controllers.MeetingControllersDTO.Update(System.Int32,HW_06.DTOs.Meeting.MeetingupdateDTO)">
+            <summary>
+            Повне оновлення зустрічі.
+            </summary>
+            <param name="id">Ідентифікатор зустрічі.</param>
+            <param name="dto">Нові дані зустрічі.</param>
+            <returns>Результат оновлення.</returns>
+        </member>
+        <member name="M:HW_06.Controllers.MeetingControllersDTO.PartialUpdate(System.Int32,HW_06.DTOs.Meeting.MeetingpartialUpdateDTO)">
+            <summary>
+            Часткове оновлення зустрічі.
+            </summary>
+            <param name="id">Ідентифікатор зустрічі.</param>
+            <param name="dto">Поля, які необхідно оновити.</param>
+            <returns>Результат часткового оновлення.</returns>
+        </member>
+        <member name="M:HW_06.Controllers.MeetingControllersDTO.Delete(System.Int32)">
+            <summary>
+            Видалення зустрічі за її ідентифікатором.
+            </summary>
+            <param name="id">Ідентифікатор зустрічі.</param>
+            <returns>Результат видалення.</returns>
+        </member>
+        <member name="M:HW_06.Controllers.MeetingControllersDTO.GetByParticipant(System.Int32)">
+            <summary>
+            Отримання всіх зустрічей конкретного учасника.
+            </summary>
+            <param name="participantId">Ідентифікатор учасника.</param>
+        </member>
+        <member name="T:HW_06.Migrations.Initial">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.Initial.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.Initial.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.Initial.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HW_06.Migrations.AddMeetingConfiguration">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddMeetingConfiguration.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddMeetingConfiguration.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddMeetingConfiguration.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HW_06.Migrations.AddRelations">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddRelations.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddRelations.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddRelations.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:Program">
+            <summary>
+            Auto-generated public partial Program class for top-level statement apps.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Type)">
+            <summary>
+            Generates a documentation comment ID for a type.
+            Example: T:Namespace.Outer+Inner`1 becomes T:Namespace.Outer.Inner`1
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Reflection.PropertyInfo)">
+            <summary>
+            Generates a documentation comment ID for a property.
+            Example: P:Namespace.ContainingType.PropertyName or for an indexer P:Namespace.ContainingType.Item(System.Int32)
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Type,System.String)">
+            <summary>
+            Generates a documentation comment ID for a property given its container type and property name.
+            Example: P:Namespace.ContainingType.PropertyName
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Reflection.MethodInfo)">
+            <summary>
+            Generates a documentation comment ID for a method (or constructor).
+            For example:
+              M:Namespace.ContainingType.MethodName(ParamType1,ParamType2)~ReturnType
+              M:Namespace.ContainingType.#ctor(ParamType)
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.GetTypeDocId(System.Type,System.Boolean,System.Boolean)">
+            <summary>
+            Generates a documentation ID string for a type.
+            This method handles nested types (replacing '+' with '.'),
+            generic types, arrays, pointers, by-ref types, and generic parameters.
+            The <paramref name="includeGenericArguments"/> flag controls whether
+            constructed generic type arguments are emitted, while <paramref name="omitGenericArity"/>
+            controls whether the generic arity marker (e.g. "`1") is appended.
+            </summary>
+        </member>
+        <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.NormalizeDocId(System.String)">
+            <summary>
+            Normalizes a documentation comment ID to match the compiler-style format.
+            Strips the return type suffix for ordinary methods but retains it for conversion operators.
+            </summary>
+            <param name="docId">The documentation comment ID to normalize.</param>
+            <returns>The normalized documentation comment ID.</returns>
+        </member>
+    </members>
+</doc>

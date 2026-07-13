@@ -11,4 +11,8 @@ public class CreateMeetingRequest
     public int? Days { get; set; }
 
     public int? Count { get; set; }
+    
+    public int? RoomId { get; set; }
+    
+    public List<int> ParticipantIds { get; set; } = new();
 }
