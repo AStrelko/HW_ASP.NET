@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("OnlineStoreLes02Lab.Storage")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+652f07586bffeaa7a9b62609ba9d1725d4b4772b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+042601100625e7cb5005251ab1dbaa990d281c83")]
 [assembly: System.Reflection.AssemblyProductAttribute("OnlineStoreLes02Lab.Storage")]
 [assembly: System.Reflection.AssemblyTitleAttribute("OnlineStoreLes02Lab.Storage")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

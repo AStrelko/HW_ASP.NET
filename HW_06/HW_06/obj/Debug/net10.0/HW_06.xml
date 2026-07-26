@@ -4,102 +4,777 @@
         <name>HW_06</name>
     </assembly>
     <members>
-        <member name="M:HW_06.Controllers.MeetingControllersDTO.GetMeetings(HW_06.Services.MeetingFilter)">
+        <member name="T:HW_06.Controllers.V1.MeetingControllers">
+            <summary>
+            Перша версія API для базового керування зустрічами.
+            </summary>
+        </member>
+        <member name="M:HW_06.Controllers.V1.MeetingControllers.GetMeetings">
+            <summary>
+            Отримання списку зустрічей.
+            </summary>
+        </member>
+        <member name="M:HW_06.Controllers.V1.MeetingControllers.GetById(System.Int32)">
+            <summary>
+            Отримання зустрічі за ідентифікатором.
+            </summary>
+        </member>
+        <member name="M:HW_06.Controllers.V1.MeetingControllers.Create(HW_06.DTOs.MeetingDTO.MeetingCreateDTO)">
+            <summary>
+            Створення нової зустрічі.
+            </summary>
+        </member>
+        <member name="M:HW_06.Controllers.V1.MeetingControllers.Update(System.Int32,HW_06.DTOs.MeetingDTO.MeetingUpdateDTO)">
+            <summary>
+            Повне оновлення зустрічі.
+            </summary>
+        </member>
+        <member name="M:HW_06.Controllers.V1.MeetingControllers.Delete(System.Int32)">
+            <summary>
+            Видалення зустрічі.
+            </summary>
+        </member>
+        <member name="T:HW_06.Controllers.MeetingControllersDTO">
+            <summary>
+            Контролер для керування зустрічами.
+            Надає CRUD-операції, пошук, сортування, фільтрацію,
+            пагінацію та отримання зустрічей за учасником.
+            </summary>
+        </member>
+        <member name="M:HW_06.Controllers.MeetingControllersDTO.GetMeetings(HW_06.Helpers.QueryParameters.MeetingFilter,HW_06.Helpers.QueryParameters.MeetingQueryParameters)">
             <summary>
             Отримання списку зустрічей.
             Підтримує пошук, сортування, фільтрацію та пагінацію.
             </summary>
-            <param name="filter">Параметри пошуку, сортування та пагінації.</param>
-            <returns>Список зустрічей у скороченому вигляді.</returns>
+            <param name="filter">Параметри фільтрації зустрічей.</param>
+            <param name="parameters">
+            Параметри пошуку, сортування та пагінації.
+            </param>
+            <returns>Сторінка зі списком зустрічей.</returns>
         </member>
         <member name="M:HW_06.Controllers.MeetingControllersDTO.GetById(System.Int32)">
             <summary>
-            Отримання детальної інформації про зустріч за її ідентифікатором.
+            Отримання детальної інформації про зустріч.
             </summary>
             <param name="id">Ідентифікатор зустрічі.</param>
             <returns>Повна інформація про зустріч.</returns>
         </member>
-        <member name="M:HW_06.Controllers.MeetingControllersDTO.Create(HW_06.DTOs.Meeting.MeetingcreateDTO)">
+        <member name="M:HW_06.Controllers.MeetingControllersDTO.Create(HW_06.DTOs.MeetingDTO.MeetingCreateDTO)">
             <summary>
             Створення нової зустрічі.
-            До зустрічі можна одразу прив'язати кімнату та учасників.
             </summary>
             <param name="dto">Дані нової зустрічі.</param>
-            <returns>Результат створення зустрічі.</returns>
+            <returns>Створена зустріч.</returns>
         </member>
-        <member name="M:HW_06.Controllers.MeetingControllersDTO.Update(System.Int32,HW_06.DTOs.Meeting.MeetingupdateDTO)">
+        <member name="M:HW_06.Controllers.MeetingControllersDTO.Update(System.Int32,HW_06.DTOs.MeetingDTO.MeetingUpdateDTO)">
             <summary>
             Повне оновлення зустрічі.
             </summary>
-            <param name="id">Ідентифікатор зустрічі.</param>
-            <param name="dto">Нові дані зустрічі.</param>
-            <returns>Результат оновлення.</returns>
+            <param name="id">
+            Ідентифікатор зустрічі.
+            </param>
+            <param name="dto">
+            Нові дані зустрічі.
+            </param>
+            <returns>
+            Результат виконання операції оновлення.
+            </returns>
+            <response code="204">
+            Зустріч успішно оновлено.
+            </response>
+            <response code="400">
+            Передані дані не пройшли перевірку.
+            </response>
+            <response code="404">
+            Зустріч із зазначеним ідентифікатором не знайдено.
+            </response>
         </member>
-        <member name="M:HW_06.Controllers.MeetingControllersDTO.PartialUpdate(System.Int32,HW_06.DTOs.Meeting.MeetingpartialUpdateDTO)">
+        <member name="M:HW_06.Controllers.MeetingControllersDTO.PartialUpdate(System.Int32,HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO)">
             <summary>
             Часткове оновлення зустрічі.
             </summary>
-            <param name="id">Ідентифікатор зустрічі.</param>
-            <param name="dto">Поля, які необхідно оновити.</param>
-            <returns>Результат часткового оновлення.</returns>
+            <param name="id">
+            Ідентифікатор зустрічі.
+            </param>
+            <param name="dto">
+            Поля зустрічі, які необхідно оновити.
+            </param>
+            <returns>
+            Результат виконання операції часткового оновлення.
+            </returns>
+            <response code="204">
+            Зустріч успішно оновлено.
+            </response>
+            <response code="400">
+            Передані дані не пройшли перевірку.
+            </response>
+            <response code="404">
+            Зустріч із зазначеним ідентифікатором не знайдено.
+            </response>
         </member>
         <member name="M:HW_06.Controllers.MeetingControllersDTO.Delete(System.Int32)">
             <summary>
-            Видалення зустрічі за її ідентифікатором.
+            Видалення зустрічі за ідентифікатором.
             </summary>
-            <param name="id">Ідентифікатор зустрічі.</param>
-            <returns>Результат видалення.</returns>
+            <param name="id">
+            Ідентифікатор зустрічі.
+            </param>
+            <returns>
+            Результат виконання операції видалення.
+            </returns>
+            <response code="204">
+            Зустріч успішно видалено.
+            </response>
+            <response code="404">
+            Зустріч із зазначеним ідентифікатором не знайдено.
+            </response>
+        </member>
+        <member name="M:HW_06.Controllers.MeetingControllersDTO.DeleteMany(System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Видалення декількох зустрічей.
+            </summary>
+            <param name="ids">Список ідентифікаторів зустрічей.</param>
+            <returns>Кількість видалених зустрічей.</returns>
         </member>
         <member name="M:HW_06.Controllers.MeetingControllersDTO.GetByParticipant(System.Int32)">
             <summary>
-            Отримання всіх зустрічей конкретного учасника.
+            Отримання зустрічей конкретного учасника.
             </summary>
-            <param name="participantId">Ідентифікатор учасника.</param>
+            <param name="participantId">
+            Ідентифікатор учасника.
+            </param>
+            <returns>Список зустрічей учасника.</returns>
         </member>
-        <member name="M:HW_06.Controllers.ParticipantControllersDTO.GetParticipants">
+        <member name="T:HW_06.Controllers.ParticipantControllersDTO">
             <summary>
-            Отримання списку всіх учасників.
+            Контролер для керування учасниками зустрічей.
+            Надає CRUD-операції, пошук, сортування,
+            пагінацію та отримання зустрічей учасника.
             </summary>
+        </member>
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.GetParticipants(HW_06.Helpers.QueryParameters.ParticipantQueryParameters)">
+            <summary>
+            Отримання списку учасників.
+            Підтримує пошук, сортування та пагінацію.
+            </summary>
+            <param name="parameters">
+            Параметри пошуку, сортування та пагінації.
+            </param>
+            <returns>Сторінка зі списком учасників.</returns>
         </member>
         <member name="M:HW_06.Controllers.ParticipantControllersDTO.GetById(System.Int32)">
             <summary>
-            Отримання інформації про учасника за його ідентифікатором.
+            Отримання детальної інформації про учасника.
             </summary>
-            <param name="id">Ідентифікатор учасника.</param>
-            <returns>Інформація про учасника.</returns>
+            <param name="id">
+            Ідентифікатор учасника.
+            </param>
+            <returns>
+            Повна інформація про учасника та його зустрічі.
+            </returns>
+            <response code="200">
+            Інформацію про учасника успішно отримано.
+            </response>
+            <response code="404">
+            Учасника із зазначеним ідентифікатором не знайдено.
+            </response>
         </member>
-        <member name="M:HW_06.Controllers.ParticipantControllersDTO.Create(HW_06.DTOs.Participant.ParticipantCreateDTO)">
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.Create(HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO)">
             <summary>
             Створення нового учасника.
             </summary>
-            <param name="dto">Дані нового учасника.</param>
+            <param name="dto">
+            Дані нового учасника.
+            </param>
+            <returns>
+            Створений учасник.
+            </returns>
+            <response code="201">
+            Учасника успішно створено.
+            </response>
+            <response code="400">
+            Передані дані не пройшли перевірку.
+            </response>
         </member>
-        <member name="M:HW_06.Controllers.ParticipantControllersDTO.Update(System.Int32,HW_06.DTOs.Participant.ParticipantUpdateDTO)">
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.Update(System.Int32,HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO)">
             <summary>
             Повне оновлення інформації про учасника.
             </summary>
             <param name="id">Ідентифікатор учасника.</param>
             <param name="dto">Нові дані учасника.</param>
         </member>
-        <member name="M:HW_06.Controllers.ParticipantControllersDTO.PartialUpdate(System.Int32,HW_06.DTOs.Participant.ParticipantPartialUpdateDTO)">
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.PartialUpdate(System.Int32,HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO)">
             <summary>
             Часткове оновлення інформації про учасника.
             </summary>
             <param name="id">Ідентифікатор учасника.</param>
-            <param name="dto">Поля для оновлення.</param>
-        </member>
-        <member name="M:HW_06.Controllers.ParticipantControllersDTO.GetByParticipant(System.Int32)">
-            <summary>
-            Отримання всіх зустрічей, у яких бере участь вказаний учасник.
-            </summary>
-            <param name="participantId">Ідентифікатор учасника.</param>
-            <returns>Список зустрічей.</returns>
+            <param name="dto">Поля, які необхідно оновити.</param>
         </member>
         <member name="M:HW_06.Controllers.ParticipantControllersDTO.Delete(System.Int32)">
             <summary>
             Видалення учасника.
             </summary>
             <param name="id">Ідентифікатор учасника.</param>
+        </member>
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.DeleteMany(System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Видалення декількох учасників.
+            </summary>
+            <param name="ids">Список ідентифікаторів учасників.</param>
+            <returns>Кількість видалених учасників.</returns>
+        </member>
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.GetMeetings(System.Int32)">
+            <summary>
+            Отримання зустрічей, у яких бере участь
+            вказаний учасник.
+            </summary>
+            <param name="id">Ідентифікатор учасника.</param>
+            <returns>Список зустрічей учасника.</returns>
+        </member>
+        <member name="T:HW_06.DataContext">
+            <summary>
+            Контекст бази даних застосунку.
+            Містить набори сутностей та конфігурацію зв'язків між ними.
+            </summary>
+        </member>
+        <member name="T:HW_06.DTOs.MeetingDTO.MeetingCreateDTO">
+            <summary>
+            DTO для створення нової зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingCreateDTO.Title">
+            <summary>
+            Назва зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingCreateDTO.Description">
+            <summary>
+            Опис або порядок денний зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingCreateDTO.DateTime">
+            <summary>
+            Дата та час проведення зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingCreateDTO.RoomId">
+            <summary>
+            Ідентифікатор кімнати, у якій відбудеться зустріч.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingCreateDTO.ParticipantIds">
+            <summary>
+            Список ідентифікаторів учасників, яких необхідно додати до зустрічі.
+            </summary>
+        </member>
+        <member name="T:HW_06.DTOs.MeetingDTO.MeetingDetailDTO">
+            <summary>
+            DTO з детальною інформацією про зустріч.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingDetailDTO.MeetingId">
+            <summary>
+            Унікальний ідентифікатор зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingDetailDTO.Title">
+            <summary>
+            Назва зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingDetailDTO.Description">
+            <summary>
+            Опис або порядок денний зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingDetailDTO.DateTime">
+            <summary>
+            Дата та час проведення зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingDetailDTO.RoomNumber">
+            <summary>
+            Номер кімнати, у якій проводиться зустріч.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingDetailDTO.Participants">
+            <summary>
+            Список учасників зустрічі.
+            </summary>
+        </member>
+        <member name="T:HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO">
+            <summary>
+            DTO для часткового оновлення інформації про зустріч.
+            Усі поля є необов'язковими.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO.Title">
+            <summary>
+            Нова назва зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO.Description">
+            <summary>
+            Новий опис або порядок денний зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO.DateTime">
+            <summary>
+            Нова дата та час проведення зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO.RoomId">
+            <summary>
+            Новий ідентифікатор кімнати.
+            </summary>
+        </member>
+        <member name="T:HW_06.DTOs.MeetingDTO.MeetingReadDTO">
+            <summary>
+            DTO з короткою інформацією про зустріч.
+            Використовується для відображення списку зустрічей.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingReadDTO.MeetingId">
+            <summary>
+            Унікальний ідентифікатор зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingReadDTO.Title">
+            <summary>
+            Назва зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingReadDTO.DateTime">
+            <summary>
+            Дата та час проведення зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingReadDTO.RoomNumber">
+            <summary>
+            Номер кімнати, у якій проводиться зустріч.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingReadDTO.ParticipantsCount">
+            <summary>
+            Кількість учасників зустрічі.
+            </summary>
+        </member>
+        <member name="T:HW_06.DTOs.MeetingDTO.MeetingUpdateDTO">
+            <summary>
+            DTO для повного оновлення інформації про зустріч.
+            Усі поля є обов'язковими, окрім ідентифікатора кімнати.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingUpdateDTO.MeetingId">
+            <summary>
+            Унікальний ідентифікатор зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingUpdateDTO.Title">
+            <summary>
+            Назва зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingUpdateDTO.Description">
+            <summary>
+            Опис або порядок денний зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingUpdateDTO.DateTime">
+            <summary>
+            Дата та час проведення зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingUpdateDTO.RoomId">
+            <summary>
+            Ідентифікатор кімнати, у якій проводиться зустріч.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingUpdateDTO.ParticipantIds">
+            <summary>
+            Список ідентифікаторів учасників зустрічі.
+            </summary>
+        </member>
+        <member name="T:HW_06.DTOs.MeetingDTO.ParticipantDTO">
+            <summary>
+            DTO з інформацією про учасника зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.ParticipantDTO.ParticipantId">
+            <summary>
+            Унікальний ідентифікатор учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.ParticipantDTO.FirstName">
+            <summary>
+            Ім'я учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.ParticipantDTO.LastName">
+            <summary>
+            Прізвище учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.ParticipantDTO.Email">
+            <summary>
+            Адреса електронної пошти учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.ParticipantDTO.Role">
+            <summary>
+            Роль учасника під час зустрічі.
+            </summary>
+        </member>
+        <member name="T:HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO">
+            <summary>
+            DTO для створення нового учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO.FirstName">
+            <summary>
+            Ім'я учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO.LastName">
+            <summary>
+            Прізвище учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO.Email">
+            <summary>
+            Адреса електронної пошти учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO.Role">
+            <summary>
+            Роль учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO.MeetingIds">
+            <summary>
+            Список MeetingIds
+            </summary>
+        </member>
+        <member name="T:HW_06.DTOs.ParticipantDTO.ParticipantDetailDTO">
+            <summary>
+            DTO з детальною інформацією про учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantDetailDTO.ParticipantId">
+            <summary>
+            Ідентифікатор учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantDetailDTO.FirstName">
+            <summary>
+            Ім'я.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantDetailDTO.LastName">
+            <summary>
+            Прізвище.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantDetailDTO.Email">
+            <summary>
+            Електронна пошта.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantDetailDTO.Role">
+            <summary>
+            Роль учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantDetailDTO.Meetings">
+            <summary>
+            Список зустрічей учасника.
+            </summary>
+        </member>
+        <member name="T:HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO">
+            <summary>
+            DTO для часткового оновлення інформації про учасника.
+            Усі поля є необов'язковими.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO.FirstName">
+            <summary>
+            Нове ім'я учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO.LastName">
+            <summary>
+            Нове прізвище учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO.Email">
+            <summary>
+            Нова адреса електронної пошти учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO.Role">
+            <summary>
+            Нова роль учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO.MeetingIds">
+            <summary>
+            Новий повний список ідентифікаторів зустрічей.
+            Null означає, що зв'язки змінювати не потрібно.
+            </summary>
+        </member>
+        <member name="T:HW_06.DTOs.ParticipantDTO.ParticipantReadDTO">
+            <summary>
+            DTO з короткою інформацією про учасника.
+            Використовується для відображення списку учасників.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantReadDTO.ParticipantId">
+            <summary>
+            Унікальний ідентифікатор учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantReadDTO.FirstName">
+            <summary>
+            Ім'я учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantReadDTO.LastName">
+            <summary>
+            Прізвище учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantReadDTO.Email">
+            <summary>
+            Адреса електронної пошти учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantReadDTO.Role">
+            <summary>
+            Роль учасника під час зустрічі.
+            </summary>
+        </member>
+        <member name="T:HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO">
+            <summary>
+            DTO для повного оновлення інформації про учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO.ParticipantId">
+            <summary>
+            Унікальний ідентифікатор учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO.FirstName">
+            <summary>
+            Ім'я учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO.LastName">
+            <summary>
+            Прізвище учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO.Email">
+            <summary>
+            Адреса електронної пошти учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO.Role">
+            <summary>
+            Роль учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO.MeetingIds">
+            <summary>
+            Повний список ідентифікаторів зустрічей учасника.
+            </summary>
+        </member>
+        <member name="T:HW_06.Helpers.Pagination.PagedResult`1">
+            <summary>
+            Результат запиту з пагінацією.
+            </summary>
+        </member>
+        <member name="M:HW_06.Helpers.Pagination.PagedResult`1.#ctor(System.Collections.Generic.IEnumerable{`0},System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Результат запиту з пагінацією.
+            </summary>
+        </member>
+        <member name="P:HW_06.Helpers.Pagination.PagedResult`1.TotalPages">
+            <summary>
+            Загальна кількість сторінок.
+            </summary>
+        </member>
+        <member name="P:HW_06.Helpers.Pagination.PagedResult`1.HasPreviousPage">
+            <summary>
+            Чи існує попередня сторінка.
+            </summary>
+        </member>
+        <member name="P:HW_06.Helpers.Pagination.PagedResult`1.HasNextPage">
+            <summary>
+            Чи існує наступна сторінка.
+            </summary>
+        </member>
+        <member name="T:HW_06.Helpers.Pagination.PaginationHelper">
+            <summary>
+            Допоміжні методи для пагінації запитів.
+            </summary>
+        </member>
+        <member name="M:HW_06.Helpers.Pagination.PaginationHelper.ToPagedResultAsync``2(System.Linq.IQueryable{``0},System.Int32,System.Int32,AutoMapper.IMapper)">
+            <summary>
+            Перетворює запит на результат із пагінацією
+            та виконує перетворення сутностей у DTO.
+            </summary>
+            <typeparam name="TEntity">
+            Тип сутності бази даних.
+            </typeparam>
+            <typeparam name="TDto">
+            Тип DTO, який повертається клієнту.
+            </typeparam>
+            <param name="query">Запит до бази даних.</param>
+            <param name="pageNumber">Номер сторінки.</param>
+            <param name="pageSize">
+            Кількість елементів на сторінці.
+            </param>
+            <param name="mapper">Екземпляр AutoMapper.</param>
+            <returns>Результат із пагінацією.</returns>
+        </member>
+        <member name="T:HW_06.Helpers.Queryable.MeetingQueryableExtension">
+            <summary>
+            Методи розширення для фільтрації запитів зустрічей.
+            </summary>
+        </member>
+        <member name="M:HW_06.Helpers.Queryable.MeetingQueryableExtension.ApplyFilter(System.Linq.IQueryable{HW_06.Models.Meeting},HW_06.Helpers.QueryParameters.MeetingFilter)">
+            <summary>
+            Застосовує фільтри за датою та номером кімнати.
+            </summary>
+            <param name="query">Запит зустрічей.</param>
+            <param name="filter">Параметри фільтрації.</param>
+            <returns>Відфільтрований запит.</returns>
+        </member>
+        <member name="T:HW_06.Helpers.Queryable.MeetingSortingExtensions">
+            <summary>
+            Розширення для пошуку та сортування зустрічей.
+            </summary>
+        </member>
+        <member name="M:HW_06.Helpers.Queryable.MeetingSortingExtensions.ApplySearch(System.Linq.IQueryable{HW_06.Models.Meeting},System.String)">
+            <summary>
+            Застосовує пошук за назвою зустрічі.
+            </summary>
+            <param name="query">Запит зустрічей.</param>
+            <param name="search">Рядок пошуку.</param>
+            <returns>Запит із застосованим пошуком.</returns>
+        </member>
+        <member name="M:HW_06.Helpers.Queryable.MeetingSortingExtensions.ApplySorting(System.Linq.IQueryable{HW_06.Models.Meeting},HW_06.Helpers.QueryParameters.MeetingQueryParameters)">
+            <summary>
+            Застосовує сортування зустрічей.
+            </summary>
+            <param name="query">Запит зустрічей.</param>
+            <param name="parameters">
+            Параметри сортування.
+            </param>
+            <returns>Відсортований запит.</returns>
+        </member>
+        <member name="T:HW_06.Helpers.Queryable.ParticipantQueryableExtensions">
+            <summary>
+            Методи розширення для пошуку та сортування учасників.
+            </summary>
+        </member>
+        <member name="M:HW_06.Helpers.Queryable.ParticipantQueryableExtensions.ApplySearch(System.Linq.IQueryable{HW_06.Models.Participant},System.String)">
+            <summary>
+            Застосовує пошук учасників за прізвищем.
+            </summary>
+        </member>
+        <member name="M:HW_06.Helpers.Queryable.ParticipantQueryableExtensions.ApplySorting(System.Linq.IQueryable{HW_06.Models.Participant},HW_06.Helpers.QueryParameters.ParticipantQueryParameters)">
+            <summary>
+            Застосовує сортування учасників.
+            </summary>
+        </member>
+        <member name="T:HW_06.Helpers.QueryParameters.MeetingFilter">
+            <summary>
+            Фільтр для пошуку зустрічей.
+            Використовується для відбору записів за певними умовами.
+            </summary>
+        </member>
+        <member name="P:HW_06.Helpers.QueryParameters.MeetingFilter.StartTime">
+            <summary>
+            Початкова дата проведення зустрічей.
+            </summary>
+        </member>
+        <member name="P:HW_06.Helpers.QueryParameters.MeetingFilter.EndTime">
+            <summary>
+            Кінцева дата проведення зустрічей.
+            </summary>
+        </member>
+        <member name="P:HW_06.Helpers.QueryParameters.MeetingFilter.RoomNumber">
+            <summary>
+            Номер кімнати.
+            </summary>
+        </member>
+        <member name="T:HW_06.Helpers.QueryParameters.MeetingQueryParameters">
+            <summary>
+            Параметри запиту для отримання списку зустрічей.
+            Містять налаштування пагінації, пошуку та сортування.
+            </summary>
+        </member>
+        <member name="P:HW_06.Helpers.QueryParameters.MeetingQueryParameters.Page">
+            <summary>
+            Номер сторінки.
+            </summary>
+        </member>
+        <member name="P:HW_06.Helpers.QueryParameters.MeetingQueryParameters.PageSize">
+            <summary>
+            Кількість записів на сторінці.
+            </summary>
+        </member>
+        <member name="P:HW_06.Helpers.QueryParameters.MeetingQueryParameters.Search">
+            <summary>
+            Пошук за назвою зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Helpers.QueryParameters.MeetingQueryParameters.SortBy">
+            <summary>
+            Поле сортування.
+            </summary>
+        </member>
+        <member name="P:HW_06.Helpers.QueryParameters.MeetingQueryParameters.Descending">
+            <summary>
+            Сортувати у зворотному порядку.
+            </summary>
+        </member>
+        <member name="T:HW_06.Helpers.QueryParameters.ParticipantQueryParameters">
+            <summary>
+            Параметри запиту для отримання списку учасників.
+            Містять налаштування пагінації, пошуку та сортування.
+            </summary>
+        </member>
+        <member name="P:HW_06.Helpers.QueryParameters.ParticipantQueryParameters.Page">
+            <summary>
+            Номер сторінки.
+            </summary>
+        </member>
+        <member name="P:HW_06.Helpers.QueryParameters.ParticipantQueryParameters.PageSize">
+            <summary>
+            Кількість записів на сторінці.
+            </summary>
+        </member>
+        <member name="P:HW_06.Helpers.QueryParameters.ParticipantQueryParameters.SearchLastName">
+            <summary>
+            Пошук за прізвищем.
+            </summary>
+        </member>
+        <member name="P:HW_06.Helpers.QueryParameters.ParticipantQueryParameters.SortBy">
+            <summary>
+            Поле для сортування.
+            </summary>
+        </member>
+        <member name="P:HW_06.Helpers.QueryParameters.ParticipantQueryParameters.Descending">
+            <summary>
+            Використовувати сортування у зворотному порядку.
+            </summary>
+        </member>
+        <member name="T:HW_06.Helpers.SeedData">
+            <summary>
+            Клас для заповнення бази даних тестовими даними.
+            </summary>
         </member>
         <member name="T:HW_06.Migrations.Initial">
             <inheritdoc />
@@ -136,6 +811,272 @@
         </member>
         <member name="M:HW_06.Migrations.AddRelations.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
+        </member>
+        <member name="T:HW_06.Models.CreateMeetingRequest">
+            <summary>
+            Модель запиту для створення нової зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.CreateMeetingRequest.Title">
+            <summary>
+            Назва зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.CreateMeetingRequest.Description">
+            <summary>
+            Опис або порядок денний зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.CreateMeetingRequest.DateTime">
+            <summary>
+            Дата та час проведення зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.CreateMeetingRequest.Days">
+            <summary>
+            Кількість днів для створення повторюваних зустрічей.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.CreateMeetingRequest.Count">
+            <summary>
+            Кількість зустрічей, які потрібно створити.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.CreateMeetingRequest.RoomId">
+            <summary>
+            Ідентифікатор кімнати, у якій відбудеться зустріч.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.CreateMeetingRequest.ParticipantIds">
+            <summary>
+            Список ідентифікаторів учасників зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Meeting.MeetingId">
+            <summary>
+            Id зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Meeting.Title">
+            <summary>
+            Назва зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Meeting.Description">
+            <summary>
+            Опис зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Meeting.DateTime">
+            <summary>
+            Дата та час зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Meeting.RoomId">
+            <summary>
+            Id кімнати зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Meeting.Room">
+            <summary>
+            Номер кімнати зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Meeting.MeetingParticipants">
+            <summary>
+            Учасники зустрічі.
+            </summary>
+        </member>
+        <member name="T:HW_06.Models.MeetingParticipant">
+            <summary>
+            Проміжна сутність для зв'язку "багато-до-багатьох"
+            між зустрічами та учасниками.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.MeetingParticipant.ParticipantId">
+            <summary>
+            Ідентифікатор учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.MeetingParticipant.MeetingId">
+            <summary>
+            Ідентифікатор зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.MeetingParticipant.Participant">
+            <summary>
+            Навігаційна властивість до учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.MeetingParticipant.Meeting">
+            <summary>
+            Навігаційна властивість до зустрічі.
+            </summary>
+        </member>
+        <member name="T:HW_06.Models.Participant">
+            <summary>
+            Модель учасника зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Participant.ParticipantId">
+            <summary>
+            Унікальний ідентифікатор учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Participant.FirstName">
+            <summary>
+            Ім'я учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Participant.LastName">
+            <summary>
+            Прізвище учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Participant.Email">
+            <summary>
+            Адреса електронної пошти учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Participant.Role">
+            <summary>
+            Роль учасника під час зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Participant.MeetingParticipants">
+            <summary>
+            Колекція зв'язків між учасником та зустрічами.
+            </summary>
+        </member>
+        <member name="T:HW_06.Models.Room">
+            <summary>
+            Модель кімнати, у якій проводяться зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Room.RoomId">
+            <summary>
+            Унікальний ідентифікатор кімнати.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Room.NumberRoom">
+            <summary>
+            Номер кімнати.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Room.Meetings">
+            <summary>
+            Навігаційна колекція зустрічей, що проводяться в кімнаті.
+            </summary>
+        </member>
+        <member name="T:HW_06.Profile.MeetingMappingProfile">
+            <summary>
+            Профіль AutoMapper для мапінгу моделей Meeting та Participant
+            у відповідні DTO та навпаки.
+            </summary>
+        </member>
+        <member name="T:HW_06.Services.Interfaces.IMeetingService">
+            <summary>
+            Сервіс для роботи із зустрічами.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IMeetingService.GetAllAsync(HW_06.Helpers.QueryParameters.MeetingFilter,HW_06.Helpers.QueryParameters.MeetingQueryParameters)">
+            <summary>
+            Отримати список зустрічей.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IMeetingService.GetByIdAsync(System.Int32)">
+            <summary>
+            Отримати зустріч за ідентифікатором.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IMeetingService.CreateAsync(HW_06.DTOs.MeetingDTO.MeetingCreateDTO)">
+            <summary>
+            Створити нову зустріч.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IMeetingService.UpdateAsync(System.Int32,HW_06.DTOs.MeetingDTO.MeetingUpdateDTO)">
+            <summary>
+            Повністю оновити зустріч.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IMeetingService.PartialUpdateAsync(System.Int32,HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO)">
+            <summary>
+            Частково оновити зустріч.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IMeetingService.DeleteAsync(System.Int32)">
+            <summary>
+            Видалити зустріч.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IMeetingService.DeleteManyAsync(System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Видалити декілька зустрічей.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IMeetingService.GetByParticipantAsync(System.Int32)">
+            <summary>
+            Отримати всі зустрічі учасника.
+            </summary>
+        </member>
+        <member name="T:HW_06.Services.Interfaces.IParticipantService">
+            <summary>
+            Сервіс для роботи з учасниками.
+            Забезпечує створення, отримання, оновлення,
+            видалення та пошук учасників.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IParticipantService.GetAllAsync(HW_06.Helpers.QueryParameters.ParticipantQueryParameters)">
+            <summary>
+            Отримати список учасників
+            з підтримкою пагінації, пошуку та сортування.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IParticipantService.GetByIdAsync(System.Int32)">
+            <summary>
+            Отримати учасника за його ідентифікатором.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IParticipantService.CreateAsync(HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO)">
+            <summary>
+            Створити нового учасника.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IParticipantService.UpdateAsync(System.Int32,HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO)">
+            <summary>
+            Повністю оновити інформацію про учасника.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IParticipantService.PartialUpdateAsync(System.Int32,HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO)">
+            <summary>
+            Частково оновити інформацію про учасника.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IParticipantService.DeleteAsync(System.Int32)">
+            <summary>
+            Видалити учасника.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IParticipantService.DeleteManyAsync(System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Видалити декількох учасників.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IParticipantService.GetMeetingsAsync(System.Int32)">
+            <summary>
+            Отримати список зустрічей,
+            у яких бере участь користувач.
+            </summary>
+        </member>
+        <member name="T:HW_06.Services.MeetingService">
+            <summary>
+            Сервіс для роботи із зустрічами.
+            </summary>
+        </member>
+        <member name="T:HW_06.Validators.Exceptions.ValidationException">
+            <summary>
+            Исключение, возникающее при ошибке проверки входных данных.
+            </summary>
         </member>
         <member name="T:Program">
             <summary>

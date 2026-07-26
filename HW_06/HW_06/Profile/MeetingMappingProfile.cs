@@ -1,7 +1,6 @@
-
 using AutoMapper;
-using HW_06.DTOs.Meeting;
-using HW_06.DTOs.Participant;
+using HW_06.DTOs.MeetingDTO;
+using HW_06.DTOs.ParticipantDTO;
 using HW_06.Models;
 
 namespace HW_06.Profile;
@@ -14,18 +13,21 @@ public class MeetingMappingProfile : AutoMapper.Profile
 {
     public MeetingMappingProfile()
     {
-        //// Meeting -> DTO
-        CreateMap<Meeting, MeetingreadDTO>()
-            .ForMember(
-                d => d.RoomNumber,
-                o => o.MapFrom(s => s.Room != null
-                    ? s.Room.NumberRoom
-                    : (int?)null))
-            .ForMember(
-                d => d.ParticipantsCount,
-                o => o.MapFrom(s => s.MeetingParticipants.Count));
+        // Meeting -> DTO
 
-        CreateMap<Meeting, MeetingditeylDTO>()
+        CreateMap<Meeting, MeetingReadDTO>()
+            .ForMember(
+                destination => destination.RoomNumber,
+                options => options.MapFrom(source =>
+                    source.Room != null
+                        ? source.Room.NumberRoom
+                        : (int?)null))
+            .ForMember(
+                destination => destination.ParticipantsCount,
+                options => options.MapFrom(source =>
+                    source.MeetingParticipants.Count));
+
+        CreateMap<Meeting, MeetingDetailDTO>()
             .ForMember(
                 d => d.RoomNumber,
                 o => o.MapFrom(s => s.Room != null
@@ -34,39 +36,64 @@ public class MeetingMappingProfile : AutoMapper.Profile
             .ForMember(
                 d => d.Participants,
                 o => o.MapFrom(s =>
-                    s.MeetingParticipants.Select(mp => mp.Participant)));
+                    s.MeetingParticipants
+                        .Select(mp => mp.Participant)));
 
-        //// Participant -> DTO
+        CreateMap<Meeting, MeetingUpdateDTO>();
+
+        CreateMap<Meeting, MeetingPartialUpdateDTO>();
+
+        // DTO -> Meeting
+
+        CreateMap<MeetingCreateDTO, Meeting>()
+            .ForMember(
+                d => d.MeetingParticipants,
+                o => o.Ignore());
+
+        CreateMap<MeetingUpdateDTO, Meeting>()
+            .ForMember(
+                d => d.MeetingParticipants,
+                o => o.Ignore());
+
+        CreateMap<MeetingPartialUpdateDTO, Meeting>()
+            .ForMember(
+                d => d.MeetingParticipants,
+                o => o.Ignore())
+            .ForAllMembers(options =>
+                options.Condition(
+                    (source, destination, sourceMember) =>
+                        sourceMember != null));
+
+        // Participant -> DTO
+
         CreateMap<Participant, ParticipantDTO>();
-        
-        //// DTO -> Meeting
-        CreateMap<MeetingcreateDTO, Meeting>()
-            .ForMember(
-                d => d.MeetingParticipants,
-                o => o.Ignore());
 
-        CreateMap<MeetingupdateDTO, Meeting>()
-            .ForMember(
-                d => d.MeetingParticipants,
-                o => o.Ignore());
-
-        CreateMap<MeetingpartialUpdateDTO, Meeting>()
-            .ForMember(
-                d => d.MeetingParticipants,
-                o => o.Ignore());
-        
-        //// Meeting -> DTO для редогування
-        CreateMap<Meeting, MeetingupdateDTO>();
-        
-        CreateMap<Meeting, MeetingpartialUpdateDTO>();
-        
         CreateMap<Participant, ParticipantReadDTO>();
 
-        CreateMap<ParticipantCreateDTO, Participant>();
-
-        CreateMap<ParticipantUpdateDTO, Participant>();
-
         CreateMap<Participant, ParticipantUpdateDTO>();
-        
+
+        CreateMap<Participant, ParticipantDetailDTO>()
+            .ForMember(
+                destination => destination.Meetings,
+                options => options.MapFrom(source =>
+                    source.MeetingParticipants
+                        .Select(meetingParticipant =>
+                            meetingParticipant.Meeting)));
+
+        // DTO -> Participant
+
+        CreateMap<ParticipantCreateDTO, Participant>()
+            .ForMember(
+                destination => destination.MeetingParticipants,
+                options => options.Ignore());
+
+        CreateMap<ParticipantPartialUpdateDTO, Participant>()
+            .ForMember(
+                destination => destination.MeetingParticipants,
+                options => options.Ignore())
+            .ForAllMembers(options =>
+                options.Condition(
+                    (source, destination, sourceMember) =>
+                        sourceMember != null));
     }
 }
