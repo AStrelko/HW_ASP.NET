@@ -30,4 +30,9 @@ public record ParticipantReadDTO
     /// Роль учасника під час зустрічі.
     /// </summary>
     public string? Role { get; set; }
+    
+    /// <summary>
+    /// Аватарка учасника
+    /// </summary>
+    public string? AvatarUrl { get; set; }
 }

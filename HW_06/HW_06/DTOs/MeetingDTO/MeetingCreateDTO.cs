@@ -21,9 +21,9 @@ public record MeetingCreateDTO
     public DateTime DateTime { get; set; }
 
     /// <summary>
-    /// Ідентифікатор кімнати, у якій відбудеться зустріч.
+    /// Номер кімнати, у якій відбудеться зустріч.
     /// </summary>
-    public int? RoomId { get; set; }
+    public int? RoomNumber { get; set; }
 
     /// <summary>
     /// Список ідентифікаторів учасників, яких необхідно додати до зустрічі.

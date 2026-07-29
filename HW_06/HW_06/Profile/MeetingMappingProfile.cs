@@ -84,6 +84,12 @@ public class MeetingMappingProfile : AutoMapper.Profile
 
         CreateMap<ParticipantCreateDTO, Participant>()
             .ForMember(
+                destination => destination.ParticipantId,
+                options => options.Ignore())
+            .ForMember(
+                destination => destination.AvatarFileName,
+                options => options.Ignore())
+            .ForMember(
                 destination => destination.MeetingParticipants,
                 options => options.Ignore());
 

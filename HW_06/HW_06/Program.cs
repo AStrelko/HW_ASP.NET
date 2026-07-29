@@ -12,6 +12,7 @@ using HW_06.Validators;
 using HW_06.Validators.MeetingValid;
 using HW_06.Validators.ParticipantValid;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +44,7 @@ builder.Services.AddAutoMapper(typeof(MeetingMappingProfile));
 
 builder.Services.AddScoped<IMeetingService, MeetingService>();
 builder.Services.AddScoped<IParticipantService, ParticipantService>();
+builder.Services.AddSingleton<IFileStorageService, LocalFileStorageService>();
 
 //
 // Meeting validators
@@ -155,6 +157,19 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+var publicFilesPath = Path.Combine(
+    app.Environment.ContentRootPath,
+    "uploads",
+    "PublicFiles");
+
+Directory.CreateDirectory(publicFilesPath);
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(publicFilesPath),
+    RequestPath = "/uploads"
+});
 
 app.MapControllers();
 

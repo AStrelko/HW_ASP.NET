@@ -1,32 +1,39 @@
+using Microsoft.AspNetCore.Http;
+
 namespace HW_06.DTOs.ParticipantDTO;
 
 /// <summary>
-/// DTO для створення нового учасника.
+/// Дані для створення нового учасника.
 /// </summary>
 public record ParticipantCreateDTO
 {
     /// <summary>
-    /// Ім'я учасника.
+    /// Ім’я учасника.
     /// </summary>
-    public string FirstName { get; set; } = "";
+    public string FirstName { get; init; } = string.Empty;
 
     /// <summary>
     /// Прізвище учасника.
     /// </summary>
-    public string LastName { get; set; } = "";
+    public string LastName { get; init; } = string.Empty;
 
     /// <summary>
-    /// Адреса електронної пошти учасника.
+    /// Електронна адреса учасника.
     /// </summary>
-    public string Email { get; set; } = "";
+    public string Email { get; init; } = string.Empty;
 
     /// <summary>
     /// Роль учасника.
     /// </summary>
-    public string? Role { get; set; }
-    
+    public string Role { get; init; } = string.Empty;
+
     /// <summary>
-    /// Список MeetingIds
+    /// Ідентифікатори зустрічей учасника.
     /// </summary>
-    public List<int> MeetingIds { get; set; } = new();
+    public List<int> MeetingIds { get; init; } = [];
+
+    /// <summary>
+    /// Необов’язковий файл аватара.
+    /// </summary>
+    public IFormFile? Avatar { get; init; }
 }

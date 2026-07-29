@@ -34,6 +34,106 @@
             Видалення зустрічі.
             </summary>
         </member>
+        <member name="T:HW_06.Controllers.FilesController">
+            <summary>
+            Контролер для роботи з файлами.
+            Дозволяє завантажувати, замінювати та видаляти аватари.
+            </summary>
+        </member>
+        <member name="F:HW_06.Controllers.FilesController.MaxAvatarSize">
+            <summary>
+            Максимально допустимий розмір аватара — 10 МБ.
+            </summary>
+        </member>
+        <member name="F:HW_06.Controllers.FilesController.AvatarFolder">
+            <summary>
+            Назва каталогу, у якому зберігаються аватари.
+            </summary>
+        </member>
+        <member name="M:HW_06.Controllers.FilesController.#ctor(HW_06.Services.Interfaces.IFileStorageService)">
+            <summary>
+            Ініціалізує контролер для роботи з файлами.
+            </summary>
+            <param name="fileStorage">
+            Сервіс локального зберігання файлів.
+            </param>
+        </member>
+        <member name="M:HW_06.Controllers.FilesController.UploadDemoAvatar(HW_06.DTOs.Files.AvatarUploadDTO,System.Threading.CancellationToken)">
+            <summary>
+            Завантажує новий демонстраційний аватар.
+            </summary>
+            <param name="dto">
+            DTO, що містить файл аватара.
+            </param>
+            <param name="cancellationToken">
+            Токен скасування операції.
+            </param>
+            <returns>
+            Інформація про збережений файл та URL для його перегляду.
+            </returns>
+        </member>
+        <member name="M:HW_06.Controllers.FilesController.ReplaceAvatar(System.String,HW_06.DTOs.Files.AvatarUploadDTO,System.Threading.CancellationToken)">
+            <summary>
+            Замінює існуючий аватар новим файлом.
+            Пошук виконується за серверним ім’ям без розширення.
+            </summary>
+            <remarks>
+            Розширення існуючого файлу визначається автоматично.
+            Новий файл може мати інший формат.
+            </remarks>
+            <param name="baseFileName">
+            Серверне ім’я файлу без розширення.
+            </param>
+            <param name="dto">
+            DTO, що містить новий файл аватара.
+            </param>
+            <param name="cancellationToken">
+            Токен скасування операції.
+            </param>
+            <returns>
+            Інформація про оновлений файл та актуальний URL.
+            </returns>
+        </member>
+        <member name="M:HW_06.Controllers.FilesController.DeleteAvatar(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Видаляє аватар за його серверним ім’ям.
+            </summary>
+            <param name="fileName">
+            Повне серверне ім’я файлу разом із розширенням.
+            </param>
+            <param name="cancellationToken">
+            Токен скасування операції.
+            </param>
+            <returns>
+            Код 204 після виконання операції видалення.
+            </returns>
+        </member>
+        <member name="M:HW_06.Controllers.FilesController.BuildAvatarUrl(System.String)">
+            <summary>
+            Формує публічний URL для перегляду аватара.
+            </summary>
+            <param name="fileName">
+            Серверне ім’я файлу разом із розширенням.
+            </param>
+            <returns>
+            Абсолютний URL до публічного файла.
+            </returns>
+        </member>
+        <member name="M:HW_06.Controllers.FilesController.GetAvatar(System.String)">
+            <summary>
+            Повертає аватар за його серверним ім’ям без розширення.
+            </summary>
+            <remarks>
+            Розширення файлу визначається автоматично.
+            Підтримуються формати JPG, JPEG, PNG та WEBP.
+            </remarks>
+            <param name="baseFileName">
+            Серверне ім’я файлу без розширення.
+            </param>
+            <returns>
+            Файл аватара з відповідним MIME-типом.
+            </returns>
+        </member>
         <member name="T:HW_06.Controllers.MeetingControllersDTO">
             <summary>
             Контролер для керування зустрічами.
@@ -149,8 +249,52 @@
             <summary>
             Контролер для керування учасниками зустрічей.
             Надає CRUD-операції, пошук, сортування,
-            пагінацію та отримання зустрічей учасника.
+            пагінацію та роботу з аватарами учасників.
             </summary>
+        </member>
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.#ctor(HW_06.Services.Interfaces.IParticipantService,HW_06.Services.Interfaces.IFileStorageService)">
+            <summary>
+            Ініціалізує контролер учасників.
+            </summary>
+            <param name="service">
+            Сервіс для роботи з учасниками.
+            </param>
+            <param name="fileStorageService">
+            Сервіс локального файлового сховища.
+            </param>
+        </member>
+        <member name="F:HW_06.Controllers.ParticipantControllersDTO.MaxAvatarSize">
+            <summary>
+            Максимально допустимий розмір аватара — 10 МБ.
+            </summary>
+        </member>
+        <member name="F:HW_06.Controllers.ParticipantControllersDTO.AvatarFolder">
+            <summary>
+            Каталог зберігання аватарів.
+            </summary>
+        </member>
+        <member name="F:HW_06.Controllers.ParticipantControllersDTO.DefaultAvatarFileName">
+            <summary>
+            Базове ім’я стандартного аватара без розширення.
+            </summary>
+        </member>
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.GetAvatarFileAsync(System.Int32)">
+            <summary>
+            Повертає власний або стандартний аватар учасника.
+            </summary>
+            <param name="participantId">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <returns>
+            Власний аватар учасника або стандартне зображення,
+            якщо власний аватар відсутній.
+            </returns>
+            <response code="200">
+            Файл аватара успішно отримано.
+            </response>
+            <response code="404">
+            Учасника із зазначеним ідентифікатором не знайдено.
+            </response>
         </member>
         <member name="M:HW_06.Controllers.ParticipantControllersDTO.GetParticipants(HW_06.Helpers.QueryParameters.ParticipantQueryParameters)">
             <summary>
@@ -160,7 +304,9 @@
             <param name="parameters">
             Параметри пошуку, сортування та пагінації.
             </param>
-            <returns>Сторінка зі списком учасників.</returns>
+            <returns>
+            Сторінка зі списком учасників.
+            </returns>
         </member>
         <member name="M:HW_06.Controllers.ParticipantControllersDTO.GetById(System.Int32)">
             <summary>
@@ -179,12 +325,16 @@
             Учасника із зазначеним ідентифікатором не знайдено.
             </response>
         </member>
-        <member name="M:HW_06.Controllers.ParticipantControllersDTO.Create(HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO)">
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.Create(HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO,System.Threading.CancellationToken)">
             <summary>
-            Створення нового учасника.
+            Створює нового учасника та, за наявності,
+            завантажує його аватар.
             </summary>
             <param name="dto">
-            Дані нового учасника.
+            Дані нового учасника та необов’язковий файл аватара.
+            </param>
+            <param name="cancellationToken">
+            Токен скасування операції.
             </param>
             <returns>
             Створений учасник.
@@ -194,6 +344,39 @@
             </response>
             <response code="400">
             Передані дані не пройшли перевірку.
+            </response>
+        </member>
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.UploadAvatarAsync(System.Int32,HW_06.DTOs.Files.AvatarUploadDTO,System.Threading.CancellationToken)">
+            <summary>
+            Додає або замінює аватар учасника.
+            </summary>
+            <remarks>
+            Якщо аватар відсутній — буде додано новий.
+            Якщо аватар уже існує — він буде автоматично замінений.
+            </remarks>
+            <param name="participantId">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <param name="dto">
+            DTO, що містить файл аватара.
+            </param>
+            <param name="cancellationToken">
+            Токен скасування операції.
+            </param>
+            <returns>
+            Інформація про учасника та URL аватара.
+            </returns>
+            <response code="200">
+            Аватар успішно збережено.
+            </response>
+            <response code="400">
+            Файл не пройшов перевірку.
+            </response>
+            <response code="404">
+            Учасника із зазначеним ідентифікатором не знайдено.
+            </response>
+            <response code="413">
+            Розмір файла перевищує допустиме значення.
             </response>
         </member>
         <member name="M:HW_06.Controllers.ParticipantControllersDTO.Update(System.Int32,HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO)">
@@ -231,6 +414,17 @@
             <param name="id">Ідентифікатор учасника.</param>
             <returns>Список зустрічей учасника.</returns>
         </member>
+        <member name="M:HW_06.Controllers.ParticipantControllersDTO.AddAvatarUrl(HW_06.DTOs.Participants.ParticipantAvatarDTO)">
+            <summary>
+            Додає до DTO абсолютний URL для отримання аватара.
+            </summary>
+            <param name="participantAvatar">
+            DTO з інформацією про аватар учасника.
+            </param>
+            <returns>
+            DTO з абсолютним URL власного або стандартного аватара.
+            </returns>
+        </member>
         <member name="T:HW_06.DataContext">
             <summary>
             Контекст бази даних застосунку.
@@ -257,9 +451,9 @@
             Дата та час проведення зустрічі.
             </summary>
         </member>
-        <member name="P:HW_06.DTOs.MeetingDTO.MeetingCreateDTO.RoomId">
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingCreateDTO.RoomNumber">
             <summary>
-            Ідентифікатор кімнати, у якій відбудеться зустріч.
+            Номер кімнати, у якій відбудеться зустріч.
             </summary>
         </member>
         <member name="P:HW_06.DTOs.MeetingDTO.MeetingCreateDTO.ParticipantIds">
@@ -323,9 +517,9 @@
             Нова дата та час проведення зустрічі.
             </summary>
         </member>
-        <member name="P:HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO.RoomId">
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO.RoomNumber">
             <summary>
-            Новий ідентифікатор кімнати.
+            Новий номер кімнати.
             </summary>
         </member>
         <member name="T:HW_06.DTOs.MeetingDTO.MeetingReadDTO">
@@ -385,9 +579,9 @@
             Дата та час проведення зустрічі.
             </summary>
         </member>
-        <member name="P:HW_06.DTOs.MeetingDTO.MeetingUpdateDTO.RoomId">
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingUpdateDTO.RoomNumber">
             <summary>
-            Ідентифікатор кімнати, у якій проводиться зустріч.
+            Номер кімнати, у якій проводиться зустріч.
             </summary>
         </member>
         <member name="P:HW_06.DTOs.MeetingDTO.MeetingUpdateDTO.ParticipantIds">
@@ -425,14 +619,44 @@
             Роль учасника під час зустрічі.
             </summary>
         </member>
+        <member name="T:HW_06.DTOs.Participants.ParticipantAvatarDTO">
+            <summary>
+            DTO для короткого відображення учасника разом з аватаром.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Participants.ParticipantAvatarDTO.ParticipantId">
+            <summary>
+            Унікальний ідентифікатор учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Participants.ParticipantAvatarDTO.FirstName">
+            <summary>
+            Ім’я учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Participants.ParticipantAvatarDTO.LastName">
+            <summary>
+            Прізвище учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Participants.ParticipantAvatarDTO.AvatarFileName">
+            <summary>
+            Серверне ім’я файлу аватара разом із розширенням.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Participants.ParticipantAvatarDTO.AvatarUrl">
+            <summary>
+            URL для отримання аватара.
+            </summary>
+        </member>
         <member name="T:HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO">
             <summary>
-            DTO для створення нового учасника.
+            Дані для створення нового учасника.
             </summary>
         </member>
         <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO.FirstName">
             <summary>
-            Ім'я учасника.
+            Ім’я учасника.
             </summary>
         </member>
         <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO.LastName">
@@ -442,7 +666,7 @@
         </member>
         <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO.Email">
             <summary>
-            Адреса електронної пошти учасника.
+            Електронна адреса учасника.
             </summary>
         </member>
         <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO.Role">
@@ -452,7 +676,12 @@
         </member>
         <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO.MeetingIds">
             <summary>
-            Список MeetingIds
+            Ідентифікатори зустрічей учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO.Avatar">
+            <summary>
+            Необов’язковий файл аватара.
             </summary>
         </member>
         <member name="T:HW_06.DTOs.ParticipantDTO.ParticipantDetailDTO">
@@ -485,9 +714,19 @@
             Роль учасника.
             </summary>
         </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantDetailDTO.AvatarUrl">
+            <summary>
+            Аватарка учасника
+            </summary>
+        </member>
         <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantDetailDTO.Meetings">
             <summary>
             Список зустрічей учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantDetailDTO.Files">
+            <summary>
+            прикреплені до участника файли
             </summary>
         </member>
         <member name="T:HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO">
@@ -551,6 +790,11 @@
         <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantReadDTO.Role">
             <summary>
             Роль учасника під час зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantReadDTO.AvatarUrl">
+            <summary>
+            Аватарка учасника
             </summary>
         </member>
         <member name="T:HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO">
@@ -812,6 +1056,30 @@
         <member name="M:HW_06.Migrations.AddRelations.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:HW_06.Migrations.AddAvatarFileNameToParticipant">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddAvatarFileNameToParticipant.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddAvatarFileNameToParticipant.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddAvatarFileNameToParticipant.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:HW_06.Migrations.AddParticipantAvatar">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddParticipantAvatar.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddParticipantAvatar.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddParticipantAvatar.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="T:HW_06.Models.CreateMeetingRequest">
             <summary>
             Модель запиту для створення нової зустрічі.
@@ -850,6 +1118,26 @@
         <member name="P:HW_06.Models.CreateMeetingRequest.ParticipantIds">
             <summary>
             Список ідентифікаторів учасників зустрічі.
+            </summary>
+        </member>
+        <member name="T:HW_06.Models.Files.FileDownloadResult">
+            <summary>
+            Результат відкриття файлу для завантаження або перегляду.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Files.FileDownloadResult.Content">
+            <summary>
+            Потік із вмістом файлу.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Files.FileDownloadResult.ContentType">
+            <summary>
+            MIME-тип файлу.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Files.FileDownloadResult.FileName">
+            <summary>
+            Повне ім'я файлу разом із розширенням.
             </summary>
         </member>
         <member name="P:HW_06.Models.Meeting.MeetingId">
@@ -943,6 +1231,11 @@
             Роль учасника під час зустрічі.
             </summary>
         </member>
+        <member name="P:HW_06.Models.Participant.AvatarFileName">
+            <summary>
+            Назва файла аватарки
+            </summary>
+        </member>
         <member name="P:HW_06.Models.Participant.MeetingParticipants">
             <summary>
             Колекція зв'язків між учасником та зустрічами.
@@ -972,6 +1265,34 @@
             <summary>
             Профіль AutoMapper для мапінгу моделей Meeting та Participant
             у відповідні DTO та навпаки.
+            </summary>
+        </member>
+        <member name="T:HW_06.Services.Interfaces.IFileStorageService">
+            <summary>
+            Визначає операції локального файлового сховища.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IFileStorageService.SaveAsync(Microsoft.AspNetCore.Http.IFormFile,System.String,HW_06.Models.Files.FileAccessLevel,System.Threading.CancellationToken)">
+            <summary>
+            Зберігає новий файл та повертає його серверне ім’я.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IFileStorageService.ReplaceAsync(Microsoft.AspNetCore.Http.IFormFile,System.String,System.String,HW_06.Models.Files.FileAccessLevel,System.Threading.CancellationToken)">
+            <summary>
+            Замінює існуючий файл, зберігаючи основну частину його імені.
+            </summary>
+            <returns>
+            Серверне ім’я файлу без розширення.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IFileStorageService.DeleteAsync(System.String,System.String,HW_06.Models.Files.FileAccessLevel,System.Threading.CancellationToken)">
+            <summary>
+            Видаляє файл за його повним серверним ім’ям.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IFileStorageService.OpenRead(System.String,System.String,HW_06.Models.Files.FileAccessLevel)">
+            <summary>
+            Відкриває файл для читання за його повним серверним ім’ям.
             </summary>
         </member>
         <member name="T:HW_06.Services.Interfaces.IMeetingService">
@@ -1037,10 +1358,20 @@
             Отримати учасника за його ідентифікатором.
             </summary>
         </member>
-        <member name="M:HW_06.Services.Interfaces.IParticipantService.CreateAsync(HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO)">
+        <member name="M:HW_06.Services.Interfaces.IParticipantService.CreateAsync(HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO,System.Threading.CancellationToken)">
             <summary>
-            Створити нового учасника.
+            Створює нового учасника та додає аватар,
+            якщо файл був переданий.
             </summary>
+            <param name="dto">
+            Дані нового учасника та необов’язковий аватар.
+            </param>
+            <param name="cancellationToken">
+            Токен скасування операції.
+            </param>
+            <returns>
+            Створений учасник.
+            </returns>
         </member>
         <member name="M:HW_06.Services.Interfaces.IParticipantService.UpdateAsync(System.Int32,HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO)">
             <summary>
@@ -1068,20 +1399,504 @@
             у яких бере участь користувач.
             </summary>
         </member>
+        <member name="M:HW_06.Services.Interfaces.IParticipantService.GetAvatarAsync(System.Int32)">
+            <summary>
+            Отримати коротку інформацію про учасника
+            разом із даними його аватара.
+            </summary>
+            <param name="participantId">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <returns>
+            DTO учасника з даними аватара або
+            <see langword="null"/>, якщо учасника не знайдено.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IParticipantService.UploadAvatarAsync(System.Int32,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
+            <summary>
+            Додати аватар учаснику.
+            </summary>
+            <param name="participantId">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <param name="file">
+            Файл нового аватара.
+            </param>
+            <param name="cancellationToken">
+            Токен скасування операції.
+            </param>
+            <returns>
+            DTO учасника з даними доданого аватара або
+            <see langword="null"/>, якщо учасника не знайдено.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IParticipantService.DeleteAvatarAsync(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Видалити аватар учасника.
+            </summary>
+            <param name="participantId">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <param name="cancellationToken">
+            Токен скасування операції.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо учасника знайдено
+            та операцію виконано; інакше <see langword="false"/>.
+            </returns>
+        </member>
+        <member name="T:HW_06.Services.LocalFileStorageService">
+            <summary>
+            Сервіс локального зберігання публічних і приватних файлів.
+            </summary>
+        </member>
+        <member name="F:HW_06.Services.LocalFileStorageService.SupportedExtensions">
+            <summary>
+            Розширення файлів, які підтримує файлове сховище.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.LocalFileStorageService.#ctor(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            Ініціалізує локальне файлове сховище
+            та створює каталоги для публічних і приватних файлів.
+            </summary>
+            <param name="environment">
+            Інформація про середовище виконання вебзастосунку.
+            </param>
+        </member>
+        <member name="M:HW_06.Services.LocalFileStorageService.SaveAsync(Microsoft.AspNetCore.Http.IFormFile,System.String,HW_06.Models.Files.FileAccessLevel,System.Threading.CancellationToken)">
+            <summary>
+            Зберігає новий файл та створює для нього
+            унікальний ідентифікатор без розширення.
+            </summary>
+            <param name="file">
+            Файл, який необхідно зберегти.
+            </param>
+            <param name="folder">
+            Назва каталогу для зберігання файлу.
+            </param>
+            <param name="accessLevel">
+            Рівень доступу до файлу.
+            </param>
+            <param name="cancellationToken">
+            Токен скасування операції.
+            </param>
+            <returns>
+            Унікальний ідентифікатор збереженого файлу без розширення.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.LocalFileStorageService.DeleteAsync(System.String,System.String,HW_06.Models.Files.FileAccessLevel,System.Threading.CancellationToken)">
+            <summary>
+            Видаляє файл за його унікальним ідентифікатором.
+            Розширення файлу визначається автоматично.
+            </summary>
+            <param name="folder">
+            Назва каталогу, у якому зберігається файл.
+            </param>
+            <param name="fileId">
+            Унікальний ідентифікатор файлу без розширення.
+            </param>
+            <param name="accessLevel">
+            Рівень доступу до файлу.
+            </param>
+            <param name="cancellationToken">
+            Токен скасування операції.
+            </param>
+        </member>
+        <member name="M:HW_06.Services.LocalFileStorageService.ReplaceAsync(Microsoft.AspNetCore.Http.IFormFile,System.String,System.String,HW_06.Models.Files.FileAccessLevel,System.Threading.CancellationToken)">
+            <summary>
+            Замінює існуючий файл, знаходячи його
+            за серверним ім’ям без розширення.
+            </summary>
+            <param name="file">
+            Новий файл.
+            </param>
+            <param name="folder">
+            Каталог, у якому зберігається файл.
+            </param>
+            <param name="baseFileName">
+            Серверне ім’я існуючого файлу без розширення.
+            </param>
+            <param name="accessLevel">
+            Рівень доступу до файлу.
+            </param>
+            <param name="cancellationToken">
+            Токен скасування операції.
+            </param>
+            <returns>
+            Актуальне серверне ім’я файлу разом із розширенням.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.LocalFileStorageService.OpenRead(System.String,System.String,HW_06.Models.Files.FileAccessLevel)">
+            <summary>
+            Відкриває файл для читання, знаходячи його
+            за серверним ім’ям без розширення.
+            </summary>
+            <param name="folder">
+            Каталог, у якому зберігається файл.
+            </param>
+            <param name="baseFileName">
+            Серверне ім’я файлу без розширення.
+            </param>
+            <param name="accessLevel">
+            Рівень доступу до файлу.
+            </param>
+            <returns>
+            Результат читання файлу або
+            <see langword="null"/>, якщо файл не знайдено.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.LocalFileStorageService.ValidateFile(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Перевіряє, чи передано коректний непорожній файл.
+            </summary>
+            <param name="file">
+            Файл для перевірки.
+            </param>
+        </member>
+        <member name="M:HW_06.Services.LocalFileStorageService.ValidateFileId(System.String)">
+            <summary>
+            Перевіряє унікальний ідентифікатор файлу.
+            Ідентифікатор не повинен містити розширення або частини шляху.
+            </summary>
+            <param name="fileId">
+            Унікальний ідентифікатор файлу.
+            </param>
+        </member>
+        <member name="M:HW_06.Services.LocalFileStorageService.GetNormalizedExtension(System.String)">
+            <summary>
+            Отримує та перевіряє розширення завантаженого файлу.
+            </summary>
+            <param name="fileName">
+            Початкове ім'я завантаженого файлу.
+            </param>
+            <returns>
+            Нормалізоване розширення файлу в нижньому регістрі.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.LocalFileStorageService.FindExistingFilePath(System.String,System.String,HW_06.Models.Files.FileAccessLevel)">
+            <summary>
+            Шукає файл за його ім’ям без розширення
+            серед усіх підтримуваних форматів.
+            </summary>
+            <param name="folder">
+            Каталог, у якому виконується пошук.
+            </param>
+            <param name="baseFileName">
+            Серверне ім’я файлу без розширення.
+            </param>
+            <param name="accessLevel">
+            Рівень доступу до файлу.
+            </param>
+            <returns>
+            Повний шлях до знайденого файлу або
+            <see langword="null"/>, якщо файл не знайдено.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.LocalFileStorageService.GetContentType(System.String)">
+            <summary>
+            Визначає MIME-тип файлу за його розширенням.
+            </summary>
+            <param name="extension">
+            Розширення файлу.
+            </param>
+            <returns>
+            MIME-тип файлу.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.LocalFileStorageService.ResolveDirectory(System.String,HW_06.Models.Files.FileAccessLevel)">
+            <summary>
+            Визначає безпечний каталог зберігання
+            відповідно до рівня доступу.
+            </summary>
+            <param name="folder">
+            Назва вкладеного каталогу.
+            </param>
+            <param name="accessLevel">
+            Рівень доступу до файлів.
+            </param>
+            <returns>
+            Абсолютний шлях до каталогу.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.LocalFileStorageService.ResolveSafePath(System.String,System.String,HW_06.Models.Files.FileAccessLevel)">
+            <summary>
+            Формує безпечний абсолютний шлях до файлу
+            та запобігає виходу за межі каталогу зберігання.
+            </summary>
+            <param name="folder">
+            Назва вкладеного каталогу.
+            </param>
+            <param name="fileName">
+            Повне ім'я файлу разом із розширенням.
+            </param>
+            <param name="accessLevel">
+            Рівень доступу до файлу.
+            </param>
+            <returns>
+            Безпечний абсолютний шлях до файлу.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.LocalFileStorageService.RootFor(HW_06.Models.Files.FileAccessLevel)">
+            <summary>
+            Повертає кореневий каталог відповідно
+            до рівня доступу до файлу.
+            </summary>
+            <param name="accessLevel">
+            Рівень доступу до файлу.
+            </param>
+            <returns>
+            Кореневий каталог публічного або приватного сховища.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.LocalFileStorageService.ValidateBaseFileName(System.String)">
+            <summary>
+            Перевіряє серверне ім’я файлу без розширення.
+            </summary>
+            <param name="baseFileName">
+            Ім’я файлу без розширення.
+            </param>
+        </member>
         <member name="T:HW_06.Services.MeetingService">
             <summary>
             Сервіс для роботи із зустрічами.
             </summary>
+        </member>
+        <member name="M:HW_06.Services.MeetingService.#ctor(HW_06.DataContext,AutoMapper.IMapper,HW_06.Validators.IValidator{HW_06.DTOs.MeetingDTO.MeetingCreateDTO},HW_06.Validators.IValidator{HW_06.DTOs.MeetingDTO.MeetingUpdateDTO},HW_06.Validators.IValidator{HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO})">
+            <summary>
+            Ініціалізує новий екземпляр сервісу зустрічей.
+            </summary>
+            <param name="context">
+            Контекст бази даних.
+            </param>
+            <param name="mapper">
+            Сервіс AutoMapper.
+            </param>
+            <param name="createValidator">
+            Валідатор створення зустрічі.
+            </param>
+            <param name="updateValidator">
+            Валідатор повного оновлення зустрічі.
+            </param>
+            <param name="partialValidator">
+            Валідатор часткового оновлення зустрічі.
+            </param>
+        </member>
+        <member name="M:HW_06.Services.MeetingService.GetAllAsync(HW_06.Helpers.QueryParameters.MeetingFilter,HW_06.Helpers.QueryParameters.MeetingQueryParameters)">
+            <summary>
+            Отримує сторінку зі списком зустрічей.
+            </summary>
+            <param name="filter">
+            Параметри фільтрації.
+            </param>
+            <param name="parameters">
+            Параметри пошуку, сортування та пагінації.
+            </param>
+            <returns>
+            Сторінка зі списком зустрічей.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.MeetingService.GetByIdAsync(System.Int32)">
+            <summary>
+            Отримує детальну інформацію про зустріч.
+            </summary>
+            <param name="id">
+            Ідентифікатор зустрічі.
+            </param>
+            <returns>
+            Детальна інформація про зустріч або
+            <see langword="null"/>, якщо зустріч не знайдено.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.MeetingService.CreateAsync(HW_06.DTOs.MeetingDTO.MeetingCreateDTO)">
+            <summary>
+            Створює нову зустріч.
+            </summary>
+            <param name="dto">
+            Дані нової зустрічі.
+            </param>
+            <returns>
+            Створена зустріч.
+            </returns>
+            <exception cref="T:HW_06.Validators.Exceptions.ValidationException">
+            Виникає, якщо дані не пройшли перевірку,
+            кімнату або учасників не знайдено.
+            </exception>
+        </member>
+        <member name="M:HW_06.Services.MeetingService.UpdateAsync(System.Int32,HW_06.DTOs.MeetingDTO.MeetingUpdateDTO)">
+            <summary>
+            Повністю оновлює існуючу зустріч.
+            </summary>
+            <param name="id">
+            Ідентифікатор зустрічі з адреси запиту.
+            </param>
+            <param name="dto">
+            Нові дані зустрічі.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо зустріч оновлено;
+            інакше <see langword="false"/>.
+            </returns>
+            <exception cref="T:HW_06.Validators.Exceptions.ValidationException">
+            Виникає, якщо дані не пройшли перевірку,
+            кімнату або учасників не знайдено.
+            </exception>
+        </member>
+        <member name="M:HW_06.Services.MeetingService.PartialUpdateAsync(System.Int32,HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO)">
+            <summary>
+            Частково оновлює існуючу зустріч.
+            </summary>
+            <param name="id">
+            Ідентифікатор зустрічі.
+            </param>
+            <param name="dto">
+            Поля зустрічі, які необхідно оновити.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо зустріч оновлено;
+            інакше <see langword="false"/>.
+            </returns>
+            <exception cref="T:HW_06.Validators.Exceptions.ValidationException">
+            Виникає, якщо дані не пройшли перевірку
+            або кімнату не знайдено.
+            </exception>
+        </member>
+        <member name="M:HW_06.Services.MeetingService.DeleteAsync(System.Int32)">
+            <summary>
+            Видаляє зустріч за ідентифікатором.
+            </summary>
+            <param name="id">
+            Ідентифікатор зустрічі.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо зустріч видалено;
+            інакше <see langword="false"/>.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.MeetingService.DeleteManyAsync(System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Видаляє декілька зустрічей.
+            </summary>
+            <param name="ids">
+            Список ідентифікаторів зустрічей.
+            </param>
+            <returns>
+            Кількість видалених зустрічей.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.MeetingService.GetByParticipantAsync(System.Int32)">
+            <summary>
+            Отримує всі зустрічі зазначеного учасника.
+            </summary>
+            <param name="participantId">
+            Ідентифікатор учасника.
+            </param>
+            <returns>
+            Список зустрічей учасника.
+            </returns>
+            <exception cref="T:HW_06.Validators.Exceptions.ValidationException">
+            Виникає, якщо ідентифікатор некоректний
+            або учасника не знайдено.
+            </exception>
+        </member>
+        <member name="M:HW_06.Services.ParticipantService.#ctor(HW_06.DataContext,AutoMapper.IMapper,HW_06.Validators.IValidator{HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO},HW_06.Validators.IValidator{HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO},HW_06.Validators.IValidator{HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO},HW_06.Services.Interfaces.IFileStorageService)">
+            <summary>
+            Ініціалізує сервіс для роботи з учасниками.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.ParticipantService.CreateAsync(HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO,System.Threading.CancellationToken)">
+            <summary>
+            Створює нового учасника та додає йому аватар,
+            якщо файл аватара був переданий.
+            </summary>
+            <param name="dto">
+            Дані нового учасника, список зустрічей
+            та необов’язковий файл аватара.
+            </param>
+            <param name="cancellationToken">
+            Токен скасування операції.
+            </param>
+            <returns>
+            Створений учасник.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.ParticipantService.GetAvatarAsync(System.Int32)">
+            <summary>
+            Отримує коротку інформацію про учасника
+            разом із даними його аватара.
+            </summary>
+            <param name="participantId">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <returns>
+            DTO учасника з даними аватара або
+            <see langword="null"/>, якщо учасника не знайдено.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.ParticipantService.UploadAvatarAsync(System.Int32,Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
+            <summary>
+            Додає або замінює аватар учасника.
+            </summary>
+            <param name="participantId">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <param name="file">
+            Файл нового аватара.
+            </param>
+            <param name="cancellationToken">
+            Токен скасування операції.
+            </param>
+            <returns>
+            DTO учасника з даними доданого або оновленого аватара,
+            або <see langword="null"/>, якщо учасника не знайдено.
+            </returns>
+            <exception cref="T:HW_06.Validators.Exceptions.ValidationException">
+            Виникає, якщо файл не передано або він порожній.
+            </exception>
         </member>
         <member name="T:HW_06.Validators.Exceptions.ValidationException">
             <summary>
             Исключение, возникающее при ошибке проверки входных данных.
             </summary>
         </member>
+        <member name="M:HW_06.Validators.MeetingValid.MeetingCreateValidator.ValidateRoom(HW_06.DTOs.MeetingDTO.MeetingCreateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє номер кімнати.
+            </summary>
+            <param name="model">DTO створення зустрічі.</param>
+            <param name="result">Результат валідації.</param>
+        </member>
+        <member name="M:HW_06.Validators.MeetingValid.MeetingPartialUpdateValidator.ValidateRoom(HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє новий номер кімнати.
+            </summary>
+            <param name="model">DTO часткового оновлення зустрічі.</param>
+            <param name="result">Результат валідації.</param>
+        </member>
+        <member name="M:HW_06.Validators.MeetingValid.MeetingUpdateValidator.ValidateRoom(HW_06.DTOs.MeetingDTO.MeetingUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє номер кімнати.
+            </summary>
+            <param name="model">DTO повного оновлення зустрічі.</param>
+            <param name="result">Результат валідації.</param>
+        </member>
         <member name="T:Program">
             <summary>
             Auto-generated public partial Program class for top-level statement apps.
             </summary>
+        </member>
+        <member name="T:ParticipantConfiguration">
+            <summary>
+            Конфігурація сутності учасника.
+            </summary>
+        </member>
+        <member name="M:ParticipantConfiguration.Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder{HW_06.Models.Participant})">
+            <summary>
+            Налаштовує поля та обмеження таблиці учасників.
+            </summary>
+            <param name="builder">
+            Побудовник конфігурації сутності учасника.
+            </param>
         </member>
         <member name="M:Microsoft.AspNetCore.OpenApi.Generated.DocumentationCommentIdHelper.CreateDocumentationId(System.Type)">
             <summary>

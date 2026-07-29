@@ -22,7 +22,7 @@ public record MeetingPartialUpdateDTO
     public DateTime? DateTime { get; set; }
 
     /// <summary>
-    /// Новий ідентифікатор кімнати.
+    /// Новий номер кімнати.
     /// </summary>
-    public int? RoomId { get; set; }
+    public int? RoomNumber { get; set; }
 }

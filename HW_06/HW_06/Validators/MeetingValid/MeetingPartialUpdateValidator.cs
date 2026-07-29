@@ -66,15 +66,25 @@ public class MeetingPartialUpdateValidator : IValidator<MeetingPartialUpdateDTO>
         }
     }
 
-    private static void ValidateRoom(MeetingPartialUpdateDTO model, ValidationResult result)
+    /// <summary>
+    /// Перевіряє новий номер кімнати.
+    /// </summary>
+    /// <param name="model">DTO часткового оновлення зустрічі.</param>
+    /// <param name="result">Результат валідації.</param>
+    private static void ValidateRoom(
+        MeetingPartialUpdateDTO model,
+        ValidationResult result)
     {
-        if (!model.RoomId.HasValue)
-            return;
-
-        if (model.RoomId <= 0)
+        if (!model.RoomNumber.HasValue)
         {
-            result.AddError(nameof(model.RoomId),
-                "Кімнату із зазначеним ідентифікатором не знайдено.");
+            return;
+        }
+
+        if (model.RoomNumber.Value <= 0)
+        {
+            result.AddError(
+                nameof(model.RoomNumber),
+                "Необхідно вказати коректний номер кімнати.");
         }
     }
 }

@@ -27,9 +27,9 @@ public record MeetingUpdateDTO
     public DateTime DateTime { get; set; }
 
     /// <summary>
-    /// Ідентифікатор кімнати, у якій проводиться зустріч.
+    /// Номер кімнати, у якій проводиться зустріч.
     /// </summary>
-    public int? RoomId { get; set; }
+    public int? RoomNumber { get; set; }
 
     /// <summary>
     /// Список ідентифікаторів учасників зустрічі.

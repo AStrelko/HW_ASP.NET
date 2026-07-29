@@ -1,4 +1,5 @@
 using HW_06.DTOs.MeetingDTO;
+using HW_06.DTOs.Files;
 
 namespace HW_06.DTOs.ParticipantDTO;
 
@@ -31,9 +32,19 @@ public record ParticipantDetailDTO
     /// Роль учасника.
     /// </summary>
     public string? Role { get; set; }
+    
+    /// <summary>
+    /// Аватарка учасника
+    /// </summary>
+    public string? AvatarUrl { get; set; }
 
     /// <summary>
     /// Список зустрічей учасника.
     /// </summary>
     public List<MeetingReadDTO> Meetings { get; set; } = new();
+    
+    /// <summary>
+    /// прикреплені до участника файли
+    /// </summary>
+    public List<FileReadDTO> Files { get; set; } = [];
 }

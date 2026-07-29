@@ -29,6 +29,11 @@ public class Participant
     /// Роль учасника під час зустрічі.
     /// </summary>
     public string? Role { get; set; }
+    
+    /// <summary>
+    /// Назва файла аватарки
+    /// </summary>
+    public string? AvatarFileName { get; set; }
 
     /// <summary>
     /// Колекція зв'язків між учасником та зустрічами.

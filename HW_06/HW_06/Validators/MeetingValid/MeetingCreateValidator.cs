@@ -60,12 +60,21 @@ public class MeetingCreateValidator : IValidator<MeetingCreateDTO>
         }
     }
 
-    private static void ValidateRoom(MeetingCreateDTO model, ValidationResult result)
+    /// <summary>
+    /// Перевіряє номер кімнати.
+    /// </summary>
+    /// <param name="model">DTO створення зустрічі.</param>
+    /// <param name="result">Результат валідації.</param>
+    private static void ValidateRoom(
+        MeetingCreateDTO model,
+        ValidationResult result)
     {
-        if (model.RoomId is null || model.RoomId <= 0)
+        if (model.RoomNumber is null ||
+            model.RoomNumber <= 0)
         {
-            result.AddError(nameof(model.RoomId),
-                "Необхідно вибрати коректну кімнату.");
+            result.AddError(
+                nameof(model.RoomNumber),
+                "Необхідно вказати коректний номер кімнати.");
         }
     }
 
