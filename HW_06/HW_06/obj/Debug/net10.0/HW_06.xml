@@ -9,30 +9,62 @@
             Перша версія API для базового керування зустрічами.
             </summary>
         </member>
+        <member name="M:HW_06.Controllers.V1.MeetingControllers.#ctor(HW_06.Services.Interfaces.IMeetingService)">
+            <summary>
+            Ініціалізує новий екземпляр контролера зустрічей.
+            </summary>
+            <param name="service">
+            Сервіс для роботи із зустрічами.
+            </param>
+        </member>
         <member name="M:HW_06.Controllers.V1.MeetingControllers.GetMeetings">
             <summary>
-            Отримання списку зустрічей.
+            Отримує список усіх зустрічей.
             </summary>
+            <returns>
+            Колекцію зустрічей у скороченому форматі.
+            </returns>
         </member>
         <member name="M:HW_06.Controllers.V1.MeetingControllers.GetById(System.Int32)">
             <summary>
-            Отримання зустрічі за ідентифікатором.
+            Отримує інформацію про зустріч за її ідентифікатором.
             </summary>
+            <param name="id">
+            Ідентифікатор зустрічі.
+            </param>
+            <returns>
+            Детальну інформацію про зустріч.
+            </returns>
         </member>
         <member name="M:HW_06.Controllers.V1.MeetingControllers.Create(HW_06.DTOs.MeetingDTO.MeetingCreateDTO)">
             <summary>
-            Створення нової зустрічі.
+            Створює нову зустріч.
             </summary>
+            <param name="dto">
+            Дані для створення зустрічі.
+            </param>
+            <returns>
+            Створену зустріч.
+            </returns>
         </member>
         <member name="M:HW_06.Controllers.V1.MeetingControllers.Update(System.Int32,HW_06.DTOs.MeetingDTO.MeetingUpdateDTO)">
             <summary>
-            Повне оновлення зустрічі.
+            Повністю оновлює інформацію про зустріч.
             </summary>
+            <param name="id">
+            Ідентифікатор зустрічі.
+            </param>
+            <param name="dto">
+            Нові дані зустрічі.
+            </param>
         </member>
         <member name="M:HW_06.Controllers.V1.MeetingControllers.Delete(System.Int32)">
             <summary>
-            Видалення зустрічі.
+            Видаляє зустріч.
             </summary>
+            <param name="id">
+            Ідентифікатор зустрічі.
+            </param>
         </member>
         <member name="T:HW_06.Controllers.MeetingControllersDTO">
             <summary>
@@ -329,6 +361,16 @@
             <summary>
             Контекст бази даних застосунку.
             Містить набори сутностей та конфігурацію зв'язків між ними.
+            </summary>
+        </member>
+        <member name="T:HW_06.DTOs.Files.AvatarUploadDTO">
+            <summary>
+            DTO для завантаження аватара учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Files.AvatarUploadDTO.File">
+            <summary>
+            Файл зображення, який необхідно завантажити як аватар.
             </summary>
         </member>
         <member name="T:HW_06.DTOs.MeetingDTO.MeetingCreateDTO">
@@ -826,11 +868,34 @@
             <summary>
             Застосовує пошук учасників за прізвищем.
             </summary>
+            <param name="query">
+            Вихідна послідовність учасників.
+            </param>
+            <param name="searchLastName">
+            Частина або повне прізвище для пошуку.
+            Якщо значення не вказано, пошук не застосовується.
+            </param>
+            <returns>
+            Відфільтрована послідовність учасників або вихідна колекція,
+            якщо параметр пошуку не заданий.
+            </returns>
         </member>
         <member name="M:HW_06.Helpers.Queryable.ParticipantQueryableExtensions.ApplySorting(System.Linq.IQueryable{HW_06.Models.Participant},HW_06.Helpers.QueryParameters.ParticipantQueryParameters)">
             <summary>
-            Застосовує сортування учасників.
+            Застосовує сортування учасників відповідно
+            до заданих параметрів.
             </summary>
+            <param name="query">
+            Вихідна послідовність учасників.
+            </param>
+            <param name="parameters">
+            Параметри сортування.
+            </param>
+            <returns>
+            Послідовність учасників із застосованим сортуванням.
+            Якщо параметри сортування не задані,
+            використовується сортування за ідентифікатором.
+            </returns>
         </member>
         <member name="T:HW_06.Helpers.QueryParameters.MeetingFilter">
             <summary>
@@ -980,6 +1045,36 @@
         <member name="M:HW_06.Migrations.AddParticipantAvatar.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:HW_06.Models.Files.FileAccessLevel">
+            <summary>
+            Визначає рівень доступу до файлу.
+            </summary>
+        </member>
+        <member name="F:HW_06.Models.Files.FileAccessLevel.Public">
+            <summary>
+            Публічний файл, доступний без додаткової авторизації.
+            </summary>
+        </member>
+        <member name="F:HW_06.Models.Files.FileAccessLevel.Private">
+            <summary>
+            Приватний файл, доступ до якого мають лише авторизовані користувачі.
+            </summary>
+        </member>
+        <member name="T:HW_06.Models.Files.FileCategory">
+            <summary>
+            Визначає категорію файлу.
+            </summary>
+        </member>
+        <member name="F:HW_06.Models.Files.FileCategory.Avatar">
+            <summary>
+            Аватар учасника.
+            </summary>
+        </member>
+        <member name="F:HW_06.Models.Files.FileCategory.Document">
+            <summary>
+            Документ.
+            </summary>
+        </member>
         <member name="T:HW_06.Models.Files.FileDownloadResult">
             <summary>
             Результат відкриття файлу для завантаження або перегляду.
@@ -1123,8 +1218,15 @@
         </member>
         <member name="T:HW_06.Profile.MeetingMappingProfile">
             <summary>
-            Профіль AutoMapper для мапінгу моделей Meeting та Participant
-            у відповідні DTO та навпаки.
+            Профіль AutoMapper, який містить правила мапінгу
+            між моделями домену та DTO для сутностей
+            <see cref="T:HW_06.Models.Meeting"/> і <see cref="T:HW_06.Models.Participant"/>.
+            </summary>
+        </member>
+        <member name="M:HW_06.Profile.MeetingMappingProfile.#ctor">
+            <summary>
+            Ініціалізує профіль AutoMapper та налаштовує правила
+            мапінгу між моделями домену і DTO.
             </summary>
         </member>
         <member name="T:HW_06.Services.Interfaces.IFileStorageService">
@@ -1134,26 +1236,81 @@
         </member>
         <member name="M:HW_06.Services.Interfaces.IFileStorageService.SaveAsync(Microsoft.AspNetCore.Http.IFormFile,System.String,HW_06.Models.Files.FileAccessLevel,System.Threading.CancellationToken)">
             <summary>
-            Зберігає новий файл та повертає його серверне ім’я.
+            Зберігає новий файл у локальному файловому сховищі.
             </summary>
+            <param name="file">
+            Файл, який необхідно зберегти.
+            </param>
+            <param name="folder">
+            Назва папки, у якій буде збережено файл.
+            </param>
+            <param name="accessLevel">
+            Рівень доступу до файлу.
+            </param>
+            <param name="cancellationToken">
+            Токен скасування операції.
+            </param>
+            <returns>
+            Унікальне серверне ім'я файлу без розширення.
+            </returns>
         </member>
         <member name="M:HW_06.Services.Interfaces.IFileStorageService.ReplaceAsync(Microsoft.AspNetCore.Http.IFormFile,System.String,System.String,HW_06.Models.Files.FileAccessLevel,System.Threading.CancellationToken)">
             <summary>
             Замінює існуючий файл, зберігаючи основну частину його імені.
             </summary>
+            <param name="file">
+            Новий файл, який замінить існуючий.
+            </param>
+            <param name="folder">
+            Назва папки, у якій зберігається файл.
+            </param>
+            <param name="fileName">
+            Серверне ім'я файлу без розширення.
+            </param>
+            <param name="accessLevel">
+            Рівень доступу до файлу.
+            </param>
+            <param name="cancellationToken">
+            Токен скасування операції.
+            </param>
             <returns>
-            Серверне ім’я файлу без розширення.
+            Серверне ім'я файлу без розширення.
             </returns>
         </member>
         <member name="M:HW_06.Services.Interfaces.IFileStorageService.DeleteAsync(System.String,System.String,HW_06.Models.Files.FileAccessLevel,System.Threading.CancellationToken)">
             <summary>
-            Видаляє файл за його повним серверним ім’ям.
+            Видаляє файл із локального файлового сховища.
             </summary>
+            <param name="folder">
+            Назва папки, у якій зберігається файл.
+            </param>
+            <param name="fileName">
+            Серверне ім'я файлу без розширення.
+            </param>
+            <param name="accessLevel">
+            Рівень доступу до файлу.
+            </param>
+            <param name="cancellationToken">
+            Токен скасування операції.
+            </param>
         </member>
         <member name="M:HW_06.Services.Interfaces.IFileStorageService.OpenRead(System.String,System.String,HW_06.Models.Files.FileAccessLevel)">
             <summary>
-            Відкриває файл для читання за його повним серверним ім’ям.
+            Відкриває файл для читання.
             </summary>
+            <param name="folder">
+            Назва папки, у якій зберігається файл.
+            </param>
+            <param name="fileName">
+            Серверне ім'я файлу без розширення.
+            </param>
+            <param name="accessLevel">
+            Рівень доступу до файлу.
+            </param>
+            <returns>
+            Інформацію про файл та потік для його читання або
+            <see langword="null"/>, якщо файл не знайдено.
+            </returns>
         </member>
         <member name="T:HW_06.Services.Interfaces.IMeetingService">
             <summary>
@@ -1162,43 +1319,107 @@
         </member>
         <member name="M:HW_06.Services.Interfaces.IMeetingService.GetAllAsync(HW_06.Helpers.QueryParameters.MeetingFilter,HW_06.Helpers.QueryParameters.MeetingQueryParameters)">
             <summary>
-            Отримати список зустрічей.
+            Отримує список зустрічей із підтримкою
+            фільтрації, пагінації та сортування.
             </summary>
+            <param name="filter">
+            Параметри фільтрації зустрічей.
+            </param>
+            <param name="parameters">
+            Параметри пагінації, пошуку та сортування.
+            </param>
+            <returns>
+            Сторінку зустрічей разом із даними пагінації.
+            </returns>
         </member>
         <member name="M:HW_06.Services.Interfaces.IMeetingService.GetByIdAsync(System.Int32)">
             <summary>
-            Отримати зустріч за ідентифікатором.
+            Отримує зустріч за її ідентифікатором.
             </summary>
+            <param name="id">
+            Унікальний ідентифікатор зустрічі.
+            </param>
+            <returns>
+            Детальну інформацію про зустріч або
+            <see langword="null"/>, якщо зустріч не знайдено.
+            </returns>
         </member>
         <member name="M:HW_06.Services.Interfaces.IMeetingService.CreateAsync(HW_06.DTOs.MeetingDTO.MeetingCreateDTO)">
             <summary>
-            Створити нову зустріч.
+            Створює нову зустріч.
             </summary>
+            <param name="dto">
+            Дані для створення зустрічі.
+            </param>
+            <returns>
+            Створену зустріч.
+            </returns>
         </member>
         <member name="M:HW_06.Services.Interfaces.IMeetingService.UpdateAsync(System.Int32,HW_06.DTOs.MeetingDTO.MeetingUpdateDTO)">
             <summary>
-            Повністю оновити зустріч.
+            Повністю оновлює інформацію про зустріч.
             </summary>
+            <param name="id">
+            Унікальний ідентифікатор зустрічі.
+            </param>
+            <param name="dto">
+            Нові дані зустрічі.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо зустріч успішно оновлено;
+            інакше <see langword="false"/>.
+            </returns>
         </member>
         <member name="M:HW_06.Services.Interfaces.IMeetingService.PartialUpdateAsync(System.Int32,HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO)">
             <summary>
-            Частково оновити зустріч.
+            Частково оновлює інформацію про зустріч.
             </summary>
+            <param name="id">
+            Унікальний ідентифікатор зустрічі.
+            </param>
+            <param name="dto">
+            Дані полів, які необхідно оновити.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо зустріч успішно оновлено;
+            інакше <see langword="false"/>.
+            </returns>
         </member>
         <member name="M:HW_06.Services.Interfaces.IMeetingService.DeleteAsync(System.Int32)">
             <summary>
-            Видалити зустріч.
+            Видаляє зустріч.
             </summary>
+            <param name="id">
+            Унікальний ідентифікатор зустрічі.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо зустріч успішно видалено;
+            інакше <see langword="false"/>.
+            </returns>
         </member>
         <member name="M:HW_06.Services.Interfaces.IMeetingService.DeleteManyAsync(System.Collections.Generic.List{System.Int32})">
             <summary>
-            Видалити декілька зустрічей.
+            Видаляє декілька зустрічей за їх ідентифікаторами.
             </summary>
+            <param name="ids">
+            Список ідентифікаторів зустрічей, які необхідно видалити.
+            </param>
+            <returns>
+            Кількість фактично видалених зустрічей.
+            </returns>
         </member>
         <member name="M:HW_06.Services.Interfaces.IMeetingService.GetByParticipantAsync(System.Int32)">
             <summary>
-            Отримати всі зустрічі учасника.
+            Отримує список зустрічей, у яких бере участь вказаний учасник.
             </summary>
+            <param name="participantId">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <returns>
+            Список зустрічей учасника.
+            Якщо учасник не бере участі в жодній зустрічі,
+            повертається порожній список.
+            </returns>
         </member>
         <member name="T:HW_06.Services.Interfaces.IParticipantService">
             <summary>
@@ -1209,14 +1430,27 @@
         </member>
         <member name="M:HW_06.Services.Interfaces.IParticipantService.GetAllAsync(HW_06.Helpers.QueryParameters.ParticipantQueryParameters)">
             <summary>
-            Отримати список учасників
-            з підтримкою пагінації, пошуку та сортування.
+            Отримує список учасників із підтримкою
+            пагінації, пошуку та сортування.
             </summary>
+            <param name="parameters">
+            Параметри пагінації, пошуку та сортування учасників.
+            </param>
+            <returns>
+            Сторінку учасників разом із даними пагінації.
+            </returns>
         </member>
         <member name="M:HW_06.Services.Interfaces.IParticipantService.GetByIdAsync(System.Int32)">
             <summary>
-            Отримати учасника за його ідентифікатором.
+            Отримує учасника за його ідентифікатором.
             </summary>
+            <param name="id">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <returns>
+            Детальну інформацію про учасника або
+            <see langword="null"/>, якщо учасника не знайдено.
+            </returns>
         </member>
         <member name="M:HW_06.Services.Interfaces.IParticipantService.CreateAsync(HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO,System.Threading.CancellationToken)">
             <summary>
@@ -1235,29 +1469,68 @@
         </member>
         <member name="M:HW_06.Services.Interfaces.IParticipantService.UpdateAsync(System.Int32,HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO)">
             <summary>
-            Повністю оновити інформацію про учасника.
+            Повністю оновлює інформацію про учасника.
             </summary>
+            <param name="id">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <param name="dto">
+            Нові дані учасника.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо учасника успішно оновлено;
+            інакше <see langword="false"/>.
+            </returns>
         </member>
         <member name="M:HW_06.Services.Interfaces.IParticipantService.PartialUpdateAsync(System.Int32,HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO)">
             <summary>
-            Частково оновити інформацію про учасника.
+            Частково оновлює інформацію про учасника.
             </summary>
+            <param name="id">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <param name="dto">
+            Дані полів, які необхідно оновити.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо учасника успішно оновлено;
+            інакше <see langword="false"/>.
+            </returns>
         </member>
         <member name="M:HW_06.Services.Interfaces.IParticipantService.DeleteAsync(System.Int32)">
             <summary>
-            Видалити учасника.
+            Видаляє учасника.
             </summary>
+            <param name="id">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо учасника успішно видалено;
+            інакше <see langword="false"/>.
+            </returns>
         </member>
         <member name="M:HW_06.Services.Interfaces.IParticipantService.DeleteManyAsync(System.Collections.Generic.List{System.Int32})">
             <summary>
-            Видалити декількох учасників.
+            Видаляє декількох учасників за їх ідентифікаторами.
             </summary>
+            <param name="ids">
+            Список ідентифікаторів учасників, яких необхідно видалити.
+            </param>
+            <returns>
+            Кількість фактично видалених учасників.
+            </returns>
         </member>
         <member name="M:HW_06.Services.Interfaces.IParticipantService.GetMeetingsAsync(System.Int32)">
             <summary>
-            Отримати список зустрічей,
-            у яких бере участь користувач.
+            Отримує список зустрічей, у яких бере участь учасник.
             </summary>
+            <param name="participantId">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <returns>
+            Список зустрічей учасника.
+            Якщо учасник не має зустрічей, повертається порожній список.
+            </returns>
         </member>
         <member name="M:HW_06.Services.Interfaces.IParticipantService.GetAvatarAsync(System.Int32)">
             <summary>
@@ -1311,8 +1584,7 @@
         </member>
         <member name="M:HW_06.Services.LocalFileStorageService.SaveAsync(Microsoft.AspNetCore.Http.IFormFile,System.String,HW_06.Models.Files.FileAccessLevel,System.Threading.CancellationToken)">
             <summary>
-            Зберігає новий файл та створює для нього
-            унікальний ідентифікатор без розширення.
+            Зберігає новий файл у локальному файловому сховищі.
             </summary>
             <param name="file">
             Файл, який необхідно зберегти.
@@ -1327,7 +1599,7 @@
             Токен скасування операції.
             </param>
             <returns>
-            Унікальний ідентифікатор збереженого файлу без розширення.
+            Унікальне серверне ім’я збереженого файлу без розширення.
             </returns>
         </member>
         <member name="M:HW_06.Services.LocalFileStorageService.DeleteAsync(System.String,System.String,HW_06.Models.Files.FileAccessLevel,System.Threading.CancellationToken)">
@@ -1374,21 +1646,20 @@
         </member>
         <member name="M:HW_06.Services.LocalFileStorageService.OpenRead(System.String,System.String,HW_06.Models.Files.FileAccessLevel)">
             <summary>
-            Відкриває файл для читання, знаходячи його
-            за серверним ім’ям без розширення.
+            Відкриває файл для читання.
             </summary>
             <param name="folder">
-            Каталог, у якому зберігається файл.
+            Назва каталогу, у якому зберігається файл.
             </param>
-            <param name="baseFileName">
+            <param name="fileName">
             Серверне ім’я файлу без розширення.
             </param>
             <param name="accessLevel">
             Рівень доступу до файлу.
             </param>
             <returns>
-            Результат читання файлу або
-            <see langword="null"/>, якщо файл не знайдено.
+            Об’єкт із потоком даних, MIME-типом та ім’ям файлу
+            або <see langword="null"/>, якщо файл не знайдено.
             </returns>
         </member>
         <member name="M:HW_06.Services.LocalFileStorageService.ValidateFile(Microsoft.AspNetCore.Http.IFormFile)">
@@ -1648,6 +1919,53 @@
             <summary>
             Ініціалізує сервіс для роботи з учасниками.
             </summary>
+            <param name="context">
+            Контекст бази даних.
+            </param>
+            <param name="mapper">
+            Екземпляр AutoMapper.
+            </param>
+            <param name="createValidator">
+            Валідатор створення учасника.
+            </param>
+            <param name="updateValidator">
+            Валідатор повного оновлення учасника.
+            </param>
+            <param name="partialValidator">
+            Валідатор часткового оновлення учасника.
+            </param>
+            <param name="fileStorageService">
+            Сервіс локального файлового сховища.
+            </param>
+        </member>
+        <member name="M:HW_06.Services.ParticipantService.GetAllAsync(HW_06.Helpers.QueryParameters.ParticipantQueryParameters)">
+            <summary>
+            Отримує список учасників із підтримкою
+            пошуку за прізвищем, сортування та пагінації.
+            </summary>
+            <param name="parameters">
+            Параметри пошуку, сортування та пагінації учасників.
+            </param>
+            <returns>
+            Сторінку учасників разом із загальною кількістю записів
+            та інформацією про пагінацію.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">
+            Виникає, якщо параметри запиту не передано.
+            </exception>
+        </member>
+        <member name="M:HW_06.Services.ParticipantService.GetByIdAsync(System.Int32)">
+            <summary>
+            Отримує детальну інформацію про учасника
+            разом зі списком його зустрічей.
+            </summary>
+            <param name="id">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <returns>
+            Детальну інформацію про учасника та його зустрічі або
+            <see langword="null"/>, якщо учасника не знайдено.
+            </returns>
         </member>
         <member name="M:HW_06.Services.ParticipantService.CreateAsync(HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO,System.Threading.CancellationToken)">
             <summary>
@@ -1663,6 +1981,105 @@
             </param>
             <returns>
             Створений учасник.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.ParticipantService.ValidateEmailUniquenessAsync(System.String,System.Nullable{System.Int32},System.Threading.CancellationToken)">
+            <summary>
+            Перевіряє унікальність адреси електронної пошти учасника.
+            </summary>
+            <param name="email">
+            Адреса електронної пошти, яку необхідно перевірити.
+            </param>
+            <param name="excludedParticipantId">
+            Ідентифікатор учасника, якого необхідно виключити
+            з перевірки під час оновлення.
+            </param>
+            <param name="cancellationToken">
+            Токен скасування операції.
+            </param>
+            <exception cref="T:HW_06.Validators.Exceptions.ValidationException">
+            Виникає, якщо адреса електронної пошти
+            вже використовується іншим учасником.
+            </exception>
+        </member>
+        <member name="M:HW_06.Services.ParticipantService.UpdateAsync(System.Int32,HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO)">
+            <summary>
+            Повністю оновлює дані учасника та список його зустрічей.
+            </summary>
+            <param name="id">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <param name="dto">
+            Нові дані учасника та список ідентифікаторів зустрічей.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо учасника успішно оновлено;
+            <see langword="false"/>, якщо учасника не знайдено.
+            </returns>
+            <exception cref="T:HW_06.Validators.Exceptions.ValidationException">
+            Виникає, якщо передані дані не пройшли валідацію,
+            електронна пошта вже використовується іншим учасником
+            або вказані зустрічі не існують.
+            </exception>
+        </member>
+        <member name="M:HW_06.Services.ParticipantService.PartialUpdateAsync(System.Int32,HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO)">
+            <summary>
+            Частково оновлює дані учасника та, за необхідності,
+            список його зустрічей.
+            </summary>
+            <param name="id">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <param name="dto">
+            Дані полів учасника, які необхідно оновити.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо учасника успішно оновлено;
+            <see langword="false"/>, якщо учасника не знайдено.
+            </returns>
+            <exception cref="T:HW_06.Validators.Exceptions.ValidationException">
+            Виникає, якщо передані дані не пройшли валідацію,
+            електронна пошта вже використовується іншим учасником
+            або вказані зустрічі не існують.
+            </exception>
+        </member>
+        <member name="M:HW_06.Services.ParticipantService.DeleteAsync(System.Int32)">
+            <summary>
+            Видаляє учасника та його зв’язки із зустрічами.
+            </summary>
+            <param name="id">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо учасника успішно видалено;
+            <see langword="false"/>, якщо учасника не знайдено.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.ParticipantService.DeleteManyAsync(System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Видаляє декількох учасників та їхні зв’язки із зустрічами.
+            </summary>
+            <param name="ids">
+            Список ідентифікаторів учасників, яких необхідно видалити.
+            </param>
+            <returns>
+            Кількість фактично видалених учасників.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">
+            Виникає, якщо список ідентифікаторів не передано.
+            </exception>
+        </member>
+        <member name="M:HW_06.Services.ParticipantService.GetMeetingsAsync(System.Int32)">
+            <summary>
+            Отримує список зустрічей, у яких бере участь
+            вказаний учасник.
+            </summary>
+            <param name="participantId">
+            Унікальний ідентифікатор учасника.
+            </param>
+            <returns>
+            Список зустрічей учасника, впорядкований за датою.
+            Якщо зустрічей не знайдено, повертається порожній список.
             </returns>
         </member>
         <member name="M:HW_06.Services.ParticipantService.GetAvatarAsync(System.Int32)">
@@ -1699,36 +2116,635 @@
             Виникає, якщо файл не передано або він порожній.
             </exception>
         </member>
+        <member name="M:HW_06.Services.ParticipantService.ValidateMeetingIdsAsync(System.Collections.Generic.List{System.Int32},System.String)">
+            <summary>
+            Перевіряє, що всі передані ідентифікатори зустрічей існують
+            в базі даних.
+            </summary>
+            <param name="meetingIds">
+            Список ідентифікаторів зустрічей.
+            </param>
+            <param name="propertyName">
+            Назва властивості, для якої формується повідомлення
+            про помилку валідації.
+            </param>
+            <exception cref="T:HW_06.Validators.Exceptions.ValidationException">
+            Виникає, якщо хоча б одну із зустрічей не знайдено.
+            </exception>
+        </member>
         <member name="T:HW_06.Validators.Exceptions.ValidationException">
             <summary>
-            Исключение, возникающее при ошибке проверки входных данных.
+            Виняток, який виникає під час помилки
+            валідації вхідних даних.
             </summary>
+        </member>
+        <member name="P:HW_06.Validators.Exceptions.ValidationException.Errors">
+            <summary>
+            Список помилок, виявлених під час валідації.
+            </summary>
+        </member>
+        <member name="M:HW_06.Validators.Exceptions.ValidationException.#ctor(System.Collections.Generic.IEnumerable{HW_06.Validators.ResultsValid.ValidationError})">
+            <summary>
+            Ініціалізує новий екземпляр винятку
+            на основі списку помилок валідації.
+            </summary>
+            <param name="errors">
+            Колекція помилок валідації.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.Exceptions.ValidationException.#ctor(System.String,System.String)">
+            <summary>
+            Ініціалізує новий екземпляр винятку
+            для однієї помилки валідації.
+            </summary>
+            <param name="propertyName">
+            Назва властивості, для якої виникла помилка.
+            </param>
+            <param name="errorMessage">
+            Текст повідомлення про помилку.
+            </param>
+        </member>
+        <member name="T:HW_06.Validators.FileValid.AvatarFileValidator">
+            <summary>
+            Виконує перевірку файлів аватарів перед їх завантаженням.
+            </summary>
+        </member>
+        <member name="M:HW_06.Validators.FileValid.AvatarFileValidator.ValidateAvatar(Microsoft.AspNetCore.Http.IFormFile,System.Int64)">
+            <summary>
+            Перевіряє коректність файлу аватара за розміром,
+            розширенням, MIME-типом та сигнатурою.
+            </summary>
+            <param name="file">
+            Файл аватара, який необхідно перевірити.
+            </param>
+            <param name="maxBytes">
+            Максимально допустимий розмір файлу в байтах.
+            </param>
+            <returns>
+            Повідомлення про помилку, якщо перевірку не пройдено,
+            або <see langword="null"/>, якщо файл є коректним.
+            </returns>
+        </member>
+        <member name="M:HW_06.Validators.FileValid.AvatarFileValidator.ValidateSignature(Microsoft.AspNetCore.Http.IFormFile,System.String)">
+            <summary>
+            Перевіряє, чи відповідає сигнатура файлу
+            заявленому розширенню.
+            </summary>
+            <param name="file">
+            Файл, який необхідно перевірити.
+            </param>
+            <param name="ext">
+            Розширення файлу.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо сигнатура відповідає
+            розширенню; інакше — <see langword="false"/>.
+            </returns>
+        </member>
+        <member name="T:HW_06.Validators.IValidator`1">
+            <summary>
+            Визначає контракт для виконання
+            валідації моделей.
+            </summary>
+        </member>
+        <member name="M:HW_06.Validators.IValidator`1.Validate(`0)">
+            <summary>
+            Виконує перевірку моделі.
+            </summary>
+            <param name="model">
+            Модель, яку необхідно перевірити.
+            </param>
+            <returns>
+            Результат валідації, що містить інформацію
+            про успішність перевірки та можливі помилки.
+            </returns>
+        </member>
+        <member name="T:HW_06.Validators.MeetingValid.MeetingCreateValidator">
+            <summary>
+            Виконує перевірку даних,
+            необхідних для створення зустрічі.
+            </summary>
+        </member>
+        <member name="M:HW_06.Validators.MeetingValid.MeetingCreateValidator.Validate(HW_06.DTOs.MeetingDTO.MeetingCreateDTO)">
+            <summary>
+            Виконує комплексну перевірку
+            даних створення зустрічі.
+            </summary>
+            <param name="model">
+            DTO з даними для створення зустрічі.
+            </param>
+            <returns>
+            Результат валідації, що містить
+            інформацію про виявлені помилки.
+            </returns>
+        </member>
+        <member name="M:HW_06.Validators.MeetingValid.MeetingCreateValidator.ValidateTitle(HW_06.DTOs.MeetingDTO.MeetingCreateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність назви зустрічі.
+            </summary>
+            <param name="model">
+            DTO створення зустрічі.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.MeetingValid.MeetingCreateValidator.ValidateDescription(HW_06.DTOs.MeetingDTO.MeetingCreateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність опису зустрічі.
+            </summary>
+            <param name="model">
+            DTO створення зустрічі.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.MeetingValid.MeetingCreateValidator.ValidateDate(HW_06.DTOs.MeetingDTO.MeetingCreateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність дати та часу зустрічі.
+            </summary>
+            <param name="model">
+            DTO створення зустрічі.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
         </member>
         <member name="M:HW_06.Validators.MeetingValid.MeetingCreateValidator.ValidateRoom(HW_06.DTOs.MeetingDTO.MeetingCreateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
             <summary>
-            Перевіряє номер кімнати.
+            Перевіряє коректність номера кімнати.
             </summary>
-            <param name="model">DTO створення зустрічі.</param>
-            <param name="result">Результат валідації.</param>
+            <param name="model">
+            DTO створення зустрічі.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.MeetingValid.MeetingCreateValidator.ValidateParticipants(HW_06.DTOs.MeetingDTO.MeetingCreateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність списку учасників зустрічі.
+            </summary>
+            <param name="model">
+            DTO створення зустрічі.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="T:HW_06.Validators.MeetingValid.MeetingPartialUpdateValidator">
+            <summary>
+            Виконує перевірку даних,
+            необхідних для часткового оновлення зустрічі.
+            </summary>
+        </member>
+        <member name="M:HW_06.Validators.MeetingValid.MeetingPartialUpdateValidator.ValidateTitle(HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність назви зустрічі.
+            </summary>
+            <param name="model">
+            DTO часткового оновлення зустрічі.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.MeetingValid.MeetingPartialUpdateValidator.ValidateDescription(HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність опису зустрічі.
+            </summary>
+            <param name="model">
+            DTO часткового оновлення зустрічі.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.MeetingValid.MeetingPartialUpdateValidator.ValidateDate(HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність дати та часу зустрічі.
+            </summary>
+            <param name="model">
+            DTO часткового оновлення зустрічі.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
         </member>
         <member name="M:HW_06.Validators.MeetingValid.MeetingPartialUpdateValidator.ValidateRoom(HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
             <summary>
-            Перевіряє новий номер кімнати.
+            Перевіряє коректність номера кімнати.
             </summary>
-            <param name="model">DTO часткового оновлення зустрічі.</param>
-            <param name="result">Результат валідації.</param>
+            <param name="model">
+            DTO часткового оновлення зустрічі.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="T:HW_06.Validators.MeetingValid.MeetingUpdateValidator">
+            <summary>
+            Виконує перевірку даних,
+            необхідних для повного оновлення зустрічі.
+            </summary>
+        </member>
+        <member name="M:HW_06.Validators.MeetingValid.MeetingUpdateValidator.Validate(HW_06.DTOs.MeetingDTO.MeetingUpdateDTO)">
+            <summary>
+            Виконує комплексну перевірку
+            даних повного оновлення зустрічі.
+            </summary>
+            <param name="model">
+            DTO з даними для повного оновлення зустрічі.
+            </param>
+            <returns>
+            Результат валідації, що містить
+            інформацію про виявлені помилки.
+            </returns>
+        </member>
+        <member name="M:HW_06.Validators.MeetingValid.MeetingUpdateValidator.ValidateMeetingId(HW_06.DTOs.MeetingDTO.MeetingUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність ідентифікатора зустрічі.
+            </summary>
+            <param name="model">
+            DTO повного оновлення зустрічі.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.MeetingValid.MeetingUpdateValidator.ValidateTitle(HW_06.DTOs.MeetingDTO.MeetingUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність назви зустрічі.
+            </summary>
+            <param name="model">
+            DTO повного оновлення зустрічі.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.MeetingValid.MeetingUpdateValidator.ValidateDescription(HW_06.DTOs.MeetingDTO.MeetingUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність опису зустрічі.
+            </summary>
+            <param name="model">
+            DTO повного оновлення зустрічі.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.MeetingValid.MeetingUpdateValidator.ValidateDate(HW_06.DTOs.MeetingDTO.MeetingUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність дати та часу зустрічі.
+            </summary>
+            <param name="model">
+            DTO повного оновлення зустрічі.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
         </member>
         <member name="M:HW_06.Validators.MeetingValid.MeetingUpdateValidator.ValidateRoom(HW_06.DTOs.MeetingDTO.MeetingUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
             <summary>
-            Перевіряє номер кімнати.
+            Перевіряє коректність номера кімнати.
             </summary>
-            <param name="model">DTO повного оновлення зустрічі.</param>
-            <param name="result">Результат валідації.</param>
+            <param name="model">
+            DTO повного оновлення зустрічі.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.MeetingValid.MeetingUpdateValidator.ValidateParticipants(HW_06.DTOs.MeetingDTO.MeetingUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність списку учасників зустрічі.
+            </summary>
+            <param name="model">
+            DTO повного оновлення зустрічі.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="T:HW_06.Validators.ParticipantValid.ParticipantCreateValidator">
+            <summary>
+            Виконує перевірку даних,
+            необхідних для створення учасника.
+            </summary>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantCreateValidator.Validate(HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO)">
+            <summary>
+            Виконує комплексну перевірку
+            даних створення учасника.
+            </summary>
+            <param name="model">
+            DTO з даними для створення учасника.
+            </param>
+            <returns>
+            Результат валідації, що містить
+            інформацію про виявлені помилки.
+            </returns>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantCreateValidator.ValidateFirstName(HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність імені учасника.
+            </summary>
+            <param name="model">
+            DTO створення учасника.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantCreateValidator.ValidateLastName(HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність прізвища учасника.
+            </summary>
+            <param name="model">
+            DTO створення учасника.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantCreateValidator.ValidateEmail(HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє наявність і коректність
+            адреси електронної пошти учасника.
+            </summary>
+            <param name="model">
+            DTO створення учасника.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantCreateValidator.ValidateRole(HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність ролі учасника.
+            </summary>
+            <param name="model">
+            DTO створення учасника.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantCreateValidator.ValidateListMeeting(HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність списку зустрічей учасника.
+            </summary>
+            <param name="model">
+            DTO створення учасника.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="T:HW_06.Validators.ParticipantValid.ParticipantPartialUpdateValidator">
+            <summary>
+            Виконує перевірку даних,
+            необхідних для часткового оновлення учасника.
+            </summary>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantPartialUpdateValidator.Validate(HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO)">
+            <summary>
+            Виконує комплексну перевірку
+            даних часткового оновлення учасника.
+            </summary>
+            <param name="model">
+            DTO з даними для часткового оновлення учасника.
+            </param>
+            <returns>
+            Результат валідації, що містить
+            інформацію про виявлені помилки.
+            </returns>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantPartialUpdateValidator.ValidateFirstName(HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність імені учасника.
+            </summary>
+            <param name="model">
+            DTO часткового оновлення учасника.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantPartialUpdateValidator.ValidateLastName(HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність прізвища учасника.
+            </summary>
+            <param name="model">
+            DTO часткового оновлення учасника.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantPartialUpdateValidator.ValidateEmail(HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність адреси
+            електронної пошти учасника.
+            </summary>
+            <param name="model">
+            DTO часткового оновлення учасника.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantPartialUpdateValidator.ValidateRole(HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність ролі учасника.
+            </summary>
+            <param name="model">
+            DTO часткового оновлення учасника.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantPartialUpdateValidator.ValidateMeetingIds(HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність списку
+            ідентифікаторів зустрічей учасника.
+            </summary>
+            <param name="model">
+            DTO часткового оновлення учасника.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="T:HW_06.Validators.ParticipantValid.ParticipantUpdateValidator">
+            <summary>
+            Виконує перевірку даних,
+            необхідних для повного оновлення учасника.
+            </summary>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantUpdateValidator.Validate(HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO)">
+            <summary>
+            Виконує комплексну перевірку
+            даних повного оновлення учасника.
+            </summary>
+            <param name="model">
+            DTO з даними для повного оновлення учасника.
+            </param>
+            <returns>
+            Результат валідації, що містить
+            інформацію про виявлені помилки.
+            </returns>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantUpdateValidator.ValidateParticipantId(HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність ідентифікатора учасника.
+            </summary>
+            <param name="model">
+            DTO повного оновлення учасника.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantUpdateValidator.ValidateFirstName(HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність імені учасника.
+            </summary>
+            <param name="model">
+            DTO повного оновлення учасника.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantUpdateValidator.ValidateLastName(HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність прізвища учасника.
+            </summary>
+            <param name="model">
+            DTO повного оновлення учасника.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantUpdateValidator.ValidateEmail(HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє наявність і коректність
+            адреси електронної пошти учасника.
+            </summary>
+            <param name="model">
+            DTO повного оновлення учасника.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantUpdateValidator.ValidateRole(HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність ролі учасника.
+            </summary>
+            <param name="model">
+            DTO повного оновлення учасника.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="M:HW_06.Validators.ParticipantValid.ParticipantUpdateValidator.ValidateMeetingIds(HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO,HW_06.Validators.ResultsValid.ValidationResult)">
+            <summary>
+            Перевіряє коректність списку
+            ідентифікаторів зустрічей учасника.
+            </summary>
+            <param name="model">
+            DTO повного оновлення учасника.
+            </param>
+            <param name="result">
+            Результат валідації, до якого додаються виявлені помилки.
+            </param>
+        </member>
+        <member name="T:HW_06.Validators.ResultsValid.ValidationError">
+            <summary>
+            Представляє інформацію
+            про окрему помилку валідації.
+            </summary>
+        </member>
+        <member name="P:HW_06.Validators.ResultsValid.ValidationError.PropertyName">
+            <summary>
+            Назва властивості,
+            для якої виникла помилка.
+            </summary>
+        </member>
+        <member name="P:HW_06.Validators.ResultsValid.ValidationError.ErrorMessage">
+            <summary>
+            Повідомлення
+            про помилку валідації.
+            </summary>
+        </member>
+        <member name="M:HW_06.Validators.ResultsValid.ValidationError.#ctor(System.String,System.String)">
+            <summary>
+            Ініціалізує новий екземпляр
+            класу <see cref="T:HW_06.Validators.ResultsValid.ValidationError"/>.
+            </summary>
+            <param name="propertyName">
+            Назва властивості, для якої виникла помилка.
+            </param>
+            <param name="errorMessage">
+            Текст повідомлення про помилку.
+            </param>
+        </member>
+        <member name="T:HW_06.Validators.ResultsValid.ValidationResult">
+            <summary>
+            Представляє результат
+            виконання валідації моделі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Validators.ResultsValid.ValidationResult.Errors">
+            <summary>
+            Колекція помилок,
+            виявлених під час валідації.
+            </summary>
+        </member>
+        <member name="P:HW_06.Validators.ResultsValid.ValidationResult.IsValid">
+            <summary>
+            Вказує, чи пройшла
+            валідація успішно.
+            </summary>
+        </member>
+        <member name="M:HW_06.Validators.ResultsValid.ValidationResult.AddError(System.String,System.String)">
+            <summary>
+            Додає нову помилку
+            до результату валідації.
+            </summary>
+            <param name="propertyName">
+            Назва властивості, для якої виникла помилка.
+            </param>
+            <param name="errorMessage">
+            Текст повідомлення про помилку.
+            </param>
         </member>
         <member name="T:Program">
             <summary>
             Auto-generated public partial Program class for top-level statement apps.
             </summary>
+        </member>
+        <member name="T:MeetingConfiguration">
+            <summary>
+            Конфігурація моделі <see cref="T:HW_06.Models.Meeting"/>
+            для Entity Framework Core.
+            </summary>
+        </member>
+        <member name="M:MeetingConfiguration.Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder{HW_06.Models.Meeting})">
+            <summary>
+            Налаштовує структуру таблиці та властивостей
+            сутності <see cref="T:HW_06.Models.Meeting"/>.
+            </summary>
+            <param name="builder">
+            Будівник конфігурації сутності.
+            </param>
         </member>
         <member name="T:ParticipantConfiguration">
             <summary>

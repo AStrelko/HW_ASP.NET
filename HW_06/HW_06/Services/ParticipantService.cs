@@ -192,6 +192,18 @@ public class ParticipantService : IParticipantService
                 validationResult.Errors);
         }
 
+        await ValidateEmailUniquenessAsync(
+            dto.Email,
+            cancellationToken: cancellationToken);
+
+        var meetingIds = dto.MeetingIds
+            .Distinct()
+            .ToList();
+
+        await ValidateMeetingIdsAsync(
+            meetingIds,
+            nameof(dto.MeetingIds));
+
         var participant =
             _mapper.Map<Participant>(dto);
 
@@ -213,31 +225,14 @@ public class ParticipantService : IParticipantService
                     savedAvatarFileName;
             }
 
-            var meetingIds = dto.MeetingIds
-                .Where(id => id > 0)
-                .Distinct()
-                .ToList();
-
-            if (meetingIds.Count > 0)
-            {
-                var existingMeetingIds =
-                    await _context.Meetings
-                        .Where(meeting =>
-                            meetingIds.Contains(
-                                meeting.MeetingId))
-                        .Select(meeting =>
-                            meeting.MeetingId)
-                        .ToListAsync(cancellationToken);
-
-                participant.MeetingParticipants =
-                    existingMeetingIds
-                        .Select(meetingId =>
-                            new MeetingParticipant
-                            {
-                                MeetingId = meetingId
-                            })
-                        .ToList();
-            }
+            participant.MeetingParticipants =
+                meetingIds
+                    .Select(meetingId =>
+                        new MeetingParticipant
+                        {
+                            MeetingId = meetingId
+                        })
+                    .ToList();
 
             await _context.Participants.AddAsync(
                 participant,
@@ -262,6 +257,49 @@ public class ParticipantService : IParticipantService
             }
 
             throw;
+        }
+    }
+    /// <summary>
+    /// Перевіряє унікальність адреси електронної пошти учасника.
+    /// </summary>
+    /// <param name="email">
+    /// Адреса електронної пошти, яку необхідно перевірити.
+    /// </param>
+    /// <param name="excludedParticipantId">
+    /// Ідентифікатор учасника, якого необхідно виключити
+    /// з перевірки під час оновлення.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Токен скасування операції.
+    /// </param>
+    /// <exception cref="ValidationException">
+    /// Виникає, якщо адреса електронної пошти
+    /// вже використовується іншим учасником.
+    /// </exception>
+    private async Task ValidateEmailUniquenessAsync(
+        string email,
+        int? excludedParticipantId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var normalizedEmail = email
+            .Trim()
+            .ToLowerInvariant();
+
+        var emailExists = await _context.Participants
+            .AnyAsync(
+                participant =>
+                    participant.Email.ToLower() ==
+                    normalizedEmail &&
+                    (!excludedParticipantId.HasValue ||
+                     participant.ParticipantId !=
+                     excludedParticipantId.Value),
+                cancellationToken);
+
+        if (emailExists)
+        {
+            throw new ValidationException(
+                "Email",
+                "Учасник із такою електронною поштою вже існує.");
         }
     }
 
@@ -307,22 +345,13 @@ public class ParticipantService : IParticipantService
             return false;
         }
 
+        await ValidateEmailUniquenessAsync(
+            dto.Email,
+            id);
+
         var normalizedEmail = dto.Email
             .Trim()
             .ToLowerInvariant();
-
-        var emailExists = await _context.Participants
-            .AnyAsync(otherParticipant =>
-                otherParticipant.ParticipantId != id &&
-                otherParticipant.Email.ToLower() ==
-                normalizedEmail);
-
-        if (emailExists)
-        {
-            throw new ValidationException(
-                nameof(dto.Email),
-                "Учасник із такою електронною поштою вже існує.");
-        }
 
         var meetingIds = dto.MeetingIds
             .Distinct()
@@ -381,99 +410,87 @@ public class ParticipantService : IParticipantService
     /// або вказані зустрічі не існують.
     /// </exception>
     public async Task<bool> PartialUpdateAsync(
-    int id,
-    ParticipantPartialUpdateDTO dto)
-{
-    var validationResult =
-        _partialValidator.Validate(dto);
-
-    if (!validationResult.IsValid)
+        int id,
+        ParticipantPartialUpdateDTO dto)
     {
-        throw new ValidationException(
-            validationResult.Errors);
-    }
+        var validationResult =
+            _partialValidator.Validate(dto);
 
-    var participant = await _context.Participants
-        .Include(participant =>
-            participant.MeetingParticipants)
-        .FirstOrDefaultAsync(participant =>
-            participant.ParticipantId == id);
-
-    if (participant is null)
-    {
-        return false;
-    }
-
-    if (dto.FirstName is not null)
-    {
-        participant.FirstName =
-            dto.FirstName.Trim();
-    }
-
-    if (dto.LastName is not null)
-    {
-        participant.LastName =
-            dto.LastName.Trim();
-    }
-
-    if (dto.Email is not null)
-    {
-        var normalizedEmail = dto.Email
-            .Trim()
-            .ToLowerInvariant();
-
-        var emailExists = await _context.Participants
-            .AnyAsync(otherParticipant =>
-                otherParticipant.ParticipantId != id &&
-                otherParticipant.Email.ToLower() ==
-                normalizedEmail);
-
-        if (emailExists)
+        if (!validationResult.IsValid)
         {
             throw new ValidationException(
-                nameof(dto.Email),
-                "Учасник із такою електронною поштою вже існує.");
+                validationResult.Errors);
         }
 
-        participant.Email =
-            normalizedEmail;
-    }
+        var participant = await _context.Participants
+            .Include(participant =>
+                participant.MeetingParticipants)
+            .FirstOrDefaultAsync(participant =>
+                participant.ParticipantId == id);
 
-    if (dto.Role is not null)
-    {
-        participant.Role =
-            dto.Role.Trim();
-    }
-
-    if (dto.MeetingIds is not null)
-    {
-        var meetingIds = dto.MeetingIds
-            .Distinct()
-            .ToList();
-
-        await ValidateMeetingIdsAsync(
-            meetingIds,
-            nameof(dto.MeetingIds));
-
-        participant.MeetingParticipants.Clear();
-
-        foreach (var meetingId in meetingIds)
+        if (participant is null)
         {
-            participant.MeetingParticipants.Add(
-                new MeetingParticipant
-                {
-                    ParticipantId =
-                        participant.ParticipantId,
-
-                    MeetingId = meetingId
-                });
+            return false;
         }
+
+        if (dto.FirstName is not null)
+        {
+            participant.FirstName =
+                dto.FirstName.Trim();
+        }
+
+        if (dto.LastName is not null)
+        {
+            participant.LastName =
+                dto.LastName.Trim();
+        }
+
+        if (dto.Email is not null)
+        {
+            await ValidateEmailUniquenessAsync(
+                dto.Email,
+                id);
+
+            participant.Email = dto.Email
+                .Trim()
+                .ToLowerInvariant();
+        }
+
+        if (dto.Role is not null)
+        {
+            participant.Role =
+                dto.Role.Trim();
+        }
+
+        if (dto.MeetingIds is not null)
+        {
+            var meetingIds = dto.MeetingIds
+                .Distinct()
+                .ToList();
+
+            await ValidateMeetingIdsAsync(
+                meetingIds,
+                nameof(dto.MeetingIds));
+
+            participant.MeetingParticipants.Clear();
+
+            foreach (var meetingId in meetingIds)
+            {
+                participant.MeetingParticipants.Add(
+                    new MeetingParticipant
+                    {
+                        ParticipantId =
+                            participant.ParticipantId,
+
+                        MeetingId = meetingId
+                    });
+            }
+        }
+
+        await _context.SaveChangesAsync();
+
+        return true;
     }
-
-    await _context.SaveChangesAsync();
-
-    return true;
-}
 
     /// <summary>
     /// Видаляє учасника та його зв’язки із зустрічами.
