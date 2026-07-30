@@ -31,4 +31,9 @@ public class Meeting
     /// </summary>
     public ICollection<MeetingParticipant> MeetingParticipants { get; set; }
         = new List<MeetingParticipant>();
+    /// <summary>
+    /// Коллекция файлов-вложений, прикреплённых к встрече.
+    /// </summary>
+    public ICollection<MeetingAttachment> Attachments { get; set; }
+        = new List<MeetingAttachment>();
 }

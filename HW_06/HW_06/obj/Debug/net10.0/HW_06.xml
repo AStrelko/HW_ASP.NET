@@ -363,6 +363,11 @@
             Містить набори сутностей та конфігурацію зв'язків між ними.
             </summary>
         </member>
+        <member name="P:HW_06.DataContext.MeetingAttachments">
+            <summary>
+            Набор файлов-вложений встреч.
+            </summary>
+        </member>
         <member name="T:HW_06.DTOs.Files.AvatarUploadDTO">
             <summary>
             DTO для завантаження аватара учасника.
@@ -1045,6 +1050,18 @@
         <member name="M:HW_06.Migrations.AddParticipantAvatar.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:HW_06.Migrations.AddMeetingAttachments">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddMeetingAttachments.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddMeetingAttachments.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddMeetingAttachments.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="T:HW_06.Models.Files.FileAccessLevel">
             <summary>
             Визначає рівень доступу до файлу.
@@ -1128,6 +1145,61 @@
         <member name="P:HW_06.Models.Meeting.MeetingParticipants">
             <summary>
             Учасники зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Meeting.Attachments">
+            <summary>
+            Коллекция файлов-вложений, прикреплённых к встрече.
+            </summary>
+        </member>
+        <member name="T:HW_06.Models.MeetingAttachment">
+            <summary>
+            Представляет файл-вложение, прикреплённый к встрече.
+            Содержит метаданные файла и информацию о его расположении
+            в файловом хранилище.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.MeetingAttachment.Id">
+            <summary>
+            Уникальный идентификатор вложения.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.MeetingAttachment.OriginalFileName">
+            <summary>
+            Оригинальное имя файла, переданное пользователем.
+            Используется для отображения и скачивания файла.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.MeetingAttachment.StoredFileName">
+            <summary>
+            Уникальное имя файла, под которым он хранится на диске.
+            Обычно формируется на основе значения <see cref="T:System.Guid"/>.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.MeetingAttachment.ContentType">
+            <summary>
+            MIME-тип содержимого файла.
+            Например: application/pdf или image/png.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.MeetingAttachment.SizeBytes">
+            <summary>
+            Размер файла в байтах.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.MeetingAttachment.UploadedAtUtc">
+            <summary>
+            Дата и время загрузки файла в формате UTC.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.MeetingAttachment.MeetingId">
+            <summary>
+            Идентификатор встречи, к которой прикреплён файл.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.MeetingAttachment.Meeting">
+            <summary>
+            Встреча, к которой относится данное вложение.
             </summary>
         </member>
         <member name="T:HW_06.Models.MeetingParticipant">
@@ -2131,6 +2203,21 @@
             <exception cref="T:HW_06.Validators.Exceptions.ValidationException">
             Виникає, якщо хоча б одну із зустрічей не знайдено.
             </exception>
+        </member>
+        <member name="T:HW_06.Configurations.MeetingAttachmentConfiguration">
+            <summary>
+            Настраивает сущность <see cref="T:HW_06.Models.MeetingAttachment"/>
+            и её связь с сущностью <see cref="T:HW_06.Models.Meeting"/>.
+            </summary>
+        </member>
+        <member name="M:HW_06.Configurations.MeetingAttachmentConfiguration.Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder{HW_06.Models.MeetingAttachment})">
+            <summary>
+            Выполняет настройку таблицы, свойств и связей
+            для сущности файла-вложения встречи.
+            </summary>
+            <param name="builder">
+            Объект построителя конфигурации сущности.
+            </param>
         </member>
         <member name="T:HW_06.Validators.Exceptions.ValidationException">
             <summary>

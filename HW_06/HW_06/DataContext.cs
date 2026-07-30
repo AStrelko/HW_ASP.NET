@@ -18,6 +18,10 @@ public class DataContext : DbContext
     public DbSet<Room> Rooms { get; set; }
     public DbSet<Participant> Participants { get; set; }
     public DbSet<MeetingParticipant> MeetingParticipants { get; set; }
+    /// <summary>
+    /// Набор файлов-вложений встреч.
+    /// </summary>
+    public DbSet<MeetingAttachment> MeetingAttachments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
