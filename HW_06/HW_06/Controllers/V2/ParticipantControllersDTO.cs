@@ -251,108 +251,106 @@ public class ParticipantControllersDTO : ControllerBase
         }
     }
     
- /// <summary>
-/// Додає або замінює аватар учасника.
-/// </summary>
-/// <remarks>
-/// Якщо аватар відсутній — буде додано новий.
-/// Якщо аватар уже існує — він буде автоматично замінений.
-/// </remarks>
-/// <param name="participantId">
-/// Унікальний ідентифікатор учасника.
-/// </param>
-/// <param name="dto">
-/// DTO, що містить файл аватара.
-/// </param>
-/// <param name="cancellationToken">
-/// Токен скасування операції.
-/// </param>
-/// <returns>
-/// Інформація про учасника та URL аватара.
-/// </returns>
-/// <response code="200">
-/// Аватар успішно збережено.
-/// </response>
-/// <response code="400">
-/// Файл не пройшов перевірку.
-/// </response>
-/// <response code="404">
-/// Учасника із зазначеним ідентифікатором не знайдено.
-/// </response>
-/// <response code="413">
-/// Розмір файла перевищує допустиме значення.
-/// </response>
-[HttpPut("{participantId:int}/avatar")]
-[Consumes("multipart/form-data")]
-[Produces("application/json")]
-[RequestSizeLimit(MaxAvatarSize)]
-[ProducesResponseType<ParticipantAvatarDTO>(
-    StatusCodes.Status200OK)]
-[ProducesResponseType(
-    StatusCodes.Status400BadRequest)]
-[ProducesResponseType(
-    StatusCodes.Status404NotFound)]
-[ProducesResponseType(
-    StatusCodes.Status413PayloadTooLarge)]
-public async Task<ActionResult<ParticipantAvatarDTO>>
-    UploadAvatarAsync(
-        int participantId,
-        [FromForm] AvatarUploadDTO dto,
-        CancellationToken cancellationToken)
-{
-    var validationError =
-        AvatarFileValidator.ValidateAvatar(
-            dto.File,
-            MaxAvatarSize);
-
-    if (validationError is not null)
+    /// <summary>
+    /// Встановлює або замінює аватар учасника.
+    /// </summary>
+    /// <remarks>
+    /// Якщо учасник ще не має аватара, файл буде збережено.
+    /// Якщо аватар уже існує, він буде замінений новим файлом.
+    /// </remarks>
+    /// <param name="participantId">
+    /// Унікальний ідентифікатор учасника.
+    /// </param>
+    /// <param name="dto">
+    /// Дані форми з файлом аватара.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Токен скасування операції.
+    /// </param>
+    /// <returns>
+    /// Дані учасника з актуальним посиланням на аватар.
+    /// </returns>
+    /// <response code="200">
+    /// Аватар успішно встановлено або замінено.
+    /// </response>
+    /// <response code="400">
+    /// Файл не передано або він не пройшов перевірку.
+    /// </response>
+    /// <response code="404">
+    /// Учасника із зазначеним ідентифікатором не знайдено.
+    /// </response>
+    /// <response code="413">
+    /// Розмір файлу перевищує допустиме значення.
+    /// </response>
+    [HttpPut("{participantId:int}/avatar")]
+    [Consumes("multipart/form-data")]
+    [Produces("application/json")]
+    [RequestSizeLimit(MaxAvatarSize)]
+    [ProducesResponseType<ParticipantAvatarDTO>(
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        StatusCodes.Status404NotFound)]
+    [ProducesResponseType(
+        StatusCodes.Status413PayloadTooLarge)]
+    public async Task<ActionResult<ParticipantAvatarDTO>>
+        UploadAvatarAsync(
+            int participantId,
+            [FromForm] AvatarUploadDTO dto,
+            CancellationToken cancellationToken)
     {
-        return BadRequest(new
-        {
-            message = validationError
-        });
-    }
-
-    try
-    {
-        var participantAvatar =
-            await _service.UploadAvatarAsync(
-                participantId,
+        var validationError =
+            AvatarFileValidator.ValidateAvatar(
                 dto.File,
-                cancellationToken);
+                MaxAvatarSize);
 
-        if (participantAvatar is null)
+        if (validationError is not null)
         {
-            return NotFound(new
+            return BadRequest(new
             {
-                message =
-                    "Учасника із зазначеним " +
-                    "ідентифікатором не знайдено."
+                message = validationError
             });
         }
 
-        var result =
-            AddAvatarUrl(participantAvatar);
+        try
+        {
+            var participantAvatar =
+                await _service.UploadAvatarAsync(
+                    participantId,
+                    dto.File,
+                    cancellationToken);
 
-        return Ok(result);
-    }
-    catch (ValidationException exception)
-    {
-        return BadRequest(new
+            if (participantAvatar is null)
+            {
+                return NotFound(new
+                {
+                    message =
+                        "Учасника із зазначеним " +
+                        "ідентифікатором не знайдено."
+                });
+            }
+
+            return Ok(
+                AddAvatarUrl(participantAvatar));
+        }
+        catch (ValidationException exception)
         {
-            message =
-                "Не вдалося зберегти аватар.",
-            errors = exception.Errors
-        });
-    }
-    catch (ArgumentException exception)
-    {
-        return BadRequest(new
+            return BadRequest(new
+            {
+                message = "Не вдалося зберегти аватар.",
+                errors = exception.Errors
+            });
+        }
+        catch (ArgumentException exception)
         {
-            message = exception.Message
-        });
+            return BadRequest(new
+            {
+                message = exception.Message
+            });
+        }
     }
-}
+    
     /// <summary>
     /// Повне оновлення інформації про учасника.
     /// </summary>

@@ -15,15 +15,28 @@ namespace HW_06.Services.Interfaces;
 public interface IParticipantService
 {
     /// <summary>
-    /// Отримати список учасників
-    /// з підтримкою пагінації, пошуку та сортування.
+    /// Отримує список учасників із підтримкою
+    /// пагінації, пошуку та сортування.
     /// </summary>
+    /// <param name="parameters">
+    /// Параметри пагінації, пошуку та сортування учасників.
+    /// </param>
+    /// <returns>
+    /// Сторінку учасників разом із даними пагінації.
+    /// </returns>
     Task<PagedResult<ParticipantReadDTO>> GetAllAsync(
         ParticipantQueryParameters parameters);
 
     /// <summary>
-    /// Отримати учасника за його ідентифікатором.
+    /// Отримує учасника за його ідентифікатором.
     /// </summary>
+    /// <param name="id">
+    /// Унікальний ідентифікатор учасника.
+    /// </param>
+    /// <returns>
+    /// Детальну інформацію про учасника або
+    /// <see langword="null"/>, якщо учасника не знайдено.
+    /// </returns>
     Task<ParticipantDetailDTO?> GetByIdAsync(int id);
 
     /// <summary>
@@ -44,33 +57,72 @@ public interface IParticipantService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Повністю оновити інформацію про учасника.
+    /// Повністю оновлює інформацію про учасника.
     /// </summary>
+    /// <param name="id">
+    /// Унікальний ідентифікатор учасника.
+    /// </param>
+    /// <param name="dto">
+    /// Нові дані учасника.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/>, якщо учасника успішно оновлено;
+    /// інакше <see langword="false"/>.
+    /// </returns>
     Task<bool> UpdateAsync(
         int id,
         ParticipantUpdateDTO dto);
 
     /// <summary>
-    /// Частково оновити інформацію про учасника.
+    /// Частково оновлює інформацію про учасника.
     /// </summary>
+    /// <param name="id">
+    /// Унікальний ідентифікатор учасника.
+    /// </param>
+    /// <param name="dto">
+    /// Дані полів, які необхідно оновити.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/>, якщо учасника успішно оновлено;
+    /// інакше <see langword="false"/>.
+    /// </returns>
     Task<bool> PartialUpdateAsync(
         int id,
         ParticipantPartialUpdateDTO dto);
 
     /// <summary>
-    /// Видалити учасника.
+    /// Видаляє учасника.
     /// </summary>
+    /// <param name="id">
+    /// Унікальний ідентифікатор учасника.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/>, якщо учасника успішно видалено;
+    /// інакше <see langword="false"/>.
+    /// </returns>
     Task<bool> DeleteAsync(int id);
 
     /// <summary>
-    /// Видалити декількох учасників.
+    /// Видаляє декількох учасників за їх ідентифікаторами.
     /// </summary>
+    /// <param name="ids">
+    /// Список ідентифікаторів учасників, яких необхідно видалити.
+    /// </param>
+    /// <returns>
+    /// Кількість фактично видалених учасників.
+    /// </returns>
     Task<int> DeleteManyAsync(List<int> ids);
 
     /// <summary>
-    /// Отримати список зустрічей,
-    /// у яких бере участь користувач.
+    /// Отримує список зустрічей, у яких бере участь учасник.
     /// </summary>
+    /// <param name="participantId">
+    /// Унікальний ідентифікатор учасника.
+    /// </param>
+    /// <returns>
+    /// Список зустрічей учасника.
+    /// Якщо учасник не має зустрічей, повертається порожній список.
+    /// </returns>
     Task<List<MeetingReadDTO>> GetMeetingsAsync(int participantId);
     
     /// <summary>
@@ -107,24 +159,4 @@ public interface IParticipantService
         int participantId,
         IFormFile file,
         CancellationToken cancellationToken = default);
-
-/*
-    /// <summary>
-    /// Видалити аватар учасника.
-    /// </summary>
-    /// <param name="participantId">
-    /// Унікальний ідентифікатор учасника.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// Токен скасування операції.
-    /// </param>
-    /// <returns>
-    /// <see langword="true"/>, якщо учасника знайдено
-    /// та операцію виконано; інакше <see langword="false"/>.
-    /// </returns>
-    Task<bool> DeleteAvatarAsync(
-        int participantId,
-        CancellationToken cancellationToken = default);
-    
-    */
 }

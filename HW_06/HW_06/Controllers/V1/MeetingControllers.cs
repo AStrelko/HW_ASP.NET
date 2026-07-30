@@ -18,14 +18,24 @@ public class MeetingControllers : ControllerBase
 {
     private readonly IMeetingService _service;
 
+    /// <summary>
+    /// Ініціалізує новий екземпляр контролера зустрічей.
+    /// </summary>
+    /// <param name="service">
+    /// Сервіс для роботи із зустрічами.
+    /// </param>
+
     public MeetingControllers(IMeetingService service)
     {
         _service = service;
     }
 
     /// <summary>
-    /// Отримання списку зустрічей.
+    /// Отримує список усіх зустрічей.
     /// </summary>
+    /// <returns>
+    /// Колекцію зустрічей у скороченому форматі.
+    /// </returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<MeetingReadDTO>>>
@@ -46,8 +56,14 @@ public class MeetingControllers : ControllerBase
     }
 
     /// <summary>
-    /// Отримання зустрічі за ідентифікатором.
+    /// Отримує інформацію про зустріч за її ідентифікатором.
     /// </summary>
+    /// <param name="id">
+    /// Ідентифікатор зустрічі.
+    /// </param>
+    /// <returns>
+    /// Детальну інформацію про зустріч.
+    /// </returns>
     [HttpGet("{id:int}")]
     [ProducesResponseType<MeetingDetailDTO>(
         StatusCodes.Status200OK)]
@@ -65,8 +81,14 @@ public class MeetingControllers : ControllerBase
     }
 
     /// <summary>
-    /// Створення нової зустрічі.
+    /// Створює нову зустріч.
     /// </summary>
+    /// <param name="dto">
+    /// Дані для створення зустрічі.
+    /// </param>
+    /// <returns>
+    /// Створену зустріч.
+    /// </returns>
     [HttpPost]
     [ProducesResponseType<MeetingReadDTO>(
         StatusCodes.Status201Created)]
@@ -88,8 +110,14 @@ public class MeetingControllers : ControllerBase
     }
 
     /// <summary>
-    /// Повне оновлення зустрічі.
+    /// Повністю оновлює інформацію про зустріч.
     /// </summary>
+    /// <param name="id">
+    /// Ідентифікатор зустрічі.
+    /// </param>
+    /// <param name="dto">
+    /// Нові дані зустрічі.
+    /// </param>
     [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -108,8 +136,12 @@ public class MeetingControllers : ControllerBase
     }
 
     /// <summary>
-    /// Видалення зустрічі.
+    /// Видаляє зустріч.
     /// </summary>
+    /// <param name="id">
+    /// Ідентифікатор зустрічі.
+    /// </param>
+
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

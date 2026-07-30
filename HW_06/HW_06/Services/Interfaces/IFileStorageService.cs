@@ -9,8 +9,23 @@ namespace HW_06.Services.Interfaces;
 public interface IFileStorageService
 {
     /// <summary>
-    /// Зберігає новий файл та повертає його серверне ім’я.
+    /// Зберігає новий файл у локальному файловому сховищі.
     /// </summary>
+    /// <param name="file">
+    /// Файл, який необхідно зберегти.
+    /// </param>
+    /// <param name="folder">
+    /// Назва папки, у якій буде збережено файл.
+    /// </param>
+    /// <param name="accessLevel">
+    /// Рівень доступу до файлу.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Токен скасування операції.
+    /// </param>
+    /// <returns>
+    /// Унікальне серверне ім'я файлу без розширення.
+    /// </returns>
     Task<string> SaveAsync(
         IFormFile file,
         string folder,
@@ -20,8 +35,23 @@ public interface IFileStorageService
     /// <summary>
     /// Замінює існуючий файл, зберігаючи основну частину його імені.
     /// </summary>
+    /// <param name="file">
+    /// Новий файл, який замінить існуючий.
+    /// </param>
+    /// <param name="folder">
+    /// Назва папки, у якій зберігається файл.
+    /// </param>
+    /// <param name="fileName">
+    /// Серверне ім'я файлу без розширення.
+    /// </param>
+    /// <param name="accessLevel">
+    /// Рівень доступу до файлу.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Токен скасування операції.
+    /// </param>
     /// <returns>
-    /// Серверне ім’я файлу без розширення.
+    /// Серверне ім'я файлу без розширення.
     /// </returns>
     Task<string> ReplaceAsync(
         IFormFile file,
@@ -31,8 +61,20 @@ public interface IFileStorageService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Видаляє файл за його повним серверним ім’ям.
+    /// Видаляє файл із локального файлового сховища.
     /// </summary>
+    /// <param name="folder">
+    /// Назва папки, у якій зберігається файл.
+    /// </param>
+    /// <param name="fileName">
+    /// Серверне ім'я файлу без розширення.
+    /// </param>
+    /// <param name="accessLevel">
+    /// Рівень доступу до файлу.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Токен скасування операції.
+    /// </param>
     Task DeleteAsync(
         string folder,
         string fileName,
@@ -40,8 +82,21 @@ public interface IFileStorageService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Відкриває файл для читання за його повним серверним ім’ям.
+    /// Відкриває файл для читання.
     /// </summary>
+    /// <param name="folder">
+    /// Назва папки, у якій зберігається файл.
+    /// </param>
+    /// <param name="fileName">
+    /// Серверне ім'я файлу без розширення.
+    /// </param>
+    /// <param name="accessLevel">
+    /// Рівень доступу до файлу.
+    /// </param>
+    /// <returns>
+    /// Інформацію про файл та потік для його читання або
+    /// <see langword="null"/>, якщо файл не знайдено.
+    /// </returns>
     FileDownloadResult? OpenRead(
         string folder,
         string fileName,

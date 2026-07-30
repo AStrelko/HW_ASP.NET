@@ -3,8 +3,23 @@ using HW_06.Validators.ResultsValid;
 
 namespace HW_06.Validators.MeetingValid;
 
+/// <summary>
+/// Виконує перевірку даних,
+/// необхідних для повного оновлення зустрічі.
+/// </summary>
 public class MeetingUpdateValidator : IValidator<MeetingUpdateDTO>
 {
+    /// <summary>
+    /// Виконує комплексну перевірку
+    /// даних повного оновлення зустрічі.
+    /// </summary>
+    /// <param name="model">
+    /// DTO з даними для повного оновлення зустрічі.
+    /// </param>
+    /// <returns>
+    /// Результат валідації, що містить
+    /// інформацію про виявлені помилки.
+    /// </returns>
     public ValidationResult Validate(MeetingUpdateDTO model)
     {
         var result = new ValidationResult();
@@ -19,6 +34,15 @@ public class MeetingUpdateValidator : IValidator<MeetingUpdateDTO>
         return result;
     }
 
+    /// <summary>
+    /// Перевіряє коректність ідентифікатора зустрічі.
+    /// </summary>
+    /// <param name="model">
+    /// DTO повного оновлення зустрічі.
+    /// </param>
+    /// <param name="result">
+    /// Результат валідації, до якого додаються виявлені помилки.
+    /// </param>
     private static void ValidateMeetingId(MeetingUpdateDTO model, ValidationResult result)
     {
         if (model.MeetingId <= 0)
@@ -28,6 +52,15 @@ public class MeetingUpdateValidator : IValidator<MeetingUpdateDTO>
         }
     }
 
+    /// <summary>
+    /// Перевіряє коректність назви зустрічі.
+    /// </summary>
+    /// <param name="model">
+    /// DTO повного оновлення зустрічі.
+    /// </param>
+    /// <param name="result">
+    /// Результат валідації, до якого додаються виявлені помилки.
+    /// </param>
     private static void ValidateTitle(MeetingUpdateDTO model, ValidationResult result)
     {
         if (string.IsNullOrWhiteSpace(model.Title))
@@ -50,6 +83,15 @@ public class MeetingUpdateValidator : IValidator<MeetingUpdateDTO>
         }
     }
 
+    /// <summary>
+    /// Перевіряє коректність опису зустрічі.
+    /// </summary>
+    /// <param name="model">
+    /// DTO повного оновлення зустрічі.
+    /// </param>
+    /// <param name="result">
+    /// Результат валідації, до якого додаються виявлені помилки.
+    /// </param>
     private static void ValidateDescription(MeetingUpdateDTO model, ValidationResult result)
     {
         if (!string.IsNullOrWhiteSpace(model.Description) &&
@@ -60,6 +102,15 @@ public class MeetingUpdateValidator : IValidator<MeetingUpdateDTO>
         }
     }
 
+    /// <summary>
+    /// Перевіряє коректність дати та часу зустрічі.
+    /// </summary>
+    /// <param name="model">
+    /// DTO повного оновлення зустрічі.
+    /// </param>
+    /// <param name="result">
+    /// Результат валідації, до якого додаються виявлені помилки.
+    /// </param>
     private static void ValidateDate(MeetingUpdateDTO model, ValidationResult result)
     {
         if (model.DateTime < DateTime.Now)
@@ -70,10 +121,14 @@ public class MeetingUpdateValidator : IValidator<MeetingUpdateDTO>
     }
 
     /// <summary>
-    /// Перевіряє номер кімнати.
+    /// Перевіряє коректність номера кімнати.
     /// </summary>
-    /// <param name="model">DTO повного оновлення зустрічі.</param>
-    /// <param name="result">Результат валідації.</param>
+    /// <param name="model">
+    /// DTO повного оновлення зустрічі.
+    /// </param>
+    /// <param name="result">
+    /// Результат валідації, до якого додаються виявлені помилки.
+    /// </param>
     private static void ValidateRoom(
         MeetingUpdateDTO model,
         ValidationResult result)
@@ -87,6 +142,15 @@ public class MeetingUpdateValidator : IValidator<MeetingUpdateDTO>
         }
     }
 
+    /// <summary>
+    /// Перевіряє коректність списку учасників зустрічі.
+    /// </summary>
+    /// <param name="model">
+    /// DTO повного оновлення зустрічі.
+    /// </param>
+    /// <param name="result">
+    /// Результат валідації, до якого додаються виявлені помилки.
+    /// </param>
     private static void ValidateParticipants(MeetingUpdateDTO model, ValidationResult result)
     {
         if (model.ParticipantIds.Any(id => id <= 0))

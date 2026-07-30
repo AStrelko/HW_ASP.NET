@@ -1,5 +1,8 @@
 namespace HW_06.Validators.FileValid;
 
+/// <summary>
+/// Виконує перевірку файлів аватарів перед їх завантаженням.
+/// </summary>
 public static class AvatarFileValidator
 {
     private static readonly string[] allowedExtensions = [".jpg", ".png", ".jpeg", ".webp"];
@@ -13,6 +16,20 @@ public static class AvatarFileValidator
         [".webp"] = [[0x52, 0x49, 0x46, 0x46]]
     };
 
+    /// <summary>
+    /// Перевіряє коректність файлу аватара за розміром,
+    /// розширенням, MIME-типом та сигнатурою.
+    /// </summary>
+    /// <param name="file">
+    /// Файл аватара, який необхідно перевірити.
+    /// </param>
+    /// <param name="maxBytes">
+    /// Максимально допустимий розмір файлу в байтах.
+    /// </param>
+    /// <returns>
+    /// Повідомлення про помилку, якщо перевірку не пройдено,
+    /// або <see langword="null"/>, якщо файл є коректним.
+    /// </returns>
     public static string? ValidateAvatar(IFormFile file, long maxBytes)
     {
         if (file is null || file.Length == 0) return "Файл не вибран.";
@@ -29,6 +46,20 @@ public static class AvatarFileValidator
 
     }
 
+    /// <summary>
+    /// Перевіряє, чи відповідає сигнатура файлу
+    /// заявленому розширенню.
+    /// </summary>
+    /// <param name="file">
+    /// Файл, який необхідно перевірити.
+    /// </param>
+    /// <param name="ext">
+    /// Розширення файлу.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/>, якщо сигнатура відповідає
+    /// розширенню; інакше — <see langword="false"/>.
+    /// </returns>
     private static bool ValidateSignature(IFormFile file, string ext)
     {
         if (!Signatures.TryGetValue(ext, out var signature)) return false;

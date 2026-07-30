@@ -6,11 +6,16 @@ using HW_06.Models;
 namespace HW_06.Profile;
 
 /// <summary>
-/// Профіль AutoMapper для мапінгу моделей Meeting та Participant
-/// у відповідні DTO та навпаки.
+/// Профіль AutoMapper, який містить правила мапінгу
+/// між моделями домену та DTO для сутностей
+/// <see cref="Meeting"/> і <see cref="Participant"/>.
 /// </summary>
 public class MeetingMappingProfile : AutoMapper.Profile
 {
+    /// <summary>
+    /// Ініціалізує профіль AutoMapper та налаштовує правила
+    /// мапінгу між моделями домену і DTO.
+    /// </summary>
     public MeetingMappingProfile()
     {
         // Meeting -> DTO

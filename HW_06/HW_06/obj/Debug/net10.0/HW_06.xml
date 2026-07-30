@@ -34,106 +34,6 @@
             Видалення зустрічі.
             </summary>
         </member>
-        <member name="T:HW_06.Controllers.FilesController">
-            <summary>
-            Контролер для роботи з файлами.
-            Дозволяє завантажувати, замінювати та видаляти аватари.
-            </summary>
-        </member>
-        <member name="F:HW_06.Controllers.FilesController.MaxAvatarSize">
-            <summary>
-            Максимально допустимий розмір аватара — 10 МБ.
-            </summary>
-        </member>
-        <member name="F:HW_06.Controllers.FilesController.AvatarFolder">
-            <summary>
-            Назва каталогу, у якому зберігаються аватари.
-            </summary>
-        </member>
-        <member name="M:HW_06.Controllers.FilesController.#ctor(HW_06.Services.Interfaces.IFileStorageService)">
-            <summary>
-            Ініціалізує контролер для роботи з файлами.
-            </summary>
-            <param name="fileStorage">
-            Сервіс локального зберігання файлів.
-            </param>
-        </member>
-        <member name="M:HW_06.Controllers.FilesController.UploadDemoAvatar(HW_06.DTOs.Files.AvatarUploadDTO,System.Threading.CancellationToken)">
-            <summary>
-            Завантажує новий демонстраційний аватар.
-            </summary>
-            <param name="dto">
-            DTO, що містить файл аватара.
-            </param>
-            <param name="cancellationToken">
-            Токен скасування операції.
-            </param>
-            <returns>
-            Інформація про збережений файл та URL для його перегляду.
-            </returns>
-        </member>
-        <member name="M:HW_06.Controllers.FilesController.ReplaceAvatar(System.String,HW_06.DTOs.Files.AvatarUploadDTO,System.Threading.CancellationToken)">
-            <summary>
-            Замінює існуючий аватар новим файлом.
-            Пошук виконується за серверним ім’ям без розширення.
-            </summary>
-            <remarks>
-            Розширення існуючого файлу визначається автоматично.
-            Новий файл може мати інший формат.
-            </remarks>
-            <param name="baseFileName">
-            Серверне ім’я файлу без розширення.
-            </param>
-            <param name="dto">
-            DTO, що містить новий файл аватара.
-            </param>
-            <param name="cancellationToken">
-            Токен скасування операції.
-            </param>
-            <returns>
-            Інформація про оновлений файл та актуальний URL.
-            </returns>
-        </member>
-        <member name="M:HW_06.Controllers.FilesController.DeleteAvatar(System.String,System.Threading.CancellationToken)">
-            <summary>
-            Видаляє аватар за його серверним ім’ям.
-            </summary>
-            <param name="fileName">
-            Повне серверне ім’я файлу разом із розширенням.
-            </param>
-            <param name="cancellationToken">
-            Токен скасування операції.
-            </param>
-            <returns>
-            Код 204 після виконання операції видалення.
-            </returns>
-        </member>
-        <member name="M:HW_06.Controllers.FilesController.BuildAvatarUrl(System.String)">
-            <summary>
-            Формує публічний URL для перегляду аватара.
-            </summary>
-            <param name="fileName">
-            Серверне ім’я файлу разом із розширенням.
-            </param>
-            <returns>
-            Абсолютний URL до публічного файла.
-            </returns>
-        </member>
-        <member name="M:HW_06.Controllers.FilesController.GetAvatar(System.String)">
-            <summary>
-            Повертає аватар за його серверним ім’ям без розширення.
-            </summary>
-            <remarks>
-            Розширення файлу визначається автоматично.
-            Підтримуються формати JPG, JPEG, PNG та WEBP.
-            </remarks>
-            <param name="baseFileName">
-            Серверне ім’я файлу без розширення.
-            </param>
-            <returns>
-            Файл аватара з відповідним MIME-типом.
-            </returns>
-        </member>
         <member name="T:HW_06.Controllers.MeetingControllersDTO">
             <summary>
             Контролер для керування зустрічами.
@@ -348,35 +248,35 @@
         </member>
         <member name="M:HW_06.Controllers.ParticipantControllersDTO.UploadAvatarAsync(System.Int32,HW_06.DTOs.Files.AvatarUploadDTO,System.Threading.CancellationToken)">
             <summary>
-            Додає або замінює аватар учасника.
+            Встановлює або замінює аватар учасника.
             </summary>
             <remarks>
-            Якщо аватар відсутній — буде додано новий.
-            Якщо аватар уже існує — він буде автоматично замінений.
+            Якщо учасник ще не має аватара, файл буде збережено.
+            Якщо аватар уже існує, він буде замінений новим файлом.
             </remarks>
             <param name="participantId">
             Унікальний ідентифікатор учасника.
             </param>
             <param name="dto">
-            DTO, що містить файл аватара.
+            Дані форми з файлом аватара.
             </param>
             <param name="cancellationToken">
             Токен скасування операції.
             </param>
             <returns>
-            Інформація про учасника та URL аватара.
+            Дані учасника з актуальним посиланням на аватар.
             </returns>
             <response code="200">
-            Аватар успішно збережено.
+            Аватар успішно встановлено або замінено.
             </response>
             <response code="400">
-            Файл не пройшов перевірку.
+            Файл не передано або він не пройшов перевірку.
             </response>
             <response code="404">
             Учасника із зазначеним ідентифікатором не знайдено.
             </response>
             <response code="413">
-            Розмір файла перевищує допустиме значення.
+            Розмір файлу перевищує допустиме значення.
             </response>
         </member>
         <member name="M:HW_06.Controllers.ParticipantControllersDTO.Update(System.Int32,HW_06.DTOs.ParticipantDTO.ParticipantUpdateDTO)">
@@ -1080,46 +980,6 @@
         <member name="M:HW_06.Migrations.AddParticipantAvatar.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
-        <member name="T:HW_06.Models.CreateMeetingRequest">
-            <summary>
-            Модель запиту для створення нової зустрічі.
-            </summary>
-        </member>
-        <member name="P:HW_06.Models.CreateMeetingRequest.Title">
-            <summary>
-            Назва зустрічі.
-            </summary>
-        </member>
-        <member name="P:HW_06.Models.CreateMeetingRequest.Description">
-            <summary>
-            Опис або порядок денний зустрічі.
-            </summary>
-        </member>
-        <member name="P:HW_06.Models.CreateMeetingRequest.DateTime">
-            <summary>
-            Дата та час проведення зустрічі.
-            </summary>
-        </member>
-        <member name="P:HW_06.Models.CreateMeetingRequest.Days">
-            <summary>
-            Кількість днів для створення повторюваних зустрічей.
-            </summary>
-        </member>
-        <member name="P:HW_06.Models.CreateMeetingRequest.Count">
-            <summary>
-            Кількість зустрічей, які потрібно створити.
-            </summary>
-        </member>
-        <member name="P:HW_06.Models.CreateMeetingRequest.RoomId">
-            <summary>
-            Ідентифікатор кімнати, у якій відбудеться зустріч.
-            </summary>
-        </member>
-        <member name="P:HW_06.Models.CreateMeetingRequest.ParticipantIds">
-            <summary>
-            Список ідентифікаторів учасників зустрічі.
-            </summary>
-        </member>
         <member name="T:HW_06.Models.Files.FileDownloadResult">
             <summary>
             Результат відкриття файлу для завантаження або перегляду.
@@ -1428,21 +1288,6 @@
             <returns>
             DTO учасника з даними доданого аватара або
             <see langword="null"/>, якщо учасника не знайдено.
-            </returns>
-        </member>
-        <member name="M:HW_06.Services.Interfaces.IParticipantService.DeleteAvatarAsync(System.Int32,System.Threading.CancellationToken)">
-            <summary>
-            Видалити аватар учасника.
-            </summary>
-            <param name="participantId">
-            Унікальний ідентифікатор учасника.
-            </param>
-            <param name="cancellationToken">
-            Токен скасування операції.
-            </param>
-            <returns>
-            <see langword="true"/>, якщо учасника знайдено
-            та операцію виконано; інакше <see langword="false"/>.
             </returns>
         </member>
         <member name="T:HW_06.Services.LocalFileStorageService">

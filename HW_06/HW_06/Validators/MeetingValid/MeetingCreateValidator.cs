@@ -4,8 +4,23 @@ using HW_06.Validators.ResultsValid;
 
 namespace HW_06.Validators.MeetingValid;
 
+/// <summary>
+/// Виконує перевірку даних,
+/// необхідних для створення зустрічі.
+/// </summary>
 public class MeetingCreateValidator : IValidator<MeetingCreateDTO>
 {
+    /// <summary>
+    /// Виконує комплексну перевірку
+    /// даних створення зустрічі.
+    /// </summary>
+    /// <param name="model">
+    /// DTO з даними для створення зустрічі.
+    /// </param>
+    /// <returns>
+    /// Результат валідації, що містить
+    /// інформацію про виявлені помилки.
+    /// </returns>
     public ValidationResult Validate(MeetingCreateDTO model)
     {
         var result = new ValidationResult();
@@ -19,6 +34,15 @@ public class MeetingCreateValidator : IValidator<MeetingCreateDTO>
         return result;
     }
     
+    /// <summary>
+    /// Перевіряє коректність назви зустрічі.
+    /// </summary>
+    /// <param name="model">
+    /// DTO створення зустрічі.
+    /// </param>
+    /// <param name="result">
+    /// Результат валідації, до якого додаються виявлені помилки.
+    /// </param>
     private static void ValidateTitle(MeetingCreateDTO model, ValidationResult result)
     {
         if (string.IsNullOrWhiteSpace(model.Title))
@@ -41,6 +65,15 @@ public class MeetingCreateValidator : IValidator<MeetingCreateDTO>
         }
     }
 
+    /// <summary>
+    /// Перевіряє коректність опису зустрічі.
+    /// </summary>
+    /// <param name="model">
+    /// DTO створення зустрічі.
+    /// </param>
+    /// <param name="result">
+    /// Результат валідації, до якого додаються виявлені помилки.
+    /// </param>
     private static void ValidateDescription(MeetingCreateDTO model, ValidationResult result)
     {
         if (!string.IsNullOrWhiteSpace(model.Description) &&
@@ -51,6 +84,15 @@ public class MeetingCreateValidator : IValidator<MeetingCreateDTO>
         }
     }
 
+    /// <summary>
+    /// Перевіряє коректність дати та часу зустрічі.
+    /// </summary>
+    /// <param name="model">
+    /// DTO створення зустрічі.
+    /// </param>
+    /// <param name="result">
+    /// Результат валідації, до якого додаються виявлені помилки.
+    /// </param>
     private static void ValidateDate(MeetingCreateDTO model, ValidationResult result)
     {
         if (model.DateTime < DateTime.Now)
@@ -61,10 +103,14 @@ public class MeetingCreateValidator : IValidator<MeetingCreateDTO>
     }
 
     /// <summary>
-    /// Перевіряє номер кімнати.
+    /// Перевіряє коректність номера кімнати.
     /// </summary>
-    /// <param name="model">DTO створення зустрічі.</param>
-    /// <param name="result">Результат валідації.</param>
+    /// <param name="model">
+    /// DTO створення зустрічі.
+    /// </param>
+    /// <param name="result">
+    /// Результат валідації, до якого додаються виявлені помилки.
+    /// </param>
     private static void ValidateRoom(
         MeetingCreateDTO model,
         ValidationResult result)
@@ -78,6 +124,15 @@ public class MeetingCreateValidator : IValidator<MeetingCreateDTO>
         }
     }
 
+    /// <summary>
+    /// Перевіряє коректність списку учасників зустрічі.
+    /// </summary>
+    /// <param name="model">
+    /// DTO створення зустрічі.
+    /// </param>
+    /// <param name="result">
+    /// Результат валідації, до якого додаються виявлені помилки.
+    /// </param>
     private static void ValidateParticipants(MeetingCreateDTO model, ValidationResult result)
     {
         if (model.ParticipantIds.Count == 0)

@@ -49,8 +49,7 @@ public class LocalFileStorageService : IFileStorageService
     }
 
     /// <summary>
-    /// Зберігає новий файл та створює для нього
-    /// унікальний ідентифікатор без розширення.
+    /// Зберігає новий файл у локальному файловому сховищі.
     /// </summary>
     /// <param name="file">
     /// Файл, який необхідно зберегти.
@@ -65,7 +64,7 @@ public class LocalFileStorageService : IFileStorageService
     /// Токен скасування операції.
     /// </param>
     /// <returns>
-    /// Унікальний ідентифікатор збереженого файлу без розширення.
+    /// Унікальне серверне ім’я збереженого файлу без розширення.
     /// </returns>
     public async Task<string> SaveAsync(
         IFormFile file,
@@ -219,7 +218,7 @@ public async Task<string> ReplaceAsync(
             replacementStream,
             cancellationToken);
 
-        return newFileName;
+        return baseFileName;
     }
 
     if (File.Exists(newFilePath))
@@ -244,57 +243,56 @@ public async Task<string> ReplaceAsync(
     return baseFileName;
 }
 
-/// <summary>
-/// Відкриває файл для читання, знаходячи його
-/// за серверним ім’ям без розширення.
-/// </summary>
-/// <param name="folder">
-/// Каталог, у якому зберігається файл.
-/// </param>
-/// <param name="baseFileName">
-/// Серверне ім’я файлу без розширення.
-/// </param>
-/// <param name="accessLevel">
-/// Рівень доступу до файлу.
-/// </param>
-/// <returns>
-/// Результат читання файлу або
-/// <see langword="null"/>, якщо файл не знайдено.
-/// </returns>
-public FileDownloadResult? OpenRead(
-    string folder,
-    string baseFileName,
-    FileAccessLevel accessLevel)
-{
-    ValidateBaseFileName(baseFileName);
-
-    var filePath = FindExistingFilePath(
-        folder,
-        baseFileName,
-        accessLevel);
-
-    if (filePath is null)
+        /// <summary>
+        /// Відкриває файл для читання.
+        /// </summary>
+        /// <param name="folder">
+        /// Назва каталогу, у якому зберігається файл.
+        /// </param>
+        /// <param name="fileName">
+        /// Серверне ім’я файлу без розширення.
+        /// </param>
+        /// <param name="accessLevel">
+        /// Рівень доступу до файлу.
+        /// </param>
+        /// <returns>
+        /// Об’єкт із потоком даних, MIME-типом та ім’ям файлу
+        /// або <see langword="null"/>, якщо файл не знайдено.
+        /// </returns>
+        public FileDownloadResult? OpenRead(
+        string folder,
+        string baseFileName,
+        FileAccessLevel accessLevel)
     {
-        return null;
+        ValidateBaseFileName(baseFileName);
+
+        var filePath = FindExistingFilePath(
+            folder,
+            baseFileName,
+            accessLevel);
+
+        if (filePath is null)
+        {
+            return null;
+        }
+
+        var extension = Path
+            .GetExtension(filePath)
+            .ToLowerInvariant();
+
+        return new FileDownloadResult
+        {
+            Content = new FileStream(
+                filePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read),
+
+            ContentType = GetContentType(extension),
+
+            FileName = Path.GetFileName(filePath)
+        };
     }
-
-    var extension = Path
-        .GetExtension(filePath)
-        .ToLowerInvariant();
-
-    return new FileDownloadResult
-    {
-        Content = new FileStream(
-            filePath,
-            FileMode.Open,
-            FileAccess.Read,
-            FileShare.Read),
-
-        ContentType = GetContentType(extension),
-
-        FileName = Path.GetFileName(filePath)
-    };
-}
 
     /// <summary>
     /// Перевіряє, чи передано коректний непорожній файл.

@@ -3,10 +3,26 @@ using HW_06.Validators.ResultsValid;
 
 namespace HW_06.Validators.MeetingValid;
 
+/// <summary>
+/// Виконує перевірку даних,
+/// необхідних для часткового оновлення зустрічі.
+/// </summary>
 public class MeetingPartialUpdateValidator : IValidator<MeetingPartialUpdateDTO>
 {
     public ValidationResult Validate(MeetingPartialUpdateDTO model)
     {
+        
+        /// <summary>
+        /// Виконує комплексну перевірку
+        /// даних часткового оновлення зустрічі.
+        /// </summary>
+        /// <param name="model">
+        /// DTO з даними для часткового оновлення зустрічі.
+        /// </param>
+        /// <returns>
+        /// Результат валідації, що містить
+        /// інформацію про виявлені помилки.
+        /// </returns>
         var result = new ValidationResult();
 
         ValidateTitle(model, result);
@@ -17,6 +33,15 @@ public class MeetingPartialUpdateValidator : IValidator<MeetingPartialUpdateDTO>
         return result;
     }
 
+    /// <summary>
+    /// Перевіряє коректність назви зустрічі.
+    /// </summary>
+    /// <param name="model">
+    /// DTO часткового оновлення зустрічі.
+    /// </param>
+    /// <param name="result">
+    /// Результат валідації, до якого додаються виявлені помилки.
+    /// </param>
     private static void ValidateTitle(MeetingPartialUpdateDTO model, ValidationResult result)
     {
         if (model.Title is null)
@@ -42,6 +67,15 @@ public class MeetingPartialUpdateValidator : IValidator<MeetingPartialUpdateDTO>
         }
     }
 
+    /// <summary>
+    /// Перевіряє коректність опису зустрічі.
+    /// </summary>
+    /// <param name="model">
+    /// DTO часткового оновлення зустрічі.
+    /// </param>
+    /// <param name="result">
+    /// Результат валідації, до якого додаються виявлені помилки.
+    /// </param>
     private static void ValidateDescription(MeetingPartialUpdateDTO model, ValidationResult result)
     {
         if (model.Description is null)
@@ -54,6 +88,15 @@ public class MeetingPartialUpdateValidator : IValidator<MeetingPartialUpdateDTO>
         }
     }
 
+    /// <summary>
+    /// Перевіряє коректність дати та часу зустрічі.
+    /// </summary>
+    /// <param name="model">
+    /// DTO часткового оновлення зустрічі.
+    /// </param>
+    /// <param name="result">
+    /// Результат валідації, до якого додаються виявлені помилки.
+    /// </param>
     private static void ValidateDate(MeetingPartialUpdateDTO model, ValidationResult result)
     {
         if (!model.DateTime.HasValue)
@@ -67,10 +110,14 @@ public class MeetingPartialUpdateValidator : IValidator<MeetingPartialUpdateDTO>
     }
 
     /// <summary>
-    /// Перевіряє новий номер кімнати.
+    /// Перевіряє коректність номера кімнати.
     /// </summary>
-    /// <param name="model">DTO часткового оновлення зустрічі.</param>
-    /// <param name="result">Результат валідації.</param>
+    /// <param name="model">
+    /// DTO часткового оновлення зустрічі.
+    /// </param>
+    /// <param name="result">
+    /// Результат валідації, до якого додаються виявлені помилки.
+    /// </param>
     private static void ValidateRoom(
         MeetingPartialUpdateDTO model,
         ValidationResult result)

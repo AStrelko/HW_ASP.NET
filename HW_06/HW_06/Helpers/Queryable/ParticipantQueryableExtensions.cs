@@ -11,6 +11,17 @@ public static class ParticipantQueryableExtensions
     /// <summary>
     /// Застосовує пошук учасників за прізвищем.
     /// </summary>
+    /// <param name="query">
+    /// Вихідна послідовність учасників.
+    /// </param>
+    /// <param name="searchLastName">
+    /// Частина або повне прізвище для пошуку.
+    /// Якщо значення не вказано, пошук не застосовується.
+    /// </param>
+    /// <returns>
+    /// Відфільтрована послідовність учасників або вихідна колекція,
+    /// якщо параметр пошуку не заданий.
+    /// </returns>
     public static IQueryable<Participant> ApplySearch(
         this IQueryable<Participant> query,
         string? searchLastName)
@@ -29,8 +40,21 @@ public static class ParticipantQueryableExtensions
     }
 
     /// <summary>
-    /// Застосовує сортування учасників.
+    /// Застосовує сортування учасників відповідно
+    /// до заданих параметрів.
     /// </summary>
+    /// <param name="query">
+    /// Вихідна послідовність учасників.
+    /// </param>
+    /// <param name="parameters">
+    /// Параметри сортування.
+    /// </param>
+    /// <returns>
+    /// Послідовність учасників із застосованим сортуванням.
+    /// Якщо параметри сортування не задані,
+    /// використовується сортування за ідентифікатором.
+    /// </returns>
+
     public static IQueryable<Participant> ApplySorting(
         this IQueryable<Participant> query,
         ParticipantQueryParameters parameters)
