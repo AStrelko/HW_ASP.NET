@@ -32,8 +32,8 @@
     <ItemGroup>
       <Folder Include="Data\" />
       <Folder Include="uploads\PrivateFile\Participants\" />
-      <Folder Include="uploads\PublicFile\Avatars\" />
       <Folder Include="uploads\PublicFile\Documents\" />
+      <Folder Include="wwwroot\" />
     </ItemGroup>
 
 </Project>

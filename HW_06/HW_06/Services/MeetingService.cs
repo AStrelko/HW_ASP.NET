@@ -16,11 +16,34 @@ namespace HW_06.Services;
 /// </summary>
 public class MeetingService : IMeetingService
 {
+    /// <summary>
+    /// Контекст бази даних застосунку.
+    /// Використовується для роботи із сутностями.
+    /// </summary>
     private readonly DataContext _context;
+
+    /// <summary>
+    /// Сервіс AutoMapper для перетворення
+    /// моделей домену в DTO і навпаки.
+    /// </summary>
     private readonly IMapper _mapper;
 
+    /// <summary>
+    /// Валідатор створення нової зустрічі.
+    /// Виконує перевірку даних перед додаванням.
+    /// </summary>
     private readonly IValidator<MeetingCreateDTO> _createValidator;
+
+    /// <summary>
+    /// Валідатор повного оновлення зустрічі.
+    /// Перевіряє коректність усіх полів моделі.
+    /// </summary>
     private readonly IValidator<MeetingUpdateDTO> _updateValidator;
+
+    /// <summary>
+    /// Валідатор часткового оновлення зустрічі.
+    /// Перевіряє лише змінені поля моделі.
+    /// </summary>
     private readonly IValidator<MeetingPartialUpdateDTO> _partialValidator;
 
     /// <summary>
@@ -109,17 +132,27 @@ public class MeetingService : IMeetingService
             .AsNoTracking()
             .Include(meeting => meeting.Room)
             .Include(meeting => meeting.MeetingParticipants)
-            .ThenInclude(meetingParticipant =>
-                meetingParticipant.Participant)
-            .FirstOrDefaultAsync(meeting =>
-                meeting.MeetingId == id);
+            .ThenInclude(link => link.Participant)
+            .Include(meeting => meeting.Attachments)
+            .FirstOrDefaultAsync(meeting => meeting.MeetingId == id);
 
         if (meeting is null)
         {
             return null;
         }
 
-        return _mapper.Map<MeetingDetailDTO>(meeting);
+        var dto = _mapper.Map<MeetingDetailDTO>(meeting);
+
+        dto.Attachments = dto.Attachments
+            .Select(attachment => attachment with
+            {
+                DownloadUrl =
+                $"/api/meetings/{meeting.MeetingId}/attachments/" +
+                $"{attachment.Id}/download"
+            })
+            .ToList();
+
+        return dto;
     }
 
     /// <summary>

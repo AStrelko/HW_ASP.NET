@@ -1,5 +1,6 @@
 using HW_06.DTOs.MeetingDTO;
 using HW_06.DTOs.Files;
+using HW_06.DTOs.Files;
 
 namespace HW_06.DTOs.ParticipantDTO;
 
@@ -44,7 +45,14 @@ public record ParticipantDetailDTO
     public List<MeetingReadDTO> Meetings { get; set; } = new();
     
     /// <summary>
-    /// прикреплені до участника файли
+    /// Приватні файли, надіслані учасником.
     /// </summary>
-    public List<FileReadDTO> Files { get; set; } = [];
+    public IReadOnlyCollection<AttachmentPrivateDTO> SentPrivateFiles { get; set; }
+        = [];
+
+    /// <summary>
+    /// Приватні файли, отримані учасником.
+    /// </summary>
+    public IReadOnlyCollection<AttachmentPrivateDTO> ReceivedPrivateFiles { get; set; }
+        = [];
 }

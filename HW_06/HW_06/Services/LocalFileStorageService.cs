@@ -19,7 +19,16 @@ public class LocalFileStorageService : IFileStorageService
         ".webp"
     ];
 
+    /// <summary>
+    /// Шлях до кореневого каталогу,
+    /// у якому зберігаються публічні файли.
+    /// </summary>
     private readonly string _publicRoot;
+
+    /// <summary>
+    /// Шлях до кореневого каталогу,
+    /// у якому зберігаються приватні файли.
+    /// </summary>
     private readonly string _privateRoot;
 
     /// <summary>
@@ -37,15 +46,17 @@ public class LocalFileStorageService : IFileStorageService
         _publicRoot = Path.Combine(
             environment.ContentRootPath,
             "uploads",
-            "PublicFiles");
+            "PublicFile");
 
         _privateRoot = Path.Combine(
             environment.ContentRootPath,
             "uploads",
-            "PrivateFiles");
+            "PrivateFile");
 
-        Directory.CreateDirectory(_publicRoot);
-        Directory.CreateDirectory(_privateRoot);
+        Directory.CreateDirectory(Path.Combine(_publicRoot, "Documents"));
+        Directory.CreateDirectory(Path.Combine(_publicRoot, "Avatars"));
+
+        Directory.CreateDirectory(Path.Combine(_privateRoot, "Participants"));
     }
 
     /// <summary>

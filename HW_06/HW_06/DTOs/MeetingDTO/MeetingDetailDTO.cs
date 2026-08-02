@@ -1,3 +1,4 @@
+using HW_06.DTOs.Files;
 using HW_06.DTOs.MeetingDTO;
 
 namespace HW_06.DTOs.MeetingDTO;
@@ -36,4 +37,10 @@ public record MeetingDetailDTO
     /// Список учасників зустрічі.
     /// </summary>
     public List<ParticipantDTO> Participants { get; set; } = new();
+    
+    /// <summary>
+    /// Публічні документи, прикріплені до зустрічі.
+    /// </summary>
+    public IReadOnlyCollection<AttachmentPublicDTO> Attachments { get; set; }
+        = [];
 }

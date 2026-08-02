@@ -102,58 +102,87 @@ public class ParticipantService : IParticipantService
                 _mapper);
     }
 
-    /// <summary>
-    /// Отримує детальну інформацію про учасника
-    /// разом зі списком його зустрічей.
-    /// </summary>
-    /// <param name="id">
-    /// Унікальний ідентифікатор учасника.
-    /// </param>
-    /// <returns>
-    /// Детальну інформацію про учасника та його зустрічі або
-    /// <see langword="null"/>, якщо учасника не знайдено.
-    /// </returns>
-    public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
+/// <summary>
+/// Отримує детальну інформацію про учасника
+/// разом зі списком його зустрічей
+/// та приватними файлами.
+/// </summary>
+/// <param name="id">
+/// Унікальний ідентифікатор учасника.
+/// </param>
+/// <returns>
+/// Детальну інформацію про учасника, його зустрічі
+/// та приватні файли або <see langword="null"/>,
+/// якщо учасника не знайдено.
+/// </returns>
+public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
+{
+    var participant = await _context.Participants
+        .AsNoTracking()
+
+        .Include(participant =>
+            participant.MeetingParticipants)
+        .ThenInclude(meetingParticipant =>
+            meetingParticipant.Meeting)
+        .ThenInclude(meeting =>
+            meeting.Room)
+
+        // Для надісланих файлів завантажуємо лише отримувача.
+        .Include(participant =>
+            participant.SentPrivateFiles)
+        .ThenInclude(file =>
+            file.RecipientParticipant)
+
+        // Для отриманих файлів завантажуємо лише відправника.
+        .Include(participant =>
+            participant.ReceivedPrivateFiles)
+        .ThenInclude(file =>
+            file.SenderParticipant)
+
+        .FirstOrDefaultAsync(participant =>
+            participant.ParticipantId == id);
+
+    if (participant is null)
     {
-        var participant = await _context.Participants
-            .AsNoTracking()
-            .Include(participant =>
-                participant.MeetingParticipants)
-            .ThenInclude(meetingParticipant =>
-                meetingParticipant.Meeting)
-            .ThenInclude(meeting =>
-                meeting.Room)
-            .FirstOrDefaultAsync(participant =>
-                participant.ParticipantId == id);
+        return null;
+    }
 
-        if (participant is null)
-        {
-            return null;
-        }
+    foreach (var file in participant.SentPrivateFiles)
+    {
+        file.SenderParticipant = participant;
+    }
 
-        var result = _mapper.Map<ParticipantDetailDTO>(
-            participant);
+    foreach (var file in participant.ReceivedPrivateFiles)
+    {
+        file.RecipientParticipant = participant;
+    }
 
-        var meetingIds = participant.MeetingParticipants
-            .Select(meetingParticipant =>
-                meetingParticipant.MeetingId)
-            .ToList();
+    var result = _mapper.Map<ParticipantDetailDTO>(
+        participant);
 
-        var participantCounts = await _context.MeetingParticipants
-            .AsNoTracking()
-            .Where(meetingParticipant =>
-                meetingIds.Contains(
-                    meetingParticipant.MeetingId))
-            .GroupBy(meetingParticipant =>
-                meetingParticipant.MeetingId)
-            .Select(group => new
-            {
-                MeetingId = group.Key,
-                ParticipantsCount = group.Count()
-            })
-            .ToDictionaryAsync(
-                item => item.MeetingId,
-                item => item.ParticipantsCount);
+    var meetingIds = participant.MeetingParticipants
+        .Select(meetingParticipant =>
+            meetingParticipant.MeetingId)
+        .ToList();
+
+    if (meetingIds.Count > 0)
+    {
+        var participantCounts =
+            await _context.MeetingParticipants
+                .AsNoTracking()
+                .Where(meetingParticipant =>
+                    meetingIds.Contains(
+                        meetingParticipant.MeetingId))
+                .GroupBy(meetingParticipant =>
+                    meetingParticipant.MeetingId)
+                .Select(group => new
+                {
+                    MeetingId = group.Key,
+                    ParticipantsCount = group.Count()
+                })
+                .ToDictionaryAsync(
+                    item => item.MeetingId,
+                    item => item.ParticipantsCount);
 
         foreach (var meeting in result.Meetings)
         {
@@ -161,10 +190,30 @@ public class ParticipantService : IParticipantService
                 participantCounts.GetValueOrDefault(
                     meeting.MeetingId);
         }
-
-        return result;
     }
 
+    result.SentPrivateFiles =
+        result.SentPrivateFiles
+            .Select(file => file with
+            {
+                DownloadUrl =
+                    $"/api/participants/{participant.ParticipantId}" +
+                    $"/private-files/{file.Id}/download"
+            })
+            .ToList();
+
+    result.ReceivedPrivateFiles =
+        result.ReceivedPrivateFiles
+            .Select(file => file with
+            {
+                DownloadUrl =
+                    $"/api/participants/{participant.ParticipantId}" +
+                    $"/private-files/{file.Id}/download"
+            })
+            .ToList();
+
+    return result;
+}
     /// <summary>
     /// Створює нового учасника та додає йому аватар,
     /// якщо файл аватара був переданий.

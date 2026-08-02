@@ -143,6 +143,50 @@ namespace HW_06.Migrations
                     b.ToTable("Participants");
                 });
 
+            modelBuilder.Entity("HW_06.Models.ParticipantPrivateFile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("RecipientParticipantId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SenderParticipantId")
+                        .HasColumnType("int");
+
+                    b.Property<long>("SizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("StoredFileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime>("UploadedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecipientParticipantId");
+
+                    b.HasIndex("SenderParticipantId");
+
+                    b.ToTable("ParticipantPrivateFiles");
+                });
+
             modelBuilder.Entity("HW_06.Models.Room", b =>
                 {
                     b.Property<int>("RoomId")
@@ -198,6 +242,25 @@ namespace HW_06.Migrations
                     b.Navigation("Participant");
                 });
 
+            modelBuilder.Entity("HW_06.Models.ParticipantPrivateFile", b =>
+                {
+                    b.HasOne("HW_06.Models.Participant", "RecipientParticipant")
+                        .WithMany("ReceivedPrivateFiles")
+                        .HasForeignKey("RecipientParticipantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HW_06.Models.Participant", "SenderParticipant")
+                        .WithMany("SentPrivateFiles")
+                        .HasForeignKey("SenderParticipantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("RecipientParticipant");
+
+                    b.Navigation("SenderParticipant");
+                });
+
             modelBuilder.Entity("HW_06.Models.Meeting", b =>
                 {
                     b.Navigation("Attachments");
@@ -208,6 +271,10 @@ namespace HW_06.Migrations
             modelBuilder.Entity("HW_06.Models.Participant", b =>
                 {
                     b.Navigation("MeetingParticipants");
+
+                    b.Navigation("ReceivedPrivateFiles");
+
+                    b.Navigation("SentPrivateFiles");
                 });
 
             modelBuilder.Entity("HW_06.Models.Room", b =>

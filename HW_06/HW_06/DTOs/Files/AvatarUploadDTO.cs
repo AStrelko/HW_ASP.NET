@@ -6,7 +6,9 @@ namespace HW_06.DTOs.Files;
 public class AvatarUploadDTO
 {
     /// <summary>
-    /// Файл зображення, який необхідно завантажити як аватар.
+    /// Файл зображення,
+    /// який буде використано
+    /// як аватар учасника.
     /// </summary>
     public required IFormFile File { get; set; }
 }

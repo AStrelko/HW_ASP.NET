@@ -40,4 +40,16 @@ public class Participant
     /// </summary>
     public ICollection<MeetingParticipant> MeetingParticipants { get; set; }
         = new List<MeetingParticipant>();
+    
+    /// <summary>
+    /// Приватные файлы, отправленные участником.
+    /// </summary>
+    public ICollection<ParticipantPrivateFile> SentPrivateFiles { get; set; }
+        = new List<ParticipantPrivateFile>();
+
+    /// <summary>
+    /// Приватные файлы, полученные участником.
+    /// </summary>
+    public ICollection<ParticipantPrivateFile> ReceivedPrivateFiles { get; set; }
+        = new List<ParticipantPrivateFile>();
 }

@@ -4,6 +4,35 @@
         <name>HW_06</name>
     </assembly>
     <members>
+        <member name="T:HW_06.ConfigureSwaggerOptions">
+            <summary>
+            Налаштовує окремі Swagger-документи для кожної підтримуваної версії API.
+            </summary>
+        </member>
+        <member name="F:HW_06.ConfigureSwaggerOptions._provider">
+            <summary>
+            Постачальник інформації
+            про доступні версії API.
+            </summary>
+        </member>
+        <member name="M:HW_06.ConfigureSwaggerOptions.#ctor(Asp.Versioning.ApiExplorer.IApiVersionDescriptionProvider)">
+            <summary>
+            Ініціалізує новий екземпляр
+            класу <see cref="T:HW_06.ConfigureSwaggerOptions"/>.
+            </summary>
+            <param name="provider">
+            Постачальник описів версій API.
+            </param>
+        </member>
+        <member name="M:HW_06.ConfigureSwaggerOptions.Configure(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)">
+            <summary>
+            Реєструє Swagger-документ
+            для кожної знайденої версії API.
+            </summary>
+            <param name="options">
+            Параметри генератора Swagger.
+            </param>
+        </member>
         <member name="T:HW_06.Controllers.V1.MeetingControllers">
             <summary>
             Перша версія API для базового керування зустрічами.
@@ -65,6 +94,98 @@
             <param name="id">
             Ідентифікатор зустрічі.
             </param>
+        </member>
+        <member name="T:HW_06.Controllers.AttachmentsController">
+            <summary>
+            Керує публічними файлами-вкладеннями зустрічей.
+            </summary>
+        </member>
+        <member name="M:HW_06.Controllers.AttachmentsController.#ctor(HW_06.Services.Interfaces.IAttachmentService)">
+            <summary>
+            Ініціалізує новий екземпляр контролера
+            публічних файлів-вкладень зустрічей.
+            </summary>
+            <param name="attachmentService">
+            Сервіс для роботи з публічними файлами-вкладеннями.
+            </param>
+        </member>
+        <member name="M:HW_06.Controllers.AttachmentsController.Upload(System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Завантажує публічний файл
+            і прикріплює його до зустрічі.
+            </summary>
+            <param name="meetingId">
+            Ідентифікатор зустрічі.
+            </param>
+            <param name="file">
+            Файл, який потрібно завантажити.
+            </param>
+            <returns>
+            Дані створеного файлу-вкладення.
+            </returns>
+            <response code="201">
+            Файл успішно завантажено.
+            </response>
+            <response code="400">
+            Файл відсутній, порожній або не пройшов перевірку.
+            </response>
+            <response code="404">
+            Зустріч не знайдено.
+            </response>
+        </member>
+        <member name="M:HW_06.Controllers.AttachmentsController.GetAll(System.Int32)">
+            <summary>
+            Повертає список публічних документів,
+            прикріплених до зустрічі.
+            </summary>
+            <param name="meetingId">
+            Ідентифікатор зустрічі.
+            </param>
+            <returns>
+            Список документів зустрічі.
+            </returns>
+            <response code="200">
+            Список документів успішно отримано.
+            </response>
+            <response code="404">
+            Зустріч не знайдено.
+            </response>
+        </member>
+        <member name="M:HW_06.Controllers.AttachmentsController.Delete(System.Int32,System.Int32)">
+            <summary>
+            Видаляє публічний документ,
+            прикріплений до зустрічі.
+            </summary>
+            <param name="meetingId">
+            Ідентифікатор зустрічі.
+            </param>
+            <param name="attachmentId">
+            Ідентифікатор документа.
+            </param>
+            <response code="204">
+            Документ успішно видалено.
+            </response>
+            <response code="404">
+            Документ не знайдено або він не належить указаній зустрічі.
+            </response>
+        </member>
+        <member name="M:HW_06.Controllers.AttachmentsController.Download(System.Int32,System.Int32)">
+            <summary>
+            Відкриває або завантажує документ,
+            прикріплений до зустрічі.
+            </summary>
+            <param name="meetingId">
+            Ідентифікатор зустрічі.
+            </param>
+            <param name="attachmentId">
+            Ідентифікатор документа.
+            </param>
+            <response code="200">
+            Документ успішно отримано.
+            </response>
+            <response code="404">
+            Документ не знайдено або файл відсутній у сховищі.
+            </response>
         </member>
         <member name="T:HW_06.Controllers.MeetingControllersDTO">
             <summary>
@@ -357,15 +478,368 @@
             DTO з абсолютним URL власного або стандартного аватара.
             </returns>
         </member>
+        <member name="T:HW_06.Controllers.PrivateAttachmentsController">
+            <summary>
+            Керує приватними файлами учасників.
+            </summary>
+        </member>
+        <member name="M:HW_06.Controllers.PrivateAttachmentsController.#ctor(HW_06.Services.Interfaces.IPrivateAttachmentService)">
+            <summary>
+            Ініціалізує новий екземпляр контролера
+            приватних файлів учасників.
+            </summary>
+            <param name="privateAttachmentService">
+            Сервіс роботи з приватними файлами.
+            </param>
+        </member>
+        <member name="M:HW_06.Controllers.PrivateAttachmentsController.Upload(System.Int32,System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Надсилає приватний файл від одного учасника іншому.
+            </summary>
+            <param name="participantId">
+            Ідентифікатор учасника-відправника.
+            </param>
+            <param name="recipientParticipantId">
+            Ідентифікатор учасника-отримувача.
+            </param>
+            <param name="file">Файл для надсилання.</param>
+            <response code="201">Файл успішно надіслано.</response>
+            <response code="400">Дані або файл не пройшли перевірку.</response>
+            <response code="404">
+            Відправника або отримувача не знайдено.
+            </response>
+        </member>
+        <member name="M:HW_06.Controllers.PrivateAttachmentsController.GetReceived(System.Int32)">
+            <summary>
+            Повертає приватні файли,
+            отримані вказаним учасником.
+            </summary>
+            <param name="participantId">
+            Ідентифікатор учасника-отримувача.
+            </param>
+            <returns>
+            Колекція приватних файлів, отриманих учасником.
+            </returns>
+            <response code="200">
+            Список отриманих приватних файлів успішно сформовано.
+            </response>
+        </member>
+        <member name="M:HW_06.Controllers.PrivateAttachmentsController.GetSent(System.Int32)">
+            <summary>
+            Повертає приватні файли,
+            надіслані вказаним учасником.
+            </summary>
+            <param name="participantId">
+            Ідентифікатор учасника-відправника.
+            </param>
+            <returns>
+            Колекція приватних файлів, надісланих учасником.
+            </returns>
+            <response code="200">
+            Список надісланих приватних файлів успішно сформовано.
+            </response>
+        </member>
+        <member name="M:HW_06.Controllers.PrivateAttachmentsController.GetById(System.Int32,System.Int32)">
+            <summary>
+            Повертає інформацію
+            про конкретний приватний файл.
+            </summary>
+            <param name="participantId">
+            Ідентифікатор учасника,
+            який переглядає файл.
+            </param>
+            <param name="fileId">
+            Ідентифікатор приватного файлу.
+            </param>
+            <response code="200">Інформацію про файл отримано.</response>
+            <response code="404">
+            Файл не знайдено або учасник не має доступу.
+            </response>
+        </member>
+        <member name="M:HW_06.Controllers.PrivateAttachmentsController.Download(System.Int32,System.Int32)">
+            <summary>
+            Завантажує приватний файл.
+            </summary>
+            <param name="participantId">
+            Ідентифікатор учасника,
+            який завантажує файл.
+            </param>
+            <param name="fileId">
+            Ідентифікатор приватного файлу.
+            </param>
+            <response code="200">Файл успішно отримано.</response>
+            <response code="404">
+            Файл не знайдено або учасник не має доступу.
+            </response>
+        </member>
+        <member name="M:HW_06.Controllers.PrivateAttachmentsController.Delete(System.Int32,System.Int32)">
+            <summary>
+            Видаляє приватний файл.
+            </summary>
+            <param name="participantId">
+            Ідентифікатор учасника-відправника.
+            </param>
+            <param name="fileId">
+            Ідентифікатор приватного файлу.
+            </param>
+            <response code="204">Файл успішно видалено.</response>
+            <response code="404">
+            Файл не знайдено або учасник не має права його видаляти.
+            </response>
+        </member>
         <member name="T:HW_06.DataContext">
             <summary>
-            Контекст бази даних застосунку.
-            Містить набори сутностей та конфігурацію зв'язків між ними.
+            Представляє контекст бази даних застосунку
+            та надає доступ до його сутностей.
+            </summary>
+        </member>
+        <member name="M:HW_06.DataContext.#ctor(Microsoft.EntityFrameworkCore.DbContextOptions{HW_06.DataContext})">
+            <summary>
+            Ініціалізує новий екземпляр
+            контексту бази даних.
+            </summary>
+            <param name="options">
+            Параметри конфігурації контексту.
+            </param>
+        </member>
+        <member name="P:HW_06.DataContext.Meetings">
+            <summary>
+            Набір зустрічей.
+            </summary>
+        </member>
+        <member name="P:HW_06.DataContext.Rooms">
+            <summary>
+            Набір кімнат.
+            </summary>
+        </member>
+        <member name="P:HW_06.DataContext.Participants">
+            <summary>
+            Набір учасників.
+            </summary>
+        </member>
+        <member name="P:HW_06.DataContext.MeetingParticipants">
+            <summary>
+            Набір зв’язків між зустрічами
+            та учасниками.
             </summary>
         </member>
         <member name="P:HW_06.DataContext.MeetingAttachments">
             <summary>
-            Набор файлов-вложений встреч.
+            Набір публічних файлів-вкладень зустрічей.
+            </summary>
+        </member>
+        <member name="P:HW_06.DataContext.ParticipantPrivateFiles">
+            <summary>
+            Набір приватних файлів учасників.
+            </summary>
+        </member>
+        <member name="M:HW_06.DataContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <summary>
+            Налаштовує моделі сутностей,
+            їх ключі та зв’язки.
+            </summary>
+            <param name="modelBuilder">
+            Побудовник моделі Entity Framework Core.
+            </param>
+        </member>
+        <member name="T:HW_06.DTOs.Files.AttachmentPrivateDTO">
+            <summary>
+            Представляє приватний файл,
+            переданий між учасниками.
+            </summary>
+            <param name="Id">
+            Унікальний ідентифікатор файлу.
+            </param>
+            <param name="OriginalFileName">
+            Оригінальне ім’я завантаженого файлу.
+            </param>
+            <param name="ContentType">
+            MIME-тип вмісту файлу.
+            </param>
+            <param name="SizeBytes">
+            Розмір файлу в байтах.
+            </param>
+            <param name="UploadedAtUtc">
+            Дата й час завантаження файлу у форматі UTC.
+            </param>
+            <param name="SenderParticipantId">
+            Ідентифікатор учасника, який надіслав файл.
+            </param>
+            <param name="SenderFullName">
+            Повне ім’я учасника, який надіслав файл.
+            </param>
+            <param name="RecipientParticipantId">
+            Ідентифікатор учасника, якому призначено файл.
+            </param>
+            <param name="RecipientFullName">
+            Повне ім’я учасника, якому призначено файл.
+            </param>
+            <param name="DownloadUrl">
+            URL-адреса для завантаження файлу.
+            </param>
+        </member>
+        <member name="M:HW_06.DTOs.Files.AttachmentPrivateDTO.#ctor(System.Int32,System.String,System.String,System.Int64,System.DateTime,System.Int32,System.String,System.Int32,System.String,System.String)">
+            <summary>
+            Представляє приватний файл,
+            переданий між учасниками.
+            </summary>
+            <param name="Id">
+            Унікальний ідентифікатор файлу.
+            </param>
+            <param name="OriginalFileName">
+            Оригінальне ім’я завантаженого файлу.
+            </param>
+            <param name="ContentType">
+            MIME-тип вмісту файлу.
+            </param>
+            <param name="SizeBytes">
+            Розмір файлу в байтах.
+            </param>
+            <param name="UploadedAtUtc">
+            Дата й час завантаження файлу у форматі UTC.
+            </param>
+            <param name="SenderParticipantId">
+            Ідентифікатор учасника, який надіслав файл.
+            </param>
+            <param name="SenderFullName">
+            Повне ім’я учасника, який надіслав файл.
+            </param>
+            <param name="RecipientParticipantId">
+            Ідентифікатор учасника, якому призначено файл.
+            </param>
+            <param name="RecipientFullName">
+            Повне ім’я учасника, якому призначено файл.
+            </param>
+            <param name="DownloadUrl">
+            URL-адреса для завантаження файлу.
+            </param>
+        </member>
+        <member name="P:HW_06.DTOs.Files.AttachmentPrivateDTO.Id">
+            <summary>
+            Унікальний ідентифікатор файлу.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Files.AttachmentPrivateDTO.OriginalFileName">
+            <summary>
+            Оригінальне ім’я завантаженого файлу.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Files.AttachmentPrivateDTO.ContentType">
+            <summary>
+            MIME-тип вмісту файлу.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Files.AttachmentPrivateDTO.SizeBytes">
+            <summary>
+            Розмір файлу в байтах.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Files.AttachmentPrivateDTO.UploadedAtUtc">
+            <summary>
+            Дата й час завантаження файлу у форматі UTC.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Files.AttachmentPrivateDTO.SenderParticipantId">
+            <summary>
+            Ідентифікатор учасника, який надіслав файл.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Files.AttachmentPrivateDTO.SenderFullName">
+            <summary>
+            Повне ім’я учасника, який надіслав файл.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Files.AttachmentPrivateDTO.RecipientParticipantId">
+            <summary>
+            Ідентифікатор учасника, якому призначено файл.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Files.AttachmentPrivateDTO.RecipientFullName">
+            <summary>
+            Повне ім’я учасника, якому призначено файл.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Files.AttachmentPrivateDTO.DownloadUrl">
+            <summary>
+            URL-адреса для завантаження файлу.
+            </summary>
+        </member>
+        <member name="T:HW_06.DTOs.Files.AttachmentPublicDTO">
+            <summary>
+            Представляє публічний файл-вкладення зустрічі,
+            що повертається клієнту API.
+            </summary>
+            <param name="Id">
+            Унікальний ідентифікатор файлу.
+            </param>
+            <param name="OriginalFileName">
+            Оригінальне ім’я завантаженого файлу.
+            </param>
+            <param name="ContentType">
+            MIME-тип вмісту файлу.
+            </param>
+            <param name="SizeBytes">
+            Розмір файлу в байтах.
+            </param>
+            <param name="UploadedAtUtc">
+            Дата й час завантаження файлу у форматі UTC.
+            </param>
+            <param name="DownloadUrl">
+            URL-адреса для завантаження файлу.
+            </param>
+        </member>
+        <member name="M:HW_06.DTOs.Files.AttachmentPublicDTO.#ctor(System.Int32,System.String,System.String,System.Int64,System.DateTime,System.String)">
+            <summary>
+            Представляє публічний файл-вкладення зустрічі,
+            що повертається клієнту API.
+            </summary>
+            <param name="Id">
+            Унікальний ідентифікатор файлу.
+            </param>
+            <param name="OriginalFileName">
+            Оригінальне ім’я завантаженого файлу.
+            </param>
+            <param name="ContentType">
+            MIME-тип вмісту файлу.
+            </param>
+            <param name="SizeBytes">
+            Розмір файлу в байтах.
+            </param>
+            <param name="UploadedAtUtc">
+            Дата й час завантаження файлу у форматі UTC.
+            </param>
+            <param name="DownloadUrl">
+            URL-адреса для завантаження файлу.
+            </param>
+        </member>
+        <member name="P:HW_06.DTOs.Files.AttachmentPublicDTO.Id">
+            <summary>
+            Унікальний ідентифікатор файлу.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Files.AttachmentPublicDTO.OriginalFileName">
+            <summary>
+            Оригінальне ім’я завантаженого файлу.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Files.AttachmentPublicDTO.ContentType">
+            <summary>
+            MIME-тип вмісту файлу.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Files.AttachmentPublicDTO.SizeBytes">
+            <summary>
+            Розмір файлу в байтах.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Files.AttachmentPublicDTO.UploadedAtUtc">
+            <summary>
+            Дата й час завантаження файлу у форматі UTC.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.Files.AttachmentPublicDTO.DownloadUrl">
+            <summary>
+            URL-адреса для завантаження файлу.
             </summary>
         </member>
         <member name="T:HW_06.DTOs.Files.AvatarUploadDTO">
@@ -375,7 +849,9 @@
         </member>
         <member name="P:HW_06.DTOs.Files.AvatarUploadDTO.File">
             <summary>
-            Файл зображення, який необхідно завантажити як аватар.
+            Файл зображення,
+            який буде використано
+            як аватар учасника.
             </summary>
         </member>
         <member name="T:HW_06.DTOs.MeetingDTO.MeetingCreateDTO">
@@ -441,6 +917,11 @@
         <member name="P:HW_06.DTOs.MeetingDTO.MeetingDetailDTO.Participants">
             <summary>
             Список учасників зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingDetailDTO.Attachments">
+            <summary>
+            Публічні документи, прикріплені до зустрічі.
             </summary>
         </member>
         <member name="T:HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO">
@@ -671,9 +1152,14 @@
             Список зустрічей учасника.
             </summary>
         </member>
-        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantDetailDTO.Files">
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantDetailDTO.SentPrivateFiles">
             <summary>
-            прикреплені до участника файли
+            Приватні файли, надіслані учасником.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.ParticipantDTO.ParticipantDetailDTO.ReceivedPrivateFiles">
+            <summary>
+            Приватні файли, отримані учасником.
             </summary>
         </member>
         <member name="T:HW_06.DTOs.ParticipantDTO.ParticipantPartialUpdateDTO">
@@ -1062,6 +1548,18 @@
         <member name="M:HW_06.Migrations.AddMeetingAttachments.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
+        <member name="T:HW_06.Migrations.AddParticipantPrivateFiles">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddParticipantPrivateFiles.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddParticipantPrivateFiles.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:HW_06.Migrations.AddParticipantPrivateFiles.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
         <member name="T:HW_06.Models.Files.FileAccessLevel">
             <summary>
             Визначає рівень доступу до файлу.
@@ -1075,21 +1573,6 @@
         <member name="F:HW_06.Models.Files.FileAccessLevel.Private">
             <summary>
             Приватний файл, доступ до якого мають лише авторизовані користувачі.
-            </summary>
-        </member>
-        <member name="T:HW_06.Models.Files.FileCategory">
-            <summary>
-            Визначає категорію файлу.
-            </summary>
-        </member>
-        <member name="F:HW_06.Models.Files.FileCategory.Avatar">
-            <summary>
-            Аватар учасника.
-            </summary>
-        </member>
-        <member name="F:HW_06.Models.Files.FileCategory.Document">
-            <summary>
-            Документ.
             </summary>
         </member>
         <member name="T:HW_06.Models.Files.FileDownloadResult">
@@ -1268,6 +1751,71 @@
             Колекція зв'язків між учасником та зустрічами.
             </summary>
         </member>
+        <member name="P:HW_06.Models.Participant.SentPrivateFiles">
+            <summary>
+            Приватные файлы, отправленные участником.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Participant.ReceivedPrivateFiles">
+            <summary>
+            Приватные файлы, полученные участником.
+            </summary>
+        </member>
+        <member name="T:HW_06.Models.ParticipantPrivateFile">
+            <summary>
+            Представляет приватный файл, переданный от одного участника другому.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.ParticipantPrivateFile.Id">
+            <summary>
+            Уникальный идентификатор приватного файла.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.ParticipantPrivateFile.OriginalFileName">
+            <summary>
+            Оригинальное имя файла, указанное при загрузке.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.ParticipantPrivateFile.StoredFileName">
+            <summary>
+            Уникальное имя физического файла в хранилище.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.ParticipantPrivateFile.ContentType">
+            <summary>
+            MIME-тип содержимого файла.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.ParticipantPrivateFile.SizeBytes">
+            <summary>
+            Размер файла в байтах.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.ParticipantPrivateFile.UploadedAtUtc">
+            <summary>
+            Дата и время загрузки файла в формате UTC.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.ParticipantPrivateFile.SenderParticipantId">
+            <summary>
+            Идентификатор участника, который отправил файл.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.ParticipantPrivateFile.SenderParticipant">
+            <summary>
+            Участник, который отправил файл.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.ParticipantPrivateFile.RecipientParticipantId">
+            <summary>
+            Идентификатор участника, которому предназначен файл.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.ParticipantPrivateFile.RecipientParticipant">
+            <summary>
+            Участник, которому предназначен файл.
+            </summary>
+        </member>
         <member name="T:HW_06.Models.Room">
             <summary>
             Модель кімнати, у якій проводяться зустрічі.
@@ -1288,18 +1836,182 @@
             Навігаційна колекція зустрічей, що проводяться в кімнаті.
             </summary>
         </member>
+        <member name="T:HW_06.Profile.AttachmentMappingProfile">
+            <summary>
+            Містить правила перетворення
+            публічних вкладень зустрічей
+            у DTO для клієнта.
+            </summary>
+        </member>
+        <member name="M:HW_06.Profile.AttachmentMappingProfile.#ctor">
+            <summary>
+            Ініціалізує профіль AutoMapper
+            та налаштовує правила мапінгу
+            публічних вкладень зустрічей.
+            </summary>
+        </member>
         <member name="T:HW_06.Profile.MeetingMappingProfile">
             <summary>
-            Профіль AutoMapper, який містить правила мапінгу
-            між моделями домену та DTO для сутностей
-            <see cref="T:HW_06.Models.Meeting"/> і <see cref="T:HW_06.Models.Participant"/>.
+            Містить конфігурацію AutoMapper для перетворення
+            сутностей зустрічей і учасників у відповідні DTO
+            та зворотного перетворення DTO у доменні моделі.
             </summary>
+            <remarks>
+            Профіль налаштовує мапінг основних властивостей,
+            пов'язаних зустрічей, кімнат, учасників,
+            публічних вкладень і приватних файлів.
+            </remarks>
         </member>
         <member name="M:HW_06.Profile.MeetingMappingProfile.#ctor">
             <summary>
-            Ініціалізує профіль AutoMapper та налаштовує правила
-            мапінгу між моделями домену і DTO.
+            Ініціалізує новий екземпляр профілю
+            та реєструє правила мапінгу для сутностей
+            <see cref="T:HW_06.Models.Meeting"/> і <see cref="T:HW_06.Models.Participant"/>.
             </summary>
+        </member>
+        <member name="T:HW_06.Profile.PrivateAttachmentMappingProfile">
+            <summary>
+            Містить правила перетворення
+            сутності приватного файлу
+            у DTO для клієнта.
+            </summary>
+        </member>
+        <member name="M:HW_06.Profile.PrivateAttachmentMappingProfile.#ctor">
+            <summary>
+            Ініціалізує профіль AutoMapper
+            та налаштовує правила мапінгу
+            приватних файлів.
+            </summary>
+        </member>
+        <member name="T:HW_06.Services.AttachmentService">
+            <summary>
+            Реалізує операції для роботи
+            з публічними файлами-вкладеннями зустрічей.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.AttachmentService.#ctor(HW_06.DataContext,AutoMapper.IMapper,Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            Ініціалізує новий екземпляр сервісу
+            публічних файлів-вкладень зустрічей.
+            </summary>
+            <param name="context">
+            Контекст бази даних.
+            </param>
+            <param name="mapper">
+            Сервіс перетворення сутностей у DTO.
+            </param>
+            <param name="environment">
+            Інформація про середовище виконання застосунку.
+            </param>
+        </member>
+        <member name="M:HW_06.Services.AttachmentService.UploadAsync(System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Завантажує публічний документ
+            і прикріплює його до зустрічі.
+            </summary>
+            <param name="meetingId">
+            Ідентифікатор зустрічі.
+            </param>
+            <param name="file">
+            Документ, який необхідно завантажити.
+            </param>
+            <returns>
+            Дані створеного вкладення або
+            <see langword="null"/>, якщо зустріч не знайдено.
+            </returns>
+            <exception cref="T:System.ArgumentException">
+            Виникає, якщо файл не пройшов валідацію.
+            </exception>
+        </member>
+        <member name="M:HW_06.Services.AttachmentService.GetAllAsync(System.Int32)">
+            <summary>
+            Повертає всі публічні документи,
+            прикріплені до вказаної зустрічі.
+            </summary>
+            <param name="meetingId">
+            Ідентифікатор зустрічі.
+            </param>
+            <returns>
+            Колекція публічних вкладень або
+            <see langword="null"/>, якщо зустріч не знайдено.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.AttachmentService.DownloadAsync(System.Int32,System.Int32)">
+            <summary>
+            Повертає публічний документ
+            для завантаження клієнтом.
+            </summary>
+            <param name="meetingId">
+            Ідентифікатор зустрічі.
+            </param>
+            <param name="attachmentId">
+            Ідентифікатор вкладення.
+            </param>
+            <returns>
+            Дані документа для завантаження або
+            <see langword="null"/>, якщо запис чи фізичний файл не знайдено.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.AttachmentService.DeleteAsync(System.Int32,System.Int32)">
+            <summary>
+            Видаляє публічний документ
+            із бази даних і файлового сховища.
+            </summary>
+            <param name="meetingId">
+            Ідентифікатор зустрічі.
+            </param>
+            <param name="attachmentId">
+            Ідентифікатор вкладення.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо документ успішно видалено;
+            інакше — <see langword="false"/>.
+            </returns>
+        </member>
+        <member name="T:HW_06.Services.Interfaces.IAttachmentService">
+            <summary>
+            Определяет операции для работы с публичными файлами-вложениями встреч.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IAttachmentService.UploadAsync(System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Загружает файл и прикрепляет его к указанной встрече.
+            </summary>
+            <param name="meetingId">Идентификатор встречи.</param>
+            <param name="file">Загружаемый файл.</param>
+            <returns>
+            Данные созданного файла-вложения либо <see langword="null"/>,
+            если встреча не найдена.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IAttachmentService.GetAllAsync(System.Int32)">
+            <summary>
+            Возвращает список публичных файлов, прикреплённых к встрече.
+            </summary>
+            <param name="meetingId">Идентификатор встречи.</param>
+            <returns>Список файлов-вложений встречи.</returns>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IAttachmentService.DownloadAsync(System.Int32,System.Int32)">
+            <summary>
+            Возвращает данные файла-вложения по его идентификатору.
+            </summary>
+            <param name="meetingId">Идентификатор встречи.</param>
+            <param name="attachmentId">Идентификатор файла-вложения.</param>
+            <returns>
+            Данные файла-вложения либо <see langword="null"/>,
+            если файл не найден или не относится к указанной встрече.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IAttachmentService.DeleteAsync(System.Int32,System.Int32)">
+            <summary>
+            Удаляет файл-вложение из хранилища и базы данных.
+            </summary>
+            <param name="meetingId">Идентификатор встречи.</param>
+            <param name="attachmentId">Идентификатор файла-вложения.</param>
+            <returns>
+            <see langword="true"/>, если файл удалён;
+            иначе <see langword="false"/>.
+            </returns>
         </member>
         <member name="T:HW_06.Services.Interfaces.IFileStorageService">
             <summary>
@@ -1635,6 +2347,45 @@
             <see langword="null"/>, якщо учасника не знайдено.
             </returns>
         </member>
+        <member name="T:HW_06.Services.Interfaces.IPrivateAttachmentService">
+            <summary>
+            Визначає операції для роботи
+            з приватними файлами учасників.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IPrivateAttachmentService.UploadAsync(System.Int32,System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Завантажує приватний файл
+            від одного учасника іншому.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IPrivateAttachmentService.GetReceivedFilesAsync(System.Int32)">
+            <summary>
+            Повертає список приватних файлів,
+            отриманих указаним учасником.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IPrivateAttachmentService.GetSentFilesAsync(System.Int32)">
+            <summary>
+            Повертає список приватних файлів,
+            надісланих указаним учасником.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IPrivateAttachmentService.GetByIdAsync(System.Int32,System.Int32)">
+            <summary>
+            Повертає інформацію про приватний файл.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IPrivateAttachmentService.DownloadAsync(System.Int32,System.Int32)">
+            <summary>
+            Повертає приватний файл для завантаження.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IPrivateAttachmentService.DeleteAsync(System.Int32,System.Int32)">
+            <summary>
+            Видаляє приватний файл.
+            </summary>
+        </member>
         <member name="T:HW_06.Services.LocalFileStorageService">
             <summary>
             Сервіс локального зберігання публічних і приватних файлів.
@@ -1643,6 +2394,18 @@
         <member name="F:HW_06.Services.LocalFileStorageService.SupportedExtensions">
             <summary>
             Розширення файлів, які підтримує файлове сховище.
+            </summary>
+        </member>
+        <member name="F:HW_06.Services.LocalFileStorageService._publicRoot">
+            <summary>
+            Шлях до кореневого каталогу,
+            у якому зберігаються публічні файли.
+            </summary>
+        </member>
+        <member name="F:HW_06.Services.LocalFileStorageService._privateRoot">
+            <summary>
+            Шлях до кореневого каталогу,
+            у якому зберігаються приватні файли.
             </summary>
         </member>
         <member name="M:HW_06.Services.LocalFileStorageService.#ctor(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
@@ -1850,6 +2613,36 @@
             Сервіс для роботи із зустрічами.
             </summary>
         </member>
+        <member name="F:HW_06.Services.MeetingService._context">
+            <summary>
+            Контекст бази даних застосунку.
+            Використовується для роботи із сутностями.
+            </summary>
+        </member>
+        <member name="F:HW_06.Services.MeetingService._mapper">
+            <summary>
+            Сервіс AutoMapper для перетворення
+            моделей домену в DTO і навпаки.
+            </summary>
+        </member>
+        <member name="F:HW_06.Services.MeetingService._createValidator">
+            <summary>
+            Валідатор створення нової зустрічі.
+            Виконує перевірку даних перед додаванням.
+            </summary>
+        </member>
+        <member name="F:HW_06.Services.MeetingService._updateValidator">
+            <summary>
+            Валідатор повного оновлення зустрічі.
+            Перевіряє коректність усіх полів моделі.
+            </summary>
+        </member>
+        <member name="F:HW_06.Services.MeetingService._partialValidator">
+            <summary>
+            Валідатор часткового оновлення зустрічі.
+            Перевіряє лише змінені поля моделі.
+            </summary>
+        </member>
         <member name="M:HW_06.Services.MeetingService.#ctor(HW_06.DataContext,AutoMapper.IMapper,HW_06.Validators.IValidator{HW_06.DTOs.MeetingDTO.MeetingCreateDTO},HW_06.Validators.IValidator{HW_06.DTOs.MeetingDTO.MeetingUpdateDTO},HW_06.Validators.IValidator{HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO})">
             <summary>
             Ініціалізує новий екземпляр сервісу зустрічей.
@@ -2029,14 +2822,16 @@
         <member name="M:HW_06.Services.ParticipantService.GetByIdAsync(System.Int32)">
             <summary>
             Отримує детальну інформацію про учасника
-            разом зі списком його зустрічей.
+            разом зі списком його зустрічей
+            та приватними файлами.
             </summary>
             <param name="id">
             Унікальний ідентифікатор учасника.
             </param>
             <returns>
-            Детальну інформацію про учасника та його зустрічі або
-            <see langword="null"/>, якщо учасника не знайдено.
+            Детальну інформацію про учасника, його зустрічі
+            та приватні файли або <see langword="null"/>,
+            якщо учасника не знайдено.
             </returns>
         </member>
         <member name="M:HW_06.Services.ParticipantService.CreateAsync(HW_06.DTOs.ParticipantDTO.ParticipantCreateDTO,System.Threading.CancellationToken)">
@@ -2204,6 +2999,182 @@
             Виникає, якщо хоча б одну із зустрічей не знайдено.
             </exception>
         </member>
+        <member name="T:HW_06.Services.PrivateAttachmentService">
+            <summary>
+            Реалізує операції для роботи
+            з приватними файлами учасників.
+            </summary>
+        </member>
+        <member name="F:HW_06.Services.PrivateAttachmentService._context">
+            <summary>
+            Контекст бази даних застосунку.
+            </summary>
+        </member>
+        <member name="F:HW_06.Services.PrivateAttachmentService._mapper">
+            <summary>
+            Сервіс AutoMapper для перетворення
+            сутностей у DTO.
+            </summary>
+        </member>
+        <member name="F:HW_06.Services.PrivateAttachmentService._environment">
+            <summary>
+            Інформація про середовище
+            виконання застосунку.
+            </summary>
+        </member>
+        <member name="F:HW_06.Services.PrivateAttachmentService._validator">
+            <summary>
+            Валідатор приватних документів.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.PrivateAttachmentService.#ctor(HW_06.DataContext,AutoMapper.IMapper,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,HW_06.Validators.FileValid.PrivateDocumentValidator)">
+            <summary>
+            Ініціалізує новий екземпляр сервісу
+            приватних файлів учасників.
+            </summary>
+            <param name="context">Контекст бази даних.</param>
+            <param name="mapper">Сервіс перетворення моделей у DTO.</param>
+            <param name="environment">
+            Інформація про середовище виконання застосунку.
+            </param>
+            <param name="validator">
+            Валідатор приватних документів.
+            </param>
+        </member>
+        <member name="M:HW_06.Services.PrivateAttachmentService.UploadAsync(System.Int32,System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Завантажує приватний документ
+            від одного учасника іншому.
+            </summary>
+            <param name="senderParticipantId">
+            Ідентифікатор учасника-відправника.
+            </param>
+            <param name="recipientParticipantId">
+            Ідентифікатор учасника-отримувача.
+            </param>
+            <param name="file">
+            Документ, який необхідно передати.
+            </param>
+            <returns>
+            Дані завантаженого документа або
+            <see langword="null"/>, якщо одного з учасників не знайдено.
+            </returns>
+            <exception cref="T:System.ArgumentException">
+            Виникає, якщо документ не пройшов перевірку
+            або відправник і отримувач збігаються.
+            </exception>
+        </member>
+        <member name="M:HW_06.Services.PrivateAttachmentService.GetReceivedFilesAsync(System.Int32)">
+            <summary>
+            Повертає список приватних документів,
+            отриманих указаним учасником.
+            </summary>
+            <param name="participantId">
+            Ідентифікатор учасника.
+            </param>
+            <returns>
+            Колекцію отриманих приватних документів.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.PrivateAttachmentService.GetSentFilesAsync(System.Int32)">
+            <summary>
+            Повертає список приватних документів,
+            надісланих указаним учасником.
+            </summary>
+            <param name="participantId">
+            Ідентифікатор учасника.
+            </param>
+            <returns>
+            Колекцію надісланих приватних документів.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.PrivateAttachmentService.GetByIdAsync(System.Int32,System.Int32)">
+            <summary>
+            Повертає інформацію
+            про приватний документ.
+            </summary>
+            <param name="fileId">
+            Ідентифікатор документа.
+            </param>
+            <param name="participantId">
+            Ідентифікатор учасника,
+            який запитує документ.
+            </param>
+            <returns>
+            Інформацію про документ або
+            <see langword="null"/>,
+            якщо документ не знайдено
+            або доступ заборонено.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.PrivateAttachmentService.DownloadAsync(System.Int32,System.Int32)">
+            <summary>
+            Повертає приватний документ
+            для завантаження.
+            </summary>
+            <param name="fileId">
+            Ідентифікатор документа.
+            </param>
+            <param name="participantId">
+            Ідентифікатор учасника,
+            який завантажує документ.
+            </param>
+            <returns>
+            Дані документа для завантаження або
+            <see langword="null"/>,
+            якщо документ не знайдено
+            або доступ до нього відсутній.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.PrivateAttachmentService.DeleteAsync(System.Int32,System.Int32)">
+            <summary>
+            Видаляє приватний документ.
+            </summary>
+            <param name="fileId">
+            Ідентифікатор документа.
+            </param>
+            <param name="participantId">
+            Ідентифікатор учасника,
+            який видаляє документ.
+            </param>
+            <returns>
+            <see langword="true"/>,
+            якщо документ успішно видалено;
+            інакше —
+            <see langword="false"/>.
+            </returns>
+        </member>
+        <member name="T:HW_06.Services.Results.AttachmentDownloadResult">
+            <summary>
+            Містить дані документа, підготовленого для завантаження.
+            </summary>
+            <param name="Content">Потік із вмістом документа.</param>
+            <param name="ContentType">MIME-тип документа.</param>
+            <param name="OriginalFileName">
+            Оригінальне ім'я документа для клієнта.
+            </param>
+        </member>
+        <member name="M:HW_06.Services.Results.AttachmentDownloadResult.#ctor(System.IO.Stream,System.String,System.String)">
+            <summary>
+            Містить дані документа, підготовленого для завантаження.
+            </summary>
+            <param name="Content">Потік із вмістом документа.</param>
+            <param name="ContentType">MIME-тип документа.</param>
+            <param name="OriginalFileName">
+            Оригінальне ім'я документа для клієнта.
+            </param>
+        </member>
+        <member name="P:HW_06.Services.Results.AttachmentDownloadResult.Content">
+            <summary>Потік із вмістом документа.</summary>
+        </member>
+        <member name="P:HW_06.Services.Results.AttachmentDownloadResult.ContentType">
+            <summary>MIME-тип документа.</summary>
+        </member>
+        <member name="P:HW_06.Services.Results.AttachmentDownloadResult.OriginalFileName">
+            <summary>
+            Оригінальне ім'я документа для клієнта.
+            </summary>
+        </member>
         <member name="T:HW_06.Configurations.MeetingAttachmentConfiguration">
             <summary>
             Настраивает сущность <see cref="T:HW_06.Models.MeetingAttachment"/>
@@ -2217,6 +3188,21 @@
             </summary>
             <param name="builder">
             Объект построителя конфигурации сущности.
+            </param>
+        </member>
+        <member name="T:HW_06.Data.Configurations.ParticipantPrivateFileConfiguration">
+            <summary>
+            Налаштовую сущність приватного файлу участника.
+            </summary>
+        </member>
+        <member name="M:HW_06.Data.Configurations.ParticipantPrivateFileConfiguration.Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder{HW_06.Models.ParticipantPrivateFile})">
+            <summary>
+            Налаштовує структуру таблиці,
+            властивості та зв'язки
+            приватного файлу учасника.
+            </summary>
+            <param name="builder">
+            Побудовник конфігурації сутності.
             </param>
         </member>
         <member name="T:HW_06.Validators.Exceptions.ValidationException">
@@ -2286,6 +3272,169 @@
             <returns>
             <see langword="true"/>, якщо сигнатура відповідає
             розширенню; інакше — <see langword="false"/>.
+            </returns>
+        </member>
+        <member name="T:HW_06.Validators.FileValid.PrivateDocumentValidator">
+            <summary>
+            Перевіряє приватні документи учасників
+            перед їх збереженням.
+            </summary>
+        </member>
+        <member name="F:HW_06.Validators.FileValid.PrivateDocumentValidator.MaxFileSize">
+            <summary>
+            Максимально допустимий розмір файлу — 10 МБ.
+            </summary>
+        </member>
+        <member name="F:HW_06.Validators.FileValid.PrivateDocumentValidator.AllowedExtensions">
+            <summary>
+            Розширення документів,
+            дозволених для завантаження.
+            </summary>
+        </member>
+        <member name="F:HW_06.Validators.FileValid.PrivateDocumentValidator.AllowedContentTypes">
+            <summary>
+            Відповідність дозволених розширень
+            очікуваним MIME-типам.
+            </summary>
+        </member>
+        <member name="M:HW_06.Validators.FileValid.PrivateDocumentValidator.ValidateAsync(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Перевіряє розмір, ім’я, розширення,
+            MIME-тип і сигнатуру приватного файлу.
+            </summary>
+            <param name="file">
+            Файл, який необхідно перевірити.
+            </param>
+            <returns>
+            Результат валідації з колекцією знайдених помилок.
+            </returns>
+        </member>
+        <member name="M:HW_06.Validators.FileValid.PrivateDocumentValidator.HasValidSignatureAsync(Microsoft.AspNetCore.Http.IFormFile,System.String)">
+            <summary>
+            Перевіряє сигнатуру файлу
+            відповідно до його розширення.
+            </summary>
+            <param name="file">
+            Файл, сигнатуру якого потрібно перевірити.
+            </param>
+            <param name="extension">
+            Нормалізоване розширення файлу.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо сигнатура відповідає розширенню;
+            інакше — <see langword="false"/>.
+            </returns>
+        </member>
+        <member name="M:HW_06.Validators.FileValid.PrivateDocumentValidator.StartsWithAsync(System.IO.Stream,System.Byte[])">
+            <summary>
+            Перевіряє, чи починається потік
+            із заданої послідовності байтів.
+            </summary>
+            <param name="stream">
+            Потік даних файлу.
+            </param>
+            <param name="expectedBytes">
+            Очікувана початкова послідовність байтів.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо початок потоку
+            відповідає очікуваній сигнатурі;
+            інакше — <see langword="false"/>.
+            </returns>
+        </member>
+        <member name="M:HW_06.Validators.FileValid.PrivateDocumentValidator.ContainsNullByte(System.IO.Stream)">
+            <summary>
+            Перевіряє, чи містить текстовий файл
+            нульовий байт.
+            </summary>
+            <param name="stream">
+            Потік даних текстового файлу.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо нульовий байт знайдено;
+            інакше — <see langword="false"/>.
+            </returns>
+        </member>
+        <member name="T:HW_06.Validators.FileValid.PublicDocumentValidator">
+            <summary>
+            Перевіряє публічні документи
+            перед їх збереженням.
+            </summary>
+        </member>
+        <member name="F:HW_06.Validators.FileValid.PublicDocumentValidator.MaxFileSize">
+            <summary>
+            Максимально допустимий розмір файлу — 10 МБ.
+            </summary>
+        </member>
+        <member name="F:HW_06.Validators.FileValid.PublicDocumentValidator.AllowedExtensions">
+            <summary>
+            Розширення документів,
+            дозволених для завантаження.
+            </summary>
+        </member>
+        <member name="F:HW_06.Validators.FileValid.PublicDocumentValidator.AllowedContentTypes">
+            <summary>
+            Відповідність дозволених розширень
+            очікуваним MIME-типам.
+            </summary>
+        </member>
+        <member name="M:HW_06.Validators.FileValid.PublicDocumentValidator.ValidateAsync(Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Перевіряє розмір, ім’я, розширення,
+            MIME-тип і сигнатуру публічного документа.
+            </summary>
+            <param name="file">
+            Файл, який необхідно перевірити.
+            </param>
+            <returns>
+            Текст першої знайденої помилки або
+            <see langword="null"/>, якщо файл пройшов перевірку.
+            </returns>
+        </member>
+        <member name="M:HW_06.Validators.FileValid.PublicDocumentValidator.HasValidSignatureAsync(Microsoft.AspNetCore.Http.IFormFile,System.String)">
+            <summary>
+            Перевіряє сигнатуру файлу
+            відповідно до його розширення.
+            </summary>
+            <param name="file">
+            Файл, сигнатуру якого необхідно перевірити.
+            </param>
+            <param name="extension">
+            Нормалізоване розширення файлу.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо сигнатура відповідає розширенню;
+            інакше — <see langword="false"/>.
+            </returns>
+        </member>
+        <member name="M:HW_06.Validators.FileValid.PublicDocumentValidator.StartsWithAsync(System.IO.Stream,System.Byte[])">
+            <summary>
+            Перевіряє, чи починається потік
+            із заданої послідовності байтів.
+            </summary>
+            <param name="stream">
+            Потік даних файлу.
+            </param>
+            <param name="expectedBytes">
+            Очікувана початкова послідовність байтів.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо початок потоку
+            відповідає очікуваній сигнатурі;
+            інакше — <see langword="false"/>.
+            </returns>
+        </member>
+        <member name="M:HW_06.Validators.FileValid.PublicDocumentValidator.ContainsNullByte(System.IO.Stream)">
+            <summary>
+            Перевіряє, чи містить текстовий файл
+            нульовий байт.
+            </summary>
+            <param name="stream">
+            Потік даних текстового файлу.
+            </param>
+            <returns>
+            <see langword="true"/>, якщо нульовий байт знайдено;
+            інакше — <see langword="false"/>.
             </returns>
         </member>
         <member name="T:HW_06.Validators.IValidator`1">
