@@ -1,5 +1,6 @@
 using Bogus;
 using HW_06.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace HW_06.Helpers;
 
@@ -8,23 +9,25 @@ namespace HW_06.Helpers;
 /// </summary>
 public static class SeedData
 {
-    public static void Initialize(DataContext context)
+    public static async Task InitializeAsync(
+        DataContext context,
+        UserManager<ApplicationUser> userManager)
     {
         if (context.Meetings.Any())
             return;
 
-        // ---------------- Комнаты ----------------
+        // ---------------- Комнати ----------------
 
         var rooms = new Faker<Room>()
             .RuleFor(r => r.NumberRoom, f => f.Random.Int(100, 120))
             .Generate(10);
 
         context.Rooms.AddRange(rooms);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
 
-        // ---------------- Участники ----------------
+        // ---------------- Користувачі та учасники ----------------
 
-        var roles = new[]
+        var positions = new[]
         {
             "Developer",
             "Manager",
@@ -33,15 +36,46 @@ public static class SeedData
             "Team Lead"
         };
 
-        var participants = new Faker<Participant>()
-            .RuleFor(p => p.FirstName, f => f.Person.FirstName)
-            .RuleFor(p => p.LastName, f => f.Person.LastName)
-            .RuleFor(p => p.Email, f => f.Person.Email)
-            .RuleFor(p => p.Role, f => f.PickRandom(roles))
-            .Generate(30);
+        var participants = new List<Participant>();
+
+        var faker = new Faker();
+
+        for (var i = 0; i < 30; i++)
+        {
+            var person = new Person();
+
+            var firstName = person.FirstName;
+            var lastName = person.LastName;
+
+            var email =
+                faker.Internet.Email(firstName, lastName);
+
+            var applicationUser = new ApplicationUser
+            {
+                Email = email,
+                UserName = email
+            };
+
+            var result = await userManager.CreateAsync(
+                applicationUser,
+                "Test123");
+
+            if (!result.Succeeded)
+                continue;
+
+            var participant = new Participant
+            {
+                FirstName = firstName,
+                LastName = lastName,
+                Position = faker.PickRandom(positions),
+                ApplicationUserId = applicationUser.Id
+            };
+
+            participants.Add(participant);
+        }
 
         context.Participants.AddRange(participants);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
 
         // ---------------- Зустрічі ----------------
 
@@ -53,7 +87,7 @@ public static class SeedData
             .Generate(20);
 
         context.Meetings.AddRange(meetings);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
 
         // ---------------- Зв'язки ----------------
 
@@ -63,10 +97,10 @@ public static class SeedData
 
         foreach (var meeting in meetings)
         {
-            var count = random.Next(5, 11); // від 5 до 10
+            var count = random.Next(5, 11);
 
             var selectedParticipants = participants
-                .OrderBy(x => Guid.NewGuid())
+                .OrderBy(_ => Guid.NewGuid())
                 .Take(count);
 
             foreach (var participant in selectedParticipants)
@@ -80,6 +114,6 @@ public static class SeedData
         }
 
         context.MeetingParticipants.AddRange(meetingParticipants);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 }

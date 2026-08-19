@@ -5,7 +5,6 @@ using HW_06.Helpers.Queryable;
 using HW_06.Helpers.QueryParameters;
 using HW_06.Models;
 using HW_06.Services.Interfaces;
-using HW_06.Validators;
 using HW_06.Validators.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,12 +12,13 @@ namespace HW_06.Services;
 
 /// <summary>
 /// Сервіс для роботи із зустрічами.
+/// Виконує бізнес-логіку та операції
+/// з базою даних.
 /// </summary>
 public class MeetingService : IMeetingService
 {
     /// <summary>
     /// Контекст бази даних застосунку.
-    /// Використовується для роботи із сутностями.
     /// </summary>
     private readonly DataContext _context;
 
@@ -29,24 +29,6 @@ public class MeetingService : IMeetingService
     private readonly IMapper _mapper;
 
     /// <summary>
-    /// Валідатор створення нової зустрічі.
-    /// Виконує перевірку даних перед додаванням.
-    /// </summary>
-    private readonly IValidator<MeetingCreateDTO> _createValidator;
-
-    /// <summary>
-    /// Валідатор повного оновлення зустрічі.
-    /// Перевіряє коректність усіх полів моделі.
-    /// </summary>
-    private readonly IValidator<MeetingUpdateDTO> _updateValidator;
-
-    /// <summary>
-    /// Валідатор часткового оновлення зустрічі.
-    /// Перевіряє лише змінені поля моделі.
-    /// </summary>
-    private readonly IValidator<MeetingPartialUpdateDTO> _partialValidator;
-
-    /// <summary>
     /// Ініціалізує новий екземпляр сервісу зустрічей.
     /// </summary>
     /// <param name="context">
@@ -55,32 +37,21 @@ public class MeetingService : IMeetingService
     /// <param name="mapper">
     /// Сервіс AutoMapper.
     /// </param>
-    /// <param name="createValidator">
-    /// Валідатор створення зустрічі.
-    /// </param>
-    /// <param name="updateValidator">
-    /// Валідатор повного оновлення зустрічі.
-    /// </param>
-    /// <param name="partialValidator">
-    /// Валідатор часткового оновлення зустрічі.
-    /// </param>
     public MeetingService(
         DataContext context,
-        IMapper mapper,
-        IValidator<MeetingCreateDTO> createValidator,
-        IValidator<MeetingUpdateDTO> updateValidator,
-        IValidator<MeetingPartialUpdateDTO> partialValidator)
+        IMapper mapper)
     {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(mapper);
+
         _context = context;
         _mapper = mapper;
-
-        _createValidator = createValidator;
-        _updateValidator = updateValidator;
-        _partialValidator = partialValidator;
     }
 
     /// <summary>
-    /// Отримує сторінку зі списком зустрічей.
+    /// Отримує сторінку зі списком зустрічей
+    /// із підтримкою пошуку, фільтрації,
+    /// сортування та пагінації.
     /// </summary>
     /// <param name="filter">
     /// Параметри фільтрації.
@@ -117,7 +88,8 @@ public class MeetingService : IMeetingService
     }
 
     /// <summary>
-    /// Отримує детальну інформацію про зустріч.
+    /// Отримує детальну інформацію
+    /// про зустріч за ідентифікатором.
     /// </summary>
     /// <param name="id">
     /// Ідентифікатор зустрічі.
@@ -126,29 +98,39 @@ public class MeetingService : IMeetingService
     /// Детальна інформація про зустріч або
     /// <see langword="null"/>, якщо зустріч не знайдено.
     /// </returns>
-    public async Task<MeetingDetailDTO?> GetByIdAsync(int id)
+    public async Task<MeetingDetailDTO?> GetByIdAsync(
+        int id)
     {
         var meeting = await _context.Meetings
             .AsNoTracking()
-            .Include(meeting => meeting.Room)
-            .Include(meeting => meeting.MeetingParticipants)
-            .ThenInclude(link => link.Participant)
-            .Include(meeting => meeting.Attachments)
-            .FirstOrDefaultAsync(meeting => meeting.MeetingId == id);
+            .Include(meeting =>
+                meeting.Room)
+            .Include(meeting =>
+                meeting.MeetingParticipants)
+            .ThenInclude(link =>
+                link.Participant)
+            .ThenInclude(participant =>
+                participant.ApplicationUser)
+            .Include(meeting =>
+                meeting.Attachments)
+            .FirstOrDefaultAsync(meeting =>
+                meeting.MeetingId == id);
 
         if (meeting is null)
         {
             return null;
         }
 
-        var dto = _mapper.Map<MeetingDetailDTO>(meeting);
+        var dto =
+            _mapper.Map<MeetingDetailDTO>(
+                meeting);
 
         dto.Attachments = dto.Attachments
             .Select(attachment => attachment with
             {
                 DownloadUrl =
-                $"/api/meetings/{meeting.MeetingId}/attachments/" +
-                $"{attachment.Id}/download"
+                    $"/api/meetings/{meeting.MeetingId}/attachments/" +
+                    $"{attachment.Id}/download"
             })
             .ToList();
 
@@ -165,85 +147,56 @@ public class MeetingService : IMeetingService
     /// Створена зустріч.
     /// </returns>
     /// <exception cref="ValidationException">
-    /// Виникає, якщо дані не пройшли перевірку,
-    /// кімнату або учасників не знайдено.
+    /// Виникає, якщо кімнату або одного
+    /// з указаних учасників не знайдено.
     /// </exception>
     public async Task<MeetingReadDTO> CreateAsync(
         MeetingCreateDTO dto)
     {
-        var validationResult = _createValidator.Validate(dto);
+        ArgumentNullException.ThrowIfNull(dto);
 
-        if (!validationResult.IsValid)
-        {
-            throw new ValidationException(
-                validationResult.Errors);
-        }
+        var room = await GetRoomAsync(
+            dto.RoomNumber);
 
-        Room? room = null;
+        var participantIds =
+            dto.ParticipantIds
+                .Distinct()
+                .ToList();
 
-        if (dto.RoomNumber.HasValue)
-        {
-            room = await _context.Rooms
-                .AsNoTracking()
-                .FirstOrDefaultAsync(item =>
-                    item.NumberRoom ==
-                    dto.RoomNumber.Value);
+        await ValidateParticipantIdsAsync(
+            participantIds);
 
-            if (room is null)
-            {
-                throw new ValidationException(
-                    nameof(dto.RoomNumber),
-                    "Кімнату із зазначеним номером не знайдено.");
-            }
-        }
+        var meeting =
+            _mapper.Map<Meeting>(dto);
 
-        var participantIds = dto.ParticipantIds
-            .Distinct()
-            .ToList();
+        meeting.RoomId =
+            room?.RoomId;
 
-        var existingParticipantIds =
-            await _context.Participants
-                .Where(participant =>
-                    participantIds.Contains(
-                        participant.ParticipantId))
-                .Select(participant =>
-                    participant.ParticipantId)
-                .ToListAsync();
+        meeting.MeetingParticipants =
+            participantIds
+                .Select(participantId =>
+                    new MeetingParticipant
+                    {
+                        ParticipantId =
+                            participantId
+                    })
+                .ToList();
 
-        var missingParticipantIds = participantIds
-            .Except(existingParticipantIds)
-            .ToList();
-
-        if (missingParticipantIds.Count > 0)
-        {
-            throw new ValidationException(
-                nameof(dto.ParticipantIds),
-                $"Не знайдено учасників з ідентифікаторами: " +
-                $"{string.Join(", ", missingParticipantIds)}.");
-        }
-
-        var meeting = _mapper.Map<Meeting>(dto);
-
-        meeting.RoomId = room?.RoomId;
-
-        meeting.MeetingParticipants = participantIds
-            .Select(participantId =>
-                new MeetingParticipant
-                {
-                    ParticipantId = participantId
-                })
-            .ToList();
-
-        _context.Meetings.Add(meeting);
+        _context.Meetings.Add(
+            meeting);
 
         await _context.SaveChangesAsync();
 
-        var createdMeeting = await _context.Meetings
-            .AsNoTracking()
-            .Include(item => item.Room)
-            .Include(item => item.MeetingParticipants)
-            .FirstAsync(item =>
-                item.MeetingId == meeting.MeetingId);
+        var createdMeeting =
+            await _context.Meetings
+                .AsNoTracking()
+                .Include(item =>
+                    item.Room)
+                .Include(item =>
+                    item.MeetingParticipants)
+                .FirstAsync(item =>
+                    item.MeetingId ==
+                    meeting.MeetingId);
 
         return _mapper.Map<MeetingReadDTO>(
             createdMeeting);
@@ -253,7 +206,7 @@ public class MeetingService : IMeetingService
     /// Повністю оновлює існуючу зустріч.
     /// </summary>
     /// <param name="id">
-    /// Ідентифікатор зустрічі з адреси запиту.
+    /// Ідентифікатор зустрічі.
     /// </param>
     /// <param name="dto">
     /// Нові дані зустрічі.
@@ -263,97 +216,63 @@ public class MeetingService : IMeetingService
     /// інакше <see langword="false"/>.
     /// </returns>
     /// <exception cref="ValidationException">
-    /// Виникає, якщо дані не пройшли перевірку,
-    /// кімнату або учасників не знайдено.
+    /// Виникає, якщо кімнату або одного
+    /// з указаних учасників не знайдено.
     /// </exception>
     public async Task<bool> UpdateAsync(
         int id,
         MeetingUpdateDTO dto)
     {
-        if (id != dto.MeetingId)
-        {
-            throw new ValidationException(
-                nameof(dto.MeetingId),
-                "Ідентифікатор зустрічі в адресі не збігається " +
-                "з ідентифікатором у тілі запиту.");
-        }
+        ArgumentNullException.ThrowIfNull(dto);
 
-        var validationResult =
-            _updateValidator.Validate(dto);
-
-        if (!validationResult.IsValid)
-        {
-            throw new ValidationException(
-                validationResult.Errors);
-        }
-
-        var meeting = await _context.Meetings
-            .Include(item => item.MeetingParticipants)
-            .FirstOrDefaultAsync(item =>
-                item.MeetingId == id);
+        var meeting =
+            await _context.Meetings
+                .Include(item =>
+                    item.MeetingParticipants)
+                .FirstOrDefaultAsync(item =>
+                    item.MeetingId == id);
 
         if (meeting is null)
         {
             return false;
         }
 
-        Room? room = null;
+        var room = await GetRoomAsync(
+            dto.RoomNumber);
 
-        if (dto.RoomNumber.HasValue)
-        {
-            room = await _context.Rooms
-                .AsNoTracking()
-                .FirstOrDefaultAsync(item =>
-                    item.NumberRoom ==
-                    dto.RoomNumber.Value);
+        var participantIds =
+            dto.ParticipantIds
+                .Distinct()
+                .ToList();
 
-            if (room is null)
-            {
-                throw new ValidationException(
-                    nameof(dto.RoomNumber),
-                    "Кімнату із зазначеним номером не знайдено.");
-            }
-        }
+        await ValidateParticipantIdsAsync(
+            participantIds);
 
-        var participantIds = dto.ParticipantIds
-            .Distinct()
-            .ToList();
+        meeting.Title =
+            dto.Title;
 
-        var existingParticipantIds =
-            await _context.Participants
-                .Where(participant =>
-                    participantIds.Contains(
-                        participant.ParticipantId))
-                .Select(participant =>
-                    participant.ParticipantId)
-                .ToListAsync();
+        meeting.Description =
+            dto.Description;
 
-        var missingParticipantIds = participantIds
-            .Except(existingParticipantIds)
-            .ToList();
+        meeting.DateTime =
+            dto.DateTime;
 
-        if (missingParticipantIds.Count > 0)
-        {
-            throw new ValidationException(
-                nameof(dto.ParticipantIds),
-                $"Не знайдено учасників з ідентифікаторами: " +
-                $"{string.Join(", ", missingParticipantIds)}.");
-        }
-
-        meeting.Title = dto.Title;
-        meeting.Description = dto.Description;
-        meeting.DateTime = dto.DateTime;
-        meeting.RoomId = room?.RoomId;
+        meeting.RoomId =
+            room?.RoomId;
 
         meeting.MeetingParticipants.Clear();
 
-        foreach (var participantId in participantIds)
+        foreach (var participantId
+                 in participantIds)
         {
             meeting.MeetingParticipants.Add(
                 new MeetingParticipant
                 {
-                    MeetingId = meeting.MeetingId,
-                    ParticipantId = participantId
+                    MeetingId =
+                        meeting.MeetingId,
+
+                    ParticipantId =
+                        participantId
                 });
         }
 
@@ -364,6 +283,7 @@ public class MeetingService : IMeetingService
 
     /// <summary>
     /// Частково оновлює існуючу зустріч.
+    /// Змінюються лише передані поля.
     /// </summary>
     /// <param name="id">
     /// Ідентифікатор зустрічі.
@@ -376,25 +296,19 @@ public class MeetingService : IMeetingService
     /// інакше <see langword="false"/>.
     /// </returns>
     /// <exception cref="ValidationException">
-    /// Виникає, якщо дані не пройшли перевірку
-    /// або кімнату не знайдено.
+    /// Виникає, якщо кімнату із зазначеним
+    /// номером не знайдено.
     /// </exception>
     public async Task<bool> PartialUpdateAsync(
         int id,
         MeetingPartialUpdateDTO dto)
     {
-        var validationResult =
-            _partialValidator.Validate(dto);
+        ArgumentNullException.ThrowIfNull(dto);
 
-        if (!validationResult.IsValid)
-        {
-            throw new ValidationException(
-                validationResult.Errors);
-        }
-
-        var meeting = await _context.Meetings
-            .FirstOrDefaultAsync(item =>
-                item.MeetingId == id);
+        var meeting =
+            await _context.Meetings
+                .FirstOrDefaultAsync(item =>
+                    item.MeetingId == id);
 
         if (meeting is null)
         {
@@ -405,28 +319,20 @@ public class MeetingService : IMeetingService
 
         if (dto.RoomNumber.HasValue)
         {
-            room = await _context.Rooms
-                .AsNoTracking()
-                .FirstOrDefaultAsync(item =>
-                    item.NumberRoom ==
-                    dto.RoomNumber.Value);
-
-            if (room is null)
-            {
-                throw new ValidationException(
-                    nameof(dto.RoomNumber),
-                    "Кімнату із зазначеним номером не знайдено.");
-            }
+            room = await GetRoomAsync(
+                dto.RoomNumber);
         }
 
         if (dto.Title is not null)
         {
-            meeting.Title = dto.Title;
+            meeting.Title =
+                dto.Title;
         }
 
         if (dto.Description is not null)
         {
-            meeting.Description = dto.Description;
+            meeting.Description =
+                dto.Description;
         }
 
         if (dto.DateTime.HasValue)
@@ -437,7 +343,8 @@ public class MeetingService : IMeetingService
 
         if (room is not null)
         {
-            meeting.RoomId = room.RoomId;
+            meeting.RoomId =
+                room.RoomId;
         }
 
         await _context.SaveChangesAsync();
@@ -455,18 +362,21 @@ public class MeetingService : IMeetingService
     /// <see langword="true"/>, якщо зустріч видалено;
     /// інакше <see langword="false"/>.
     /// </returns>
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(
+        int id)
     {
-        var meeting = await _context.Meetings
-            .FirstOrDefaultAsync(item =>
-                item.MeetingId == id);
+        var meeting =
+            await _context.Meetings
+                .FirstOrDefaultAsync(item =>
+                    item.MeetingId == id);
 
         if (meeting is null)
         {
             return false;
         }
 
-        _context.Meetings.Remove(meeting);
+        _context.Meetings.Remove(
+            meeting);
 
         await _context.SaveChangesAsync();
 
@@ -474,19 +384,23 @@ public class MeetingService : IMeetingService
     }
 
     /// <summary>
-    /// Видаляє декілька зустрічей.
+    /// Видаляє декілька зустрічей
+    /// за списком ідентифікаторів.
     /// </summary>
     /// <param name="ids">
     /// Список ідентифікаторів зустрічей.
     /// </param>
     /// <returns>
-    /// Кількість видалених зустрічей.
+    /// Кількість фактично видалених зустрічей.
     /// </returns>
     public async Task<int> DeleteManyAsync(
         List<int> ids)
     {
+        ArgumentNullException.ThrowIfNull(ids);
+
         var validIds = ids
-            .Where(id => id > 0)
+            .Where(id =>
+                id > 0)
             .Distinct()
             .ToList();
 
@@ -495,18 +409,20 @@ public class MeetingService : IMeetingService
             return 0;
         }
 
-        var meetings = await _context.Meetings
-            .Where(meeting =>
-                validIds.Contains(
-                    meeting.MeetingId))
-            .ToListAsync();
+        var meetings =
+            await _context.Meetings
+                .Where(meeting =>
+                    validIds.Contains(
+                        meeting.MeetingId))
+                .ToListAsync();
 
         if (meetings.Count == 0)
         {
             return 0;
         }
 
-        _context.Meetings.RemoveRange(meetings);
+        _context.Meetings.RemoveRange(
+            meetings);
 
         await _context.SaveChangesAsync();
 
@@ -514,20 +430,28 @@ public class MeetingService : IMeetingService
     }
 
     /// <summary>
-    /// Отримує всі зустрічі зазначеного учасника.
+    /// Отримує всі зустрічі,
+    /// у яких бере участь зазначений учасник.
     /// </summary>
     /// <param name="participantId">
     /// Ідентифікатор учасника.
     /// </param>
     /// <returns>
     /// Список зустрічей учасника.
+    /// Якщо зустрічей немає,
+    /// повертається порожній список.
     /// </returns>
     /// <exception cref="ValidationException">
-    /// Виникає, якщо ідентифікатор некоректний
-    /// або учасника не знайдено.
+    /// Виникає, якщо ідентифікатор
+    /// учасника некоректний.
+    /// </exception>
+    /// <exception cref="KeyNotFoundException">
+    /// Виникає, якщо учасника із зазначеним
+    /// ідентифікатором не знайдено.
     /// </exception>
     public async Task<List<MeetingReadDTO>>
-        GetByParticipantAsync(int participantId)
+        GetByParticipantAsync(
+            int participantId)
     {
         if (participantId <= 0)
         {
@@ -538,32 +462,114 @@ public class MeetingService : IMeetingService
 
         var participantExists =
             await _context.Participants
+                .AsNoTracking()
                 .AnyAsync(participant =>
                     participant.ParticipantId ==
                     participantId);
 
         if (!participantExists)
         {
-            throw new ValidationException(
-                nameof(participantId),
-                "Учасника із зазначеним ідентифікатором не знайдено.");
+            throw new KeyNotFoundException(
+                $"Учасника з ідентифікатором " +
+                $"{participantId} не знайдено.");
         }
 
-        var meetings = await _context.Meetings
-            .AsNoTracking()
-            .Include(meeting => meeting.Room)
-            .Include(meeting =>
-                meeting.MeetingParticipants)
-            .Where(meeting =>
-                meeting.MeetingParticipants.Any(
-                    meetingParticipant =>
-                        meetingParticipant.ParticipantId ==
-                        participantId))
-            .OrderBy(meeting =>
-                meeting.DateTime)
-            .ToListAsync();
+        var meetings =
+            await _context.Meetings
+                .AsNoTracking()
+                .Include(meeting =>
+                    meeting.Room)
+                .Include(meeting =>
+                    meeting.MeetingParticipants)
+                .Where(meeting =>
+                    meeting.MeetingParticipants.Any(
+                        meetingParticipant =>
+                            meetingParticipant.ParticipantId ==
+                            participantId))
+                .OrderBy(meeting =>
+                    meeting.DateTime)
+                .ToListAsync();
 
         return _mapper.Map<List<MeetingReadDTO>>(
             meetings);
+    }
+
+    /// <summary>
+    /// Повертає кімнату за її номером.
+    /// </summary>
+    /// <param name="roomNumber">
+    /// Номер кімнати.
+    /// </param>
+    /// <returns>
+    /// Знайдена кімната або
+    /// <see langword="null"/>, якщо номер не передано.
+    /// </returns>
+    /// <exception cref="ValidationException">
+    /// Виникає, якщо кімнату
+    /// із зазначеним номером не знайдено.
+    /// </exception>
+    private async Task<Room?> GetRoomAsync(
+        int? roomNumber)
+    {
+        if (!roomNumber.HasValue)
+        {
+            return null;
+        }
+
+        var room =
+            await _context.Rooms
+                .AsNoTracking()
+                .FirstOrDefaultAsync(item =>
+                    item.NumberRoom ==
+                    roomNumber.Value);
+
+        if (room is null)
+        {
+            throw new ValidationException(
+                nameof(roomNumber),
+                "Кімнату із зазначеним номером не знайдено.");
+        }
+
+        return room;
+    }
+
+    /// <summary>
+    /// Перевіряє існування всіх учасників,
+    /// переданих у списку ідентифікаторів.
+    /// </summary>
+    /// <param name="participantIds">
+    /// Список ідентифікаторів учасників.
+    /// </param>
+    /// <exception cref="ValidationException">
+    /// Виникає, якщо одного або декількох
+    /// учасників не знайдено.
+    /// </exception>
+    private async Task ValidateParticipantIdsAsync(
+        List<int> participantIds)
+    {
+        var existingParticipantIds =
+            await _context.Participants
+                .AsNoTracking()
+                .Where(participant =>
+                    participantIds.Contains(
+                        participant.ParticipantId))
+                .Select(participant =>
+                    participant.ParticipantId)
+                .ToListAsync();
+
+        var missingParticipantIds =
+            participantIds
+                .Except(existingParticipantIds)
+                .ToList();
+
+        if (missingParticipantIds.Count == 0)
+        {
+            return;
+        }
+
+        throw new ValidationException(
+            nameof(participantIds),
+            $"Не знайдено учасників з ідентифікаторами: " +
+            $"{string.Join(", ", missingParticipantIds)}.");
     }
 }

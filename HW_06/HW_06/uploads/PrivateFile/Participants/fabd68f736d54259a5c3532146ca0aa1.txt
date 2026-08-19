@@ -1,0 +1,232 @@
+/////регистрация, авторизация (бібліотека Identity)
+
+//нугет пакети:
+dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
+dotnet add package Microsoft.EntityFrameworkCore --version 10.0.11
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 10.0.11
+dotnet add package Microsoft.EntityFrameworkCore.Tools --version 10.0.11
+
+
+//валідатори
+using Data;
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using MyApp.DTOs.Identity;
+ 
+ 
+namespace myApp.Validators;
+ 
+ 
+public class RegisterDtoValidator : AbstractValidator<RegisterDto>
+{
+    public RegisterDtoValidator(AppDbContext db)
+    {
+        RuleFor(x => x.Email)
+            .NotEmpty().WithMessage("Email не може бути порожньою.")
+            .EmailAddress().WithMessage("Email повинен бути валідним.")
+            .MustAsync(async (email, ct) => !await db.Users.AnyAsync(u => u.Email == email, ct))
+            .WithMessage("Користувач з такою електронною адресою вже існує.");
+ 
+        RuleFor(x => x.Password)
+            .NotEmpty().WithMessage("Пароль не може бути порожнім.")
+            .MinimumLength(6).WithMessage("Пароль повинен містити не менше 6 символів.")
+            //.Matches(@"[A-Z]").WithMessage("Пароль повинен містити хоча б одну велику літеру.")
+            //.Matches(@"[a-z]").WithMessage("Пароль повинен містити хоча б одну малу літеру.")
+            .Matches(@"[0-9]").WithMessage("Пароль повинен містити хоча б одну цифру.");
+            //.Matches(@"[^A-Za-z0-9]").WithMessage("Пароль повинен містити хоча б один спеціальний символ.");
+     
+        RuleFor(x => x.ConfirmPassword)
+            .NotEmpty().WithMessage("Підтвердження паролю не може бути порожнім.")
+            .Equal(x => x.Password).WithMessage("Паролі не співпадають.");
+    }
+}
+ 
+using Data;
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using MyApp.DTOs.Identity;
+ 
+ 
+namespace myApp.Validators;
+ 
+ 
+public class LoginDtoValidator : AbstractValidator<LoginDto>
+{
+    public LoginDtoValidator(AppDbContext db)
+    {
+        RuleFor(x => x.Email)
+            .NotEmpty().WithMessage("Email не може бути порожньою.")
+            .EmailAddress().WithMessage("Email повинен бути валідним.");
+ 
+        RuleFor(x => x.Password)
+            .NotEmpty().WithMessage("Пароль не може бути порожнім.")
+            .MinimumLength(6).WithMessage("Пароль повинен містити не менше 6 символів.")
+            //.Matches(@"[A-Z]").WithMessage("Пароль повинен містити хоча б одну велику літеру.")
+            //.Matches(@"[a-z]").WithMessage("Пароль повинен містити хоча б одну малу літеру.")
+            .Matches(@"[0-9]").WithMessage("Пароль повинен містити хоча б одну цифру.");
+            //.Matches(@"[^A-Za-z0-9]").WithMessage("Пароль повинен містити хоча б один спеціальний символ.");
+    }
+}
+ 
+using Microsoft.AspNetCore.Identity;
+using MyApp.DTOs.Identity;
+using MyApp.Models;
+ 
+namespace MyApp.Services;
+ 
+public class AuthService : IAuthService
+{
+    private readonly UserManager<ApplicationUser> _userManager;
+ 
+    public AuthService(UserManager<ApplicationUser> userManager)
+    {
+        _userManager = userManager;
+    }
+ 
+    public async Task<IdentityResult> RegisterAsync(RegisterDto dto)
+    {
+        var user = new ApplicationUser()
+        {
+            Email = dto.Email,
+            UserName = dto.Email.Split('@')[0]
+        };
+        return await _userManager.CreateAsync(user, dto.Password);
+    }
+}
+ 
+using Microsoft.AspNetCore.Identity;
+using MyApp.DTOs.Identity;
+using MyApp.Models;
+ 
+namespace MyApp.Services;
+ 
+public class AuthService : IAuthService
+{
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
+ 
+    public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+    {
+        _userManager = userManager;
+        _signInManager = signInManager;
+    }
+ 
+    public async Task<IdentityResult> RegisterAsync(RegisterDto dto)
+    {
+        var user = new ApplicationUser()
+        {
+            Email = dto.Email,
+            UserName = dto.Email.Split('@')[0]
+        };
+        return await _userManager.CreateAsync(user, dto.Password);
+    }
+ 
+    public async Task<SignInResult> LoginAsync(LoginDto dto)
+    {
+        var result = await _signInManager.PasswordSignInAsync(
+            dto.Email,
+            dto.Password,
+            isPersistent: false,
+            lockoutOnFailure: true);
+        return result;
+    }
+}
+ 
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using MyApp.DTOs.Identity;
+using MyApp.Services;
+ 
+namespace MyApp.Controllers;
+ 
+public class AuthController : ControllerBase
+{
+    private readonly IAuthService _authService;
+ 
+    public AuthController(IAuthService authService)
+    {
+        _authService = authService;
+    }
+ 
+    [HttpPost("register")]
+    [ProducesResponseType<IdentityResult>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Register(RegisterDto dto)
+    {
+        var result = await _authService.RegisterAsync(dto);
+        if (!result.Succeeded) return BadRequest(result.Errors);
+        return Ok(result);
+    }
+ 
+    [HttpPost("login")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Login(LoginDto dto)
+    {
+        var result = await _authService.LoginAsync(dto);
+        if(result.IsLockedOut) return BadRequest("Користувач заблокований");
+        if (!result.Succeeded) return Unauthorized("Неправильний логін або пароль");
+        return Ok(result);
+    }
+ 
+}
+ 
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using myApp.Filters;
+using MyApp.DTOs.Identity;
+using MyApp.Services;
+ 
+namespace MyApp.Controllers;
+ 
+public class AuthController : ControllerBase
+{
+    private readonly IAuthService _authService;
+ 
+    public AuthController(IAuthService authService)
+    {
+        _authService = authService;
+    }
+ 
+    [HttpPost("register")]
+    [ServiceFilter(typeof(ValidationFilter<RegisterDto>))]
+    [ProducesResponseType<IdentityResult>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Register(RegisterDto dto)
+    {
+        var result = await _authService.RegisterAsync(dto);
+        if (!result.Succeeded) return BadRequest(result.Errors);
+        return Ok(result);
+    }
+ 
+    [HttpPost("login")]
+    [ServiceFilter(typeof(ValidationFilter<LoginDto>))]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Login(LoginDto dto)
+    {
+        var result = await _authService.LoginAsync(dto);
+        if(result.IsLockedOut) return BadRequest("Користувач заблокований");
+        if (!result.Succeeded) return Unauthorized("Неправильний логін або пароль");
+        return Ok(result);
+    }
+ 
+}
+ 
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    //options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+})
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+ 
+
+
+силка на проект github
+https://github.com/FlashedCelery9/Task6

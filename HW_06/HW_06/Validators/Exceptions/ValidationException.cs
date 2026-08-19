@@ -1,30 +1,16 @@
-using HW_06.Validators.ResultsValid;
-
 namespace HW_06.Validators.Exceptions;
 
 /// <summary>
-/// Виняток, який виникає під час помилки
-/// валідації вхідних даних.
+/// Виняток, який виникає під час
+/// порушення бізнес-правил валідації.
 /// </summary>
 public class ValidationException : Exception
 {
     /// <summary>
-    /// Список помилок, виявлених під час валідації.
+    /// Назва властивості,
+    /// з якою пов'язана помилка.
     /// </summary>
-    public List<ValidationError> Errors { get; }
-
-    /// <summary>
-    /// Ініціалізує новий екземпляр винятку
-    /// на основі списку помилок валідації.
-    /// </summary>
-    /// <param name="errors">
-    /// Колекція помилок валідації.
-    /// </param>
-    public ValidationException(IEnumerable<ValidationError> errors)
-        : base("Перевірка даних не пройдена.")
-    {
-        Errors = errors.ToList();
-    }
+    public string PropertyName { get; }
 
     /// <summary>
     /// Ініціалізує новий екземпляр винятку
@@ -41,9 +27,6 @@ public class ValidationException : Exception
         string errorMessage)
         : base(errorMessage)
     {
-        Errors = new List<ValidationError>
-        {
-            new(propertyName, errorMessage)
-        };
+        PropertyName = propertyName;
     }
 }

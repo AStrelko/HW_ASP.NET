@@ -53,46 +53,31 @@ public class AttachmentsController : ControllerBase
     [ProducesResponseType(
         typeof(AttachmentPublicDTO),
         StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        StatusCodes.Status404NotFound)]
     public async Task<ActionResult<AttachmentPublicDTO>> Upload(
         int meetingId,
         IFormFile file)
     {
-        if (file is null || file.Length == 0)
-        {
-            return BadRequest(new
-            {
-                message = "Необхідно вибрати непорожній файл."
-            });
-        }
-
-        try
-        {
-            var attachment = await _attachmentService.UploadAsync(
+        var attachment =
+            await _attachmentService.UploadAsync(
                 meetingId,
                 file);
 
-            if (attachment is null)
-            {
-                return NotFound(new
-                {
-                    message =
-                        $"Зустріч з ідентифікатором {meetingId} не знайдена."
-                });
-            }
-
-            return Created(
-                attachment.DownloadUrl,
-                attachment);
-        }
-        catch (ArgumentException exception)
+        if (attachment is null)
         {
-            return BadRequest(new
+            return NotFound(new
             {
-                message = exception.Message
+                message =
+                    $"Зустріч з ідентифікатором {meetingId} не знайдена."
             });
         }
+
+        return Created(
+            attachment.DownloadUrl,
+            attachment);
     }
 
     /// <summary>

@@ -9,8 +9,9 @@ namespace HW_06.Services.Interfaces;
 
 /// <summary>
 /// Сервіс для роботи з учасниками.
-/// Забезпечує створення, отримання, оновлення,
-/// видалення та пошук учасників.
+/// Забезпечує отримання, оновлення,
+/// видалення та пошук учасників,
+/// а також роботу з їх аватарами.
 /// </summary>
 public interface IParticipantService
 {
@@ -38,23 +39,6 @@ public interface IParticipantService
     /// <see langword="null"/>, якщо учасника не знайдено.
     /// </returns>
     Task<ParticipantDetailDTO?> GetByIdAsync(int id);
-
-    /// <summary>
-    /// Створює нового учасника та додає аватар,
-    /// якщо файл був переданий.
-    /// </summary>
-    /// <param name="dto">
-    /// Дані нового учасника та необов’язковий аватар.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// Токен скасування операції.
-    /// </param>
-    /// <returns>
-    /// Створений учасник.
-    /// </returns>
-    Task<ParticipantReadDTO> CreateAsync(
-        ParticipantCreateDTO dto,
-        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Повністю оновлює інформацію про учасника.
@@ -123,6 +107,10 @@ public interface IParticipantService
     /// Список зустрічей учасника.
     /// Якщо учасник не має зустрічей, повертається порожній список.
     /// </returns>
+    /// /// <exception cref="KeyNotFoundException">
+    /// Виникає, якщо учасника із зазначеним
+    /// ідентифікатором не знайдено.
+    /// </exception>
     Task<List<MeetingReadDTO>> GetMeetingsAsync(int participantId);
     
     /// <summary>
@@ -158,5 +146,24 @@ public interface IParticipantService
     Task<ParticipantAvatarDTO?> UploadAvatarAsync(
         int participantId,
         IFormFile file,
+        CancellationToken cancellationToken = default);
+    
+    
+    /// <summary>
+    /// Видаляє власний аватар учасника
+    /// та повертає використання стандартного аватара.
+    /// </summary>
+    /// <param name="participantId">
+    /// Унікальний ідентифікатор учасника.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Токен скасування операції.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/>, якщо учасника знайдено;
+    /// інакше <see langword="false"/>.
+    /// </returns>
+    Task<bool> ResetAvatarAsync(
+        int participantId,
         CancellationToken cancellationToken = default);
 }

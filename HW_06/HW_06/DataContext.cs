@@ -1,4 +1,5 @@
 using HW_06.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace HW_06;
@@ -7,7 +8,13 @@ namespace HW_06;
 /// Представляє контекст бази даних застосунку
 /// та надає доступ до його сутностей.
 /// </summary>
-public class DataContext : DbContext
+/// <remarks>
+/// Контекст успадковується від <see cref="IdentityDbContext{TUser}"/>,
+/// тому, крім сутностей предметної області, містить таблиці
+/// ASP.NET Core Identity для роботи з користувачами,
+/// ролями, авторизацією та автентифікацією.
+/// </remarks>
+public class DataContext : IdentityDbContext<ApplicationUser>
 {
     /// <summary>
     /// Ініціалізує новий екземпляр
@@ -25,23 +32,28 @@ public class DataContext : DbContext
     /// Набір зустрічей.
     /// </summary>
     public DbSet<Meeting> Meetings { get; set; }
+
     /// <summary>
     /// Набір кімнат.
     /// </summary>
     public DbSet<Room> Rooms { get; set; }
+
     /// <summary>
     /// Набір учасників.
     /// </summary>
     public DbSet<Participant> Participants { get; set; }
+
     /// <summary>
     /// Набір зв’язків між зустрічами
     /// та учасниками.
     /// </summary>
     public DbSet<MeetingParticipant> MeetingParticipants { get; set; }
+
     /// <summary>
     /// Набір публічних файлів-вкладень зустрічей.
     /// </summary>
     public DbSet<MeetingAttachment> MeetingAttachments { get; set; }
+
     /// <summary>
     /// Набір приватних файлів учасників.
     /// </summary>
@@ -56,13 +68,15 @@ public class DataContext : DbContext
     /// </param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Застосовує всі конфігурації сутностей, визначені в поточній збірці.
+        base.OnModelCreating(modelBuilder);
+
+        // Застосовує всі конфігурації сутностей,
+        // визначені в поточній збірці.
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(DataContext).Assembly);
 
-        base.OnModelCreating(modelBuilder);
-
-        // Налаштовує складений первинний ключ проміжної сутності.
+        // Налаштовує складений первинний ключ
+        // проміжної сутності MeetingParticipant.
         modelBuilder.Entity<MeetingParticipant>()
             .HasKey(link => new
             {
@@ -70,29 +84,24 @@ public class DataContext : DbContext
                 link.ParticipantId
             });
 
-        // Налаштовує зв’язок між зустріччю та проміжною сутністю.
+        // Налаштовує зв’язок між зустріччю
+        // та проміжною сутністю.
         modelBuilder.Entity<MeetingParticipant>()
             .HasOne(link => link.Meeting)
-            .WithMany(meeting =>
-                meeting.MeetingParticipants)
-            .HasForeignKey(link =>
-                link.MeetingId);
+            .WithMany(meeting => meeting.MeetingParticipants)
+            .HasForeignKey(link => link.MeetingId);
 
-        // Налаштовує зв’язок між учасником та проміжною сутністю.
+        // Налаштовує зв’язок між учасником
+        // та проміжною сутністю.
         modelBuilder.Entity<MeetingParticipant>()
             .HasOne(link => link.Participant)
-            .WithMany(participant =>
-                participant.MeetingParticipants)
-            .HasForeignKey(link =>
-                link.ParticipantId);
+            .WithMany(participant => participant.MeetingParticipants)
+            .HasForeignKey(link => link.ParticipantId);
 
         // Налаштовує зв’язок між зустріччю та кімнатою.
         modelBuilder.Entity<Meeting>()
             .HasOne(meeting => meeting.Room)
             .WithMany(room => room.Meetings)
-            .HasForeignKey(meeting =>
-                meeting.RoomId);
-        
-        
+            .HasForeignKey(meeting => meeting.RoomId);
     }
 }

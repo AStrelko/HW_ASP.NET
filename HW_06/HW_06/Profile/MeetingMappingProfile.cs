@@ -25,78 +25,84 @@ public class MeetingMappingProfile : AutoMapper.Profile
     public MeetingMappingProfile()
     {
         // Meeting -> DTO
-        
+
         CreateMap<Meeting, MeetingReadDTO>()
-            // Перетворює ідентифікатор кімнати у її номер для відображення клієнту.
+            // Перетворює номер кімнати
+            // у значення для відображення клієнту.
             .ForMember(
                 destination => destination.RoomNumber,
                 options => options.MapFrom(source =>
                     source.Room != null
                         ? source.Room.NumberRoom
                         : (int?)null))
-            // Обчислює кількість учасників зустрічі за записами у проміжній таблиці.
+            // Обчислює кількість учасників зустрічі.
             .ForMember(
                 destination => destination.ParticipantsCount,
                 options => options.MapFrom(source =>
                     source.MeetingParticipants.Count));
-            
-        
+
         CreateMap<Meeting, MeetingDetailDTO>()
-            // Перетворює ідентифікатор кімнати у її номер для відображення.
+            // Перетворює номер кімнати
+            // у значення для відображення клієнту.
             .ForMember(
-                d => d.RoomNumber,
-                o => o.MapFrom(s => s.Room != null
-                    ? s.Room.NumberRoom
-                    : (int?)null))
-            // Формує повний список учасників зустрічі.
+                destination => destination.RoomNumber,
+                options => options.MapFrom(source =>
+                    source.Room != null
+                        ? source.Room.NumberRoom
+                        : (int?)null))
+            // Формує список учасників зустрічі.
             .ForMember(
-                d => d.Participants,
-                o => o.MapFrom(s =>
-                    s.MeetingParticipants
-                        .Select(mp => mp.Participant)))
-            // Додає список публічних документів зустрічі.
+                destination => destination.Participants,
+                options => options.MapFrom(source =>
+                    source.MeetingParticipants
+                        .Select(meetingParticipant =>
+                            meetingParticipant.Participant)))
+            // Додає список публічних вкладень зустрічі.
             .ForMember(
                 destination => destination.Attachments,
-                options => options.MapFrom(source => source.Attachments));
+                options => options.MapFrom(source =>
+                    source.Attachments));
 
-        CreateMap<Meeting, MeetingUpdateDTO>();
-
-        CreateMap<Meeting, MeetingPartialUpdateDTO>();
 
         // DTO -> Meeting
 
         CreateMap<MeetingCreateDTO, Meeting>()
-            // Список учасників створюється окремо в сервісі.
+            // Зв'язки з учасниками
+            // створюються окремо в сервісі.
             .ForMember(
-                d => d.MeetingParticipants,
-                o => o.Ignore());
-
-        CreateMap<MeetingUpdateDTO, Meeting>()
-            // Список учасників оновлюється окремо в сервісі.
-            .ForMember(
-                d => d.MeetingParticipants,
-                o => o.Ignore());
-
-        CreateMap<MeetingPartialUpdateDTO, Meeting>()
-            // Список учасників не змінюється під час часткового оновлення.
-            .ForMember(
-                d => d.MeetingParticipants,
-                o => o.Ignore())
-            // Оновлює лише ті властивості, які були передані в DTO.
-                .ForAllMembers(options =>
-                options.Condition(
-                    (source, destination, sourceMember) =>
-                        sourceMember != null));
+                destination => destination.MeetingParticipants,
+                options => options.Ignore());
 
         // Participant -> DTO
 
-        CreateMap<Participant, ParticipantDTO>();
+        CreateMap<Participant, ParticipantDTO>()
+            .ForMember(
+                destination => destination.Email,
+                options => options.MapFrom(source =>
+                    source.ApplicationUser != null
+                        ? source.ApplicationUser.Email
+                        : null))
+            .ForMember(
+                destination => destination.Position,
+                options => options.MapFrom(source =>
+                    source.Position));
 
-        CreateMap<Participant, ParticipantReadDTO>();
-
-        CreateMap<Participant, ParticipantUpdateDTO>();
+        CreateMap<Participant, ParticipantReadDTO>()
+            .ForMember(
+                destination => destination.Email,
+                options => options.MapFrom(source =>
+                    source.ApplicationUser != null
+                        ? source.ApplicationUser.Email
+                        : null));
 
         CreateMap<Participant, ParticipantDetailDTO>()
+            // Email зберігається в ApplicationUser, а не в Participant.
+            .ForMember(
+                destination => destination.Email,
+                options => options.MapFrom(source =>
+                    source.ApplicationUser != null
+                        ? source.ApplicationUser.Email
+                        : null))
             // Формує список зустрічей, у яких бере участь учасник.
             .ForMember(
                 destination => destination.Meetings,
@@ -114,32 +120,5 @@ public class MeetingMappingProfile : AutoMapper.Profile
                 destination => destination.ReceivedPrivateFiles,
                 options => options.MapFrom(source =>
                     source.ReceivedPrivateFiles));
-
-        // DTO -> Participant
-
-        CreateMap<ParticipantCreateDTO, Participant>()
-            // Ідентифікатор створюється базою даних автоматично.
-            .ForMember(
-                destination => destination.ParticipantId,
-                options => options.Ignore())
-            // Ім’я файлу аватара задається окремо під час завантаження зображення.
-            .ForMember(
-                destination => destination.AvatarFileName,
-                options => options.Ignore())
-            // Зв’язки учасника із зустрічами створюються окремо в сервісі.
-            .ForMember(
-                destination => destination.MeetingParticipants,
-                options => options.Ignore());
-        
-        CreateMap<ParticipantPartialUpdateDTO, Participant>()
-            // Зв’язки учасника із зустрічами не змінюються під час часткового оновлення.
-            .ForMember(
-                destination => destination.MeetingParticipants,
-                options => options.Ignore())
-            // Оновлює лише ті властивості, які були передані в DTO.
-            .ForAllMembers(options =>
-                options.Condition(
-                    (source, destination, sourceMember) =>
-                        sourceMember != null));
     }
 }

@@ -1,36 +1,55 @@
 using AutoMapper;
 using HW_06.DTOs.MeetingDTO;
 using HW_06.DTOs.ParticipantDTO;
-using HW_06.Helpers.Pagination;
-using HW_06.Helpers.QueryParameters;
-using HW_06.Services.Interfaces;
-using HW_06.Validators;
-using HW_06.Helpers.Queryable;
-using HW_06.Models;
-using Microsoft.EntityFrameworkCore;
-using HW_06.Validators.Exceptions;
 using HW_06.DTOs.Participants;
+using HW_06.Helpers.Pagination;
+using HW_06.Helpers.Queryable;
+using HW_06.Helpers.QueryParameters;
+using HW_06.Models;
 using HW_06.Models.Files;
+using HW_06.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
+using AppValidationException =
+    HW_06.Validators.Exceptions.ValidationException;
 
 namespace HW_06.Services;
 
+/// <summary>
+/// Сервіс для роботи з учасниками зустрічей.
+/// Виконує отримання, оновлення та видалення учасників,
+/// роботу з їх зустрічами, аватарами
+/// та пов'язаними обліковими записами Identity.
+/// </summary>
 public class ParticipantService : IParticipantService
 {
-    private readonly DataContext _context;
-    private readonly IMapper _mapper;
+    /// <summary>
+    /// Каталог для зберігання файлів аватарів.
+    /// </summary>
     private const string AvatarFolder = "Avatars";
 
+    /// <summary>
+    /// Контекст бази даних застосунку.
+    /// </summary>
+    private readonly DataContext _context;
+
+    /// <summary>
+    /// Сервіс AutoMapper для перетворення
+    /// моделей домену в DTO.
+    /// </summary>
+    private readonly IMapper _mapper;
+
+    /// <summary>
+    /// Сервіс для роботи з файловим сховищем.
+    /// </summary>
     private readonly IFileStorageService _fileStorageService;
 
-    private readonly IValidator<ParticipantCreateDTO>
-        _createValidator;
-
-    private readonly IValidator<ParticipantUpdateDTO>
-        _updateValidator;
-
-    private readonly IValidator<ParticipantPartialUpdateDTO>
-        _partialValidator;
+    /// <summary>
+    /// Менеджер користувачів ASP.NET Core Identity.
+    /// </summary>
+    private readonly UserManager<ApplicationUser> _userManager;
 
     /// <summary>
     /// Ініціалізує сервіс для роботи з учасниками.
@@ -39,34 +58,29 @@ public class ParticipantService : IParticipantService
     /// Контекст бази даних.
     /// </param>
     /// <param name="mapper">
-    /// Екземпляр AutoMapper.
-    /// </param>
-    /// <param name="createValidator">
-    /// Валідатор створення учасника.
-    /// </param>
-    /// <param name="updateValidator">
-    /// Валідатор повного оновлення учасника.
-    /// </param>
-    /// <param name="partialValidator">
-    /// Валідатор часткового оновлення учасника.
+    /// Сервіс AutoMapper.
     /// </param>
     /// <param name="fileStorageService">
-    /// Сервіс локального файлового сховища.
+    /// Сервіс файлового сховища.
+    /// </param>
+    /// <param name="userManager">
+    /// Менеджер користувачів ASP.NET Core Identity.
     /// </param>
     public ParticipantService(
         DataContext context,
         IMapper mapper,
-        IValidator<ParticipantCreateDTO> createValidator,
-        IValidator<ParticipantUpdateDTO> updateValidator,
-        IValidator<ParticipantPartialUpdateDTO> partialValidator,
-        IFileStorageService fileStorageService)
+        IFileStorageService fileStorageService,
+        UserManager<ApplicationUser> userManager)
     {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(mapper);
+        ArgumentNullException.ThrowIfNull(fileStorageService);
+        ArgumentNullException.ThrowIfNull(userManager);
+
         _context = context;
         _mapper = mapper;
-        _createValidator = createValidator;
-        _updateValidator = updateValidator;
-        _partialValidator = partialValidator;
         _fileStorageService = fileStorageService;
+        _userManager = userManager;
     }
 
     /// <summary>
@@ -74,27 +88,27 @@ public class ParticipantService : IParticipantService
     /// пошуку за прізвищем, сортування та пагінації.
     /// </summary>
     /// <param name="parameters">
-    /// Параметри пошуку, сортування та пагінації учасників.
+    /// Параметри пошуку, сортування та пагінації.
     /// </param>
     /// <returns>
-    /// Сторінку учасників разом із загальною кількістю записів
-    /// та інформацією про пагінацію.
+    /// Сторінка учасників разом з інформацією
+    /// про пагінацію.
     /// </returns>
-    /// <exception cref="ArgumentNullException">
-    /// Виникає, якщо параметри запиту не передано.
-    /// </exception>
     public async Task<PagedResult<ParticipantReadDTO>> GetAllAsync(
         ParticipantQueryParameters parameters)
     {
         ArgumentNullException.ThrowIfNull(parameters);
-
-        IQueryable<Participant> query = _context.Participants
-            .AsNoTracking();
-
+    
+        IQueryable<Participant> query =
+            _context.Participants
+                .AsNoTracking()
+                .Include(participant =>
+                    participant.ApplicationUser);
+    
         query = query
             .ApplySearch(parameters.SearchLastName)
             .ApplySorting(parameters);
-
+    
         return await query
             .ToPagedResultAsync<Participant, ParticipantReadDTO>(
                 parameters.Page,
@@ -102,43 +116,38 @@ public class ParticipantService : IParticipantService
                 _mapper);
     }
 
-/// <summary>
+    /// <summary>
 /// Отримує детальну інформацію про учасника
-/// разом зі списком його зустрічей
-/// та приватними файлами.
+/// разом із його обліковим записом,
+/// зустрічами та приватними файлами.
 /// </summary>
 /// <param name="id">
-/// Унікальний ідентифікатор учасника.
+/// Ідентифікатор учасника.
 /// </param>
 /// <returns>
-/// Детальну інформацію про учасника, його зустрічі
-/// та приватні файли або <see langword="null"/>,
-/// якщо учасника не знайдено.
+/// Детальна інформація про учасника або
+/// <see langword="null"/>, якщо учасника не знайдено.
 /// </returns>
 public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
 {
     var participant = await _context.Participants
         .AsNoTracking()
-
+        .Include(participant =>
+            participant.ApplicationUser)
         .Include(participant =>
             participant.MeetingParticipants)
         .ThenInclude(meetingParticipant =>
             meetingParticipant.Meeting)
         .ThenInclude(meeting =>
             meeting.Room)
-
-        // Для надісланих файлів завантажуємо лише отримувача.
         .Include(participant =>
             participant.SentPrivateFiles)
         .ThenInclude(file =>
             file.RecipientParticipant)
-
-        // Для отриманих файлів завантажуємо лише відправника.
         .Include(participant =>
             participant.ReceivedPrivateFiles)
         .ThenInclude(file =>
             file.SenderParticipant)
-
         .FirstOrDefaultAsync(participant =>
             participant.ParticipantId == id);
 
@@ -147,19 +156,25 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
         return null;
     }
 
+    // Встановлює відправника для надісланих файлів,
+    // оскільки ним є поточний учасник.
     foreach (var file in participant.SentPrivateFiles)
     {
         file.SenderParticipant = participant;
     }
 
+    // Встановлює отримувача для отриманих файлів,
+    // оскільки ним є поточний учасник.
     foreach (var file in participant.ReceivedPrivateFiles)
     {
         file.RecipientParticipant = participant;
     }
 
-    var result = _mapper.Map<ParticipantDetailDTO>(
-        participant);
+    var result =
+        _mapper.Map<ParticipantDetailDTO>(participant);
 
+    // Отримує ідентифікатори зустрічей учасника
+    // для подальшого підрахунку кількості учасників.
     var meetingIds = participant.MeetingParticipants
         .Select(meetingParticipant =>
             meetingParticipant.MeetingId)
@@ -192,6 +207,8 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
         }
     }
 
+    // Формує URL для завантаження
+    // надісланих приватних файлів.
     result.SentPrivateFiles =
         result.SentPrivateFiles
             .Select(file => file with
@@ -202,6 +219,8 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
             })
             .ToList();
 
+    // Формує URL для завантаження
+    // отриманих приватних файлів.
     result.ReceivedPrivateFiles =
         result.ReceivedPrivateFiles
             .Select(file => file with
@@ -214,175 +233,25 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
 
     return result;
 }
+    
     /// <summary>
-    /// Створює нового учасника та додає йому аватар,
-    /// якщо файл аватара був переданий.
-    /// </summary>
-    /// <param name="dto">
-    /// Дані нового учасника, список зустрічей
-    /// та необов’язковий файл аватара.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// Токен скасування операції.
-    /// </param>
-    /// <returns>
-    /// Створений учасник.
-    /// </returns>
-    public async Task<ParticipantReadDTO> CreateAsync(
-        ParticipantCreateDTO dto,
-        CancellationToken cancellationToken = default)
-    {
-        var validationResult =
-            _createValidator.Validate(dto);
-
-        if (!validationResult.IsValid)
-        {
-            throw new ValidationException(
-                validationResult.Errors);
-        }
-
-        await ValidateEmailUniquenessAsync(
-            dto.Email,
-            cancellationToken: cancellationToken);
-
-        var meetingIds = dto.MeetingIds
-            .Distinct()
-            .ToList();
-
-        await ValidateMeetingIdsAsync(
-            meetingIds,
-            nameof(dto.MeetingIds));
-
-        var participant =
-            _mapper.Map<Participant>(dto);
-
-        string? savedAvatarFileName = null;
-
-        try
-        {
-            if (dto.Avatar is not null &&
-                dto.Avatar.Length > 0)
-            {
-                savedAvatarFileName =
-                    await _fileStorageService.SaveAsync(
-                        dto.Avatar,
-                        AvatarFolder,
-                        FileAccessLevel.Public,
-                        cancellationToken);
-
-                participant.AvatarFileName =
-                    savedAvatarFileName;
-            }
-
-            participant.MeetingParticipants =
-                meetingIds
-                    .Select(meetingId =>
-                        new MeetingParticipant
-                        {
-                            MeetingId = meetingId
-                        })
-                    .ToList();
-
-            await _context.Participants.AddAsync(
-                participant,
-                cancellationToken);
-
-            await _context.SaveChangesAsync(
-                cancellationToken);
-
-            return _mapper.Map<ParticipantReadDTO>(
-                participant);
-        }
-        catch
-        {
-            if (!string.IsNullOrWhiteSpace(
-                    savedAvatarFileName))
-            {
-                await _fileStorageService.DeleteAsync(
-                    AvatarFolder,
-                    savedAvatarFileName,
-                    FileAccessLevel.Public,
-                    cancellationToken);
-            }
-
-            throw;
-        }
-    }
-    /// <summary>
-    /// Перевіряє унікальність адреси електронної пошти учасника.
-    /// </summary>
-    /// <param name="email">
-    /// Адреса електронної пошти, яку необхідно перевірити.
-    /// </param>
-    /// <param name="excludedParticipantId">
-    /// Ідентифікатор учасника, якого необхідно виключити
-    /// з перевірки під час оновлення.
-    /// </param>
-    /// <param name="cancellationToken">
-    /// Токен скасування операції.
-    /// </param>
-    /// <exception cref="ValidationException">
-    /// Виникає, якщо адреса електронної пошти
-    /// вже використовується іншим учасником.
-    /// </exception>
-    private async Task ValidateEmailUniquenessAsync(
-        string email,
-        int? excludedParticipantId = null,
-        CancellationToken cancellationToken = default)
-    {
-        var normalizedEmail = email
-            .Trim()
-            .ToLowerInvariant();
-
-        var emailExists = await _context.Participants
-            .AnyAsync(
-                participant =>
-                    participant.Email.ToLower() ==
-                    normalizedEmail &&
-                    (!excludedParticipantId.HasValue ||
-                     participant.ParticipantId !=
-                     excludedParticipantId.Value),
-                cancellationToken);
-
-        if (emailExists)
-        {
-            throw new ValidationException(
-                "Email",
-                "Учасник із такою електронною поштою вже існує.");
-        }
-    }
-
-    /// <summary>
-    /// Повністю оновлює дані учасника та список його зустрічей.
+    /// Повністю оновлює дані учасника
+    /// та список його зустрічей.
     /// </summary>
     /// <param name="id">
-    /// Унікальний ідентифікатор учасника.
+    /// Ідентифікатор учасника.
     /// </param>
     /// <param name="dto">
-    /// Нові дані учасника та список ідентифікаторів зустрічей.
+    /// Нові дані учасника.
     /// </param>
     /// <returns>
-    /// <see langword="true"/>, якщо учасника успішно оновлено;
-    /// <see langword="false"/>, якщо учасника не знайдено.
+    /// true, якщо учасника оновлено;
+    /// false, якщо учасника не знайдено.
     /// </returns>
-    /// <exception cref="ValidationException">
-    /// Виникає, якщо передані дані не пройшли валідацію,
-    /// електронна пошта вже використовується іншим учасником
-    /// або вказані зустрічі не існують.
-    /// </exception>
     public async Task<bool> UpdateAsync(
         int id,
         ParticipantUpdateDTO dto)
     {
-        var validationResult =
-            _updateValidator.Validate(dto);
-
-        if (!validationResult.IsValid)
-        {
-            throw new ValidationException(
-                validationResult.Errors);
-        }
-
         var participant = await _context.Participants
             .Include(participant =>
                 participant.MeetingParticipants)
@@ -394,21 +263,12 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
             return false;
         }
 
-        await ValidateEmailUniquenessAsync(
-            dto.Email,
-            id);
-
-        var normalizedEmail = dto.Email
-            .Trim()
-            .ToLowerInvariant();
-
         var meetingIds = dto.MeetingIds
             .Distinct()
             .ToList();
 
         await ValidateMeetingIdsAsync(
-            meetingIds,
-            nameof(dto.MeetingIds));
+            meetingIds);
 
         participant.FirstName =
             dto.FirstName.Trim();
@@ -416,11 +276,8 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
         participant.LastName =
             dto.LastName.Trim();
 
-        participant.Email =
-            normalizedEmail;
-
-        participant.Role =
-            dto.Role?.Trim();
+        participant.Position =
+            dto.Position?.Trim();
 
         participant.MeetingParticipants.Clear();
 
@@ -429,8 +286,11 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
             participant.MeetingParticipants.Add(
                 new MeetingParticipant
                 {
-                    ParticipantId = participant.ParticipantId,
-                    MeetingId = meetingId
+                    ParticipantId =
+                        participant.ParticipantId,
+
+                    MeetingId =
+                        meetingId
                 });
         }
 
@@ -440,37 +300,23 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
     }
 
     /// <summary>
-    /// Частково оновлює дані учасника та, за необхідності,
-    /// список його зустрічей.
+    /// Частково оновлює дані учасника
+    /// та, за необхідності, список його зустрічей.
     /// </summary>
     /// <param name="id">
-    /// Унікальний ідентифікатор учасника.
+    /// Ідентифікатор учасника.
     /// </param>
     /// <param name="dto">
-    /// Дані полів учасника, які необхідно оновити.
+    /// Поля учасника, які необхідно оновити.
     /// </param>
     /// <returns>
-    /// <see langword="true"/>, якщо учасника успішно оновлено;
-    /// <see langword="false"/>, якщо учасника не знайдено.
+    /// true, якщо учасника оновлено;
+    /// false, якщо учасника не знайдено.
     /// </returns>
-    /// <exception cref="ValidationException">
-    /// Виникає, якщо передані дані не пройшли валідацію,
-    /// електронна пошта вже використовується іншим учасником
-    /// або вказані зустрічі не існують.
-    /// </exception>
     public async Task<bool> PartialUpdateAsync(
         int id,
         ParticipantPartialUpdateDTO dto)
     {
-        var validationResult =
-            _partialValidator.Validate(dto);
-
-        if (!validationResult.IsValid)
-        {
-            throw new ValidationException(
-                validationResult.Errors);
-        }
-
         var participant = await _context.Participants
             .Include(participant =>
                 participant.MeetingParticipants)
@@ -494,21 +340,10 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
                 dto.LastName.Trim();
         }
 
-        if (dto.Email is not null)
+        if (dto.Position is not null)
         {
-            await ValidateEmailUniquenessAsync(
-                dto.Email,
-                id);
-
-            participant.Email = dto.Email
-                .Trim()
-                .ToLowerInvariant();
-        }
-
-        if (dto.Role is not null)
-        {
-            participant.Role =
-                dto.Role.Trim();
+            participant.Position =
+                dto.Position.Trim();
         }
 
         if (dto.MeetingIds is not null)
@@ -518,8 +353,7 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
                 .ToList();
 
             await ValidateMeetingIdsAsync(
-                meetingIds,
-                nameof(dto.MeetingIds));
+                meetingIds);
 
             participant.MeetingParticipants.Clear();
 
@@ -531,7 +365,8 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
                         ParticipantId =
                             participant.ParticipantId,
 
-                        MeetingId = meetingId
+                        MeetingId =
+                            meetingId
                     });
             }
         }
@@ -542,20 +377,23 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
     }
 
     /// <summary>
-    /// Видаляє учасника та його зв’язки із зустрічами.
+    /// Видаляє учасника, його зв’язки із зустрічами,
+    /// обліковий запис Identity та файл аватара.
     /// </summary>
     /// <param name="id">
-    /// Унікальний ідентифікатор учасника.
+    /// Ідентифікатор учасника.
     /// </param>
     /// <returns>
-    /// <see langword="true"/>, якщо учасника успішно видалено;
-    /// <see langword="false"/>, якщо учасника не знайдено.
+    /// true, якщо учасника видалено;
+    /// false, якщо учасника не знайдено.
     /// </returns>
     public async Task<bool> DeleteAsync(int id)
     {
         var participant = await _context.Participants
             .Include(participant =>
                 participant.MeetingParticipants)
+            .Include(participant =>
+                participant.ApplicationUser)
             .FirstOrDefaultAsync(participant =>
                 participant.ParticipantId == id);
 
@@ -564,85 +402,171 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
             return false;
         }
 
+        var avatarFileName =
+            participant.AvatarFileName;
+
+        var applicationUser =
+            participant.ApplicationUser;
+
         _context.MeetingParticipants.RemoveRange(
             participant.MeetingParticipants);
 
-        _context.Participants.Remove(participant);
+        _context.Participants.Remove(
+            participant);
 
         await _context.SaveChangesAsync();
+
+        if (applicationUser is not null)
+        {
+            var identityResult =
+                await _userManager.DeleteAsync(
+                    applicationUser);
+
+            if (!identityResult.Succeeded)
+            {
+                throw new InvalidOperationException(
+                    "Не вдалося видалити обліковий запис користувача.");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(
+                avatarFileName))
+        {
+            await _fileStorageService.DeleteAsync(
+                AvatarFolder,
+                avatarFileName,
+                FileAccessLevel.Public);
+        }
 
         return true;
     }
 
     /// <summary>
-    /// Видаляє декількох учасників та їхні зв’язки із зустрічами.
+    /// Видаляє декількох учасників,
+    /// їхні зв’язки із зустрічами,
+    /// облікові записи Identity та файли аватарів.
     /// </summary>
     /// <param name="ids">
-    /// Список ідентифікаторів учасників, яких необхідно видалити.
+    /// Список ідентифікаторів учасників.
     /// </param>
     /// <returns>
-    /// Кількість фактично видалених учасників.
+    /// Кількість видалених учасників.
     /// </returns>
-    /// <exception cref="ArgumentNullException">
-    /// Виникає, якщо список ідентифікаторів не передано.
-    /// </exception>
-    public async Task<int> DeleteManyAsync(List<int> ids)
+    public async Task<int> DeleteManyAsync(
+        List<int> ids)
     {
         ArgumentNullException.ThrowIfNull(ids);
-
+    
         var participantIds = ids
             .Where(id => id > 0)
             .Distinct()
             .ToList();
-
+    
         if (participantIds.Count == 0)
         {
             return 0;
         }
-
+    
         var participants = await _context.Participants
             .Include(participant =>
                 participant.MeetingParticipants)
+            .Include(participant =>
+                participant.ApplicationUser)
             .Where(participant =>
                 participantIds.Contains(
                     participant.ParticipantId))
             .ToListAsync();
-
+    
         if (participants.Count == 0)
         {
             return 0;
         }
-
+    
+        var avatarFileNames = participants
+            .Where(participant =>
+                !string.IsNullOrWhiteSpace(
+                    participant.AvatarFileName))
+            .Select(participant =>
+                participant.AvatarFileName!)
+            .Distinct()
+            .ToList();
+    
+        var applicationUsers = participants
+            .Where(participant =>
+                participant.ApplicationUser is not null)
+            .Select(participant =>
+                participant.ApplicationUser!)
+            .ToList();
+    
         var meetingParticipants = participants
             .SelectMany(participant =>
                 participant.MeetingParticipants)
             .ToList();
-
+    
         _context.MeetingParticipants.RemoveRange(
             meetingParticipants);
-
+    
         _context.Participants.RemoveRange(
             participants);
-
+    
         await _context.SaveChangesAsync();
-
+    
+        foreach (var applicationUser in applicationUsers)
+        {
+            var identityResult =
+                await _userManager.DeleteAsync(
+                    applicationUser);
+    
+            if (!identityResult.Succeeded)
+            {
+                throw new InvalidOperationException(
+                    $"Не вдалося видалити обліковий запис користувача " +
+                    $"{applicationUser.Email}.");
+            }
+        }
+    
+        foreach (var avatarFileName in avatarFileNames)
+        {
+            await _fileStorageService.DeleteAsync(
+                AvatarFolder,
+                avatarFileName,
+                FileAccessLevel.Public);
+        }
+    
         return participants.Count;
     }
 
     /// <summary>
-    /// Отримує список зустрічей, у яких бере участь
-    /// вказаний учасник.
+    /// Отримує список зустрічей,
+    /// у яких бере участь вказаний учасник.
     /// </summary>
     /// <param name="participantId">
-    /// Унікальний ідентифікатор учасника.
+    /// Ідентифікатор учасника.
     /// </param>
     /// <returns>
-    /// Список зустрічей учасника, впорядкований за датою.
-    /// Якщо зустрічей не знайдено, повертається порожній список.
+    /// Список зустрічей учасника,
+    /// впорядкований за датою.
     /// </returns>
+    /// <exception cref="KeyNotFoundException">
+    /// Виникає, якщо учасника із зазначеним
+    /// ідентифікатором не знайдено.
+    /// </exception>
     public async Task<List<MeetingReadDTO>> GetMeetingsAsync(
         int participantId)
     {
+        var participantExists =
+            await _context.Participants
+                .AsNoTracking()
+                .AnyAsync(participant =>
+                    participant.ParticipantId ==
+                    participantId);
+
+        if (!participantExists)
+        {
+            throw new KeyNotFoundException(
+                $"Учасника з ідентифікатором {participantId} не знайдено.");
+        }
+
         var meetings = await _context.Meetings
             .AsNoTracking()
             .Include(meeting =>
@@ -659,12 +583,14 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
             .ToListAsync();
 
         var result =
-            _mapper.Map<List<MeetingReadDTO>>(meetings);
+            _mapper.Map<List<MeetingReadDTO>>(
+                meetings);
 
         var participantCounts = meetings
             .ToDictionary(
                 meeting => meeting.MeetingId,
-                meeting => meeting.MeetingParticipants.Count);
+                meeting =>
+                    meeting.MeetingParticipants.Count);
 
         foreach (var meeting in result)
         {
@@ -677,15 +603,15 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
     }
     
     /// <summary>
-    /// Отримує коротку інформацію про учасника
-    /// разом із даними його аватара.
+    /// Отримує коротку інформацію
+    /// про учасника разом із даними аватара.
     /// </summary>
     /// <param name="participantId">
-    /// Унікальний ідентифікатор учасника.
+    /// Ідентифікатор учасника.
     /// </param>
     /// <returns>
-    /// DTO учасника з даними аватара або
-    /// <see langword="null"/>, якщо учасника не знайдено.
+    /// DTO учасника з даними аватара
+    /// або null, якщо учасника не знайдено.
     /// </returns>
     public async Task<ParticipantAvatarDTO?> GetAvatarAsync(
         int participantId)
@@ -693,15 +619,25 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
         return await _context.Participants
             .AsNoTracking()
             .Where(participant =>
-                participant.ParticipantId == participantId)
+                participant.ParticipantId ==
+                participantId)
             .Select(participant =>
                 new ParticipantAvatarDTO
                 {
-                    ParticipantId = participant.ParticipantId,
-                    FirstName = participant.FirstName,
-                    LastName = participant.LastName,
-                    AvatarFileName = participant.AvatarFileName,
-                    AvatarUrl = null
+                    ParticipantId =
+                        participant.ParticipantId,
+
+                    FirstName =
+                        participant.FirstName,
+
+                    LastName =
+                        participant.LastName,
+
+                    AvatarFileName =
+                        participant.AvatarFileName,
+
+                    AvatarUrl =
+                        null
                 })
             .FirstOrDefaultAsync();
     }
@@ -710,7 +646,7 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
     /// Додає або замінює аватар учасника.
     /// </summary>
     /// <param name="participantId">
-    /// Унікальний ідентифікатор учасника.
+    /// Ідентифікатор учасника.
     /// </param>
     /// <param name="file">
     /// Файл нового аватара.
@@ -719,24 +655,14 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
     /// Токен скасування операції.
     /// </param>
     /// <returns>
-    /// DTO учасника з даними доданого або оновленого аватара,
-    /// або <see langword="null"/>, якщо учасника не знайдено.
+    /// DTO учасника з даними аватара
+    /// або null, якщо учасника не знайдено.
     /// </returns>
-    /// <exception cref="ValidationException">
-    /// Виникає, якщо файл не передано або він порожній.
-    /// </exception>
     public async Task<ParticipantAvatarDTO?> UploadAvatarAsync(
         int participantId,
         IFormFile file,
         CancellationToken cancellationToken = default)
     {
-        if (file is null || file.Length == 0)
-        {
-            throw new ValidationException(
-                nameof(file),
-                "Файл аватара не передано або він порожній.");
-        }
-
         var participant = await _context.Participants
             .FirstOrDefaultAsync(
                 participant =>
@@ -771,47 +697,106 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
                     cancellationToken);
         }
 
-        participant.AvatarFileName = savedFileName;
+        participant.AvatarFileName =
+            savedFileName;
 
         await _context.SaveChangesAsync(
             cancellationToken);
 
         return new ParticipantAvatarDTO
         {
-            ParticipantId = participant.ParticipantId,
-            FirstName = participant.FirstName,
-            LastName = participant.LastName,
-            AvatarFileName = participant.AvatarFileName,
-            AvatarUrl = null
+            ParticipantId =
+                participant.ParticipantId,
+
+            FirstName =
+                participant.FirstName,
+
+            LastName =
+                participant.LastName,
+
+            AvatarFileName =
+                participant.AvatarFileName,
+
+            AvatarUrl =
+                null
         };
     }
     
     /// <summary>
-    /// Перевіряє, що всі передані ідентифікатори зустрічей існують
-    /// в базі даних.
+    /// Видаляє власний аватар учасника
+    /// та повертає використання стандартного аватара.
+    /// </summary>
+    /// <param name="participantId">
+    /// Ідентифікатор учасника.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Токен скасування операції.
+    /// </param>
+    /// <returns>
+    /// true, якщо учасника знайдено та аватар скинуто;
+    /// false, якщо учасника не знайдено.
+    /// </returns>
+    public async Task<bool> ResetAvatarAsync(
+        int participantId,
+        CancellationToken cancellationToken = default)
+    {
+        var participant = await _context.Participants
+            .FirstOrDefaultAsync(
+                participant =>
+                    participant.ParticipantId == participantId,
+                cancellationToken);
+
+        if (participant is null)
+        {
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(
+                participant.AvatarFileName))
+        {
+            await _fileStorageService.DeleteAsync(
+                AvatarFolder,
+                participant.AvatarFileName,
+                FileAccessLevel.Public,
+                cancellationToken);
+        }
+
+        participant.AvatarFileName = null;
+
+        await _context.SaveChangesAsync(
+            cancellationToken);
+
+        return true;
+    }
+
+    /// <summary>
+    /// Перевіряє, що всі передані
+    /// ідентифікатори зустрічей існують.
     /// </summary>
     /// <param name="meetingIds">
     /// Список ідентифікаторів зустрічей.
     /// </param>
-    /// <param name="propertyName">
-    /// Назва властивості, для якої формується повідомлення
-    /// про помилку валідації.
-    /// </param>
-    /// <exception cref="ValidationException">
-    /// Виникає, якщо хоча б одну із зустрічей не знайдено.
+    /// <exception cref="AppValidationException">
+    /// Виникає, якщо одну або декілька
+    /// зустрічей не знайдено.
     /// </exception>
-    private async Task ValidateMeetingIdsAsync(List<int> meetingIds, string propertyName)
+    private async Task ValidateMeetingIdsAsync(
+        List<int> meetingIds)
     {
         if (meetingIds.Count == 0)
         {
             return;
         }
 
-        var existingMeetingIds = await _context.Meetings
-            .AsNoTracking()
-            .Where(meeting => meetingIds.Contains(meeting.MeetingId))
-            .Select(meeting => meeting.MeetingId)
-            .ToListAsync();
+        var existingMeetingIds =
+            await _context.Meetings
+                .AsNoTracking()
+                .Where(meeting =>
+                    meetingIds.Contains(
+                        meeting.MeetingId))
+                .Select(meeting =>
+                    meeting.MeetingId)
+                .ToListAsync();
 
         var missingMeetingIds = meetingIds
             .Except(existingMeetingIds)
@@ -819,8 +804,8 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
 
         if (missingMeetingIds.Count > 0)
         {
-            throw new ValidationException(
-                propertyName,
+            throw new AppValidationException(
+                "MeetingIds",
                 $"Зустрічі не знайдено: " +
                 $"{string.Join(", ", missingMeetingIds)}.");
         }

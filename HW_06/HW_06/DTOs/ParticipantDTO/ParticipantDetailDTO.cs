@@ -30,9 +30,9 @@ public record ParticipantDetailDTO
     public string Email { get; set; } = string.Empty;
     
     /// <summary>
-    /// Роль учасника.
+    /// Посада або спеціалізація учасника.
     /// </summary>
-    public string? Role { get; set; }
+    public string? Position { get; set; }
     
     /// <summary>
     /// Аватарка учасника

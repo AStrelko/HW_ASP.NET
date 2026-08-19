@@ -32,33 +32,33 @@ public class PrivateAttachmentService : IPrivateAttachmentService
     /// </summary>
     private readonly IWebHostEnvironment _environment;
 
-    /// <summary>
-    /// Валідатор приватних документів.
-    /// </summary>
-    private readonly PrivateDocumentValidator _validator;
+    
 
     /// <summary>
     /// Ініціалізує новий екземпляр сервісу
     /// приватних файлів учасників.
     /// </summary>
-    /// <param name="context">Контекст бази даних.</param>
-    /// <param name="mapper">Сервіс перетворення моделей у DTO.</param>
+    /// <param name="context">
+    /// Контекст бази даних.
+    /// </param>
+    /// <param name="mapper">
+    /// Сервіс перетворення моделей у DTO.
+    /// </param>
     /// <param name="environment">
     /// Інформація про середовище виконання застосунку.
-    /// </param>
-    /// <param name="validator">
-    /// Валідатор приватних документів.
     /// </param>
     public PrivateAttachmentService(
         DataContext context,
         IMapper mapper,
-        IWebHostEnvironment environment,
-        PrivateDocumentValidator validator)
+        IWebHostEnvironment environment)
     {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(mapper);
+        ArgumentNullException.ThrowIfNull(environment);
+
         _context = context;
         _mapper = mapper;
         _environment = environment;
-        _validator = validator;
     }
 
     /// <summary>
@@ -87,6 +87,24 @@ public class PrivateAttachmentService : IPrivateAttachmentService
     int recipientParticipantId,
     IFormFile file)
 {
+    if (senderParticipantId <= 0)
+    {
+        throw new ArgumentException(
+            "Ідентифікатор учасника-відправника повинен бути більшим за нуль.");
+    }
+
+    if (recipientParticipantId <= 0)
+    {
+        throw new ArgumentException(
+            "Ідентифікатор учасника-отримувача повинен бути більшим за нуль.");
+    }
+
+    if (senderParticipantId == recipientParticipantId)
+    {
+        throw new ArgumentException(
+            "Учасник не може надіслати приватний файл самому собі.");
+    }
+    
     // Перевіряє, що учасник не надсилає документ самому собі.
     if (senderParticipantId == recipientParticipantId)
     {
@@ -102,7 +120,9 @@ public class PrivateAttachmentService : IPrivateAttachmentService
 
     if (sender is null)
     {
-        return null;
+        throw new KeyNotFoundException(
+            $"Учасника-відправника з ідентифікатором " +
+            $"{senderParticipantId} не знайдено.");
     }
 
     // Перевіряє існування учасника-отримувача.
@@ -113,21 +133,22 @@ public class PrivateAttachmentService : IPrivateAttachmentService
 
     if (recipient is null)
     {
-        return null;
+        throw new KeyNotFoundException(
+            $"Учасника-отримувача з ідентифікатором " +
+            $"{recipientParticipantId} не знайдено.");
     }
 
-    // Виконує комплексну перевірку приватного документа.
-    var validationResult = await _validator.ValidateAsync(file);
-
-    if (!validationResult.IsValid)
-    {
-        var errorMessage = string.Join(
-            " ",
-            validationResult.Errors.Select(error =>
-                error.ErrorMessage));
-
-        throw new ArgumentException(errorMessage, nameof(file));
-    }
+   // Виконує комплексну перевірку приватного документа.
+   var validationError =
+       await PrivateDocumentValidator.ValidateAsync(
+           file);
+   
+   if (validationError is not null)
+   {
+       throw new ArgumentException(
+           validationError,
+           nameof(file));
+   }
 
     // Отримує оригінальне ім'я та розширення документа.
     var originalFileName = Path.GetFileName(file.FileName);
@@ -222,6 +243,23 @@ public class PrivateAttachmentService : IPrivateAttachmentService
     public async Task<IReadOnlyCollection<AttachmentPrivateDTO>>
         GetReceivedFilesAsync(int participantId)
     {
+        if (participantId <= 0)
+        {
+            throw new ArgumentException(
+                "Ідентифікатор учасника повинен бути більшим за нуль.");
+        }
+        
+        var participantExists =
+            await _context.Participants
+                .AsNoTracking()
+                .AnyAsync(participant =>
+                    participant.ParticipantId == participantId);
+        
+        if (!participantExists)
+        {
+            throw new KeyNotFoundException(
+                $"Учасника з ідентифікатором {participantId} не знайдено.");
+        }
         var files = await _context.ParticipantPrivateFiles
             .AsNoTracking()
             .Include(file => file.SenderParticipant)
@@ -259,6 +297,24 @@ public class PrivateAttachmentService : IPrivateAttachmentService
     public async Task<IReadOnlyCollection<AttachmentPrivateDTO>>
         GetSentFilesAsync(int participantId)
     {
+        if (participantId <= 0)
+        {
+            throw new ArgumentException(
+                "Ідентифікатор учасника повинен бути більшим за нуль.");
+        }
+
+        var participantExists =
+            await _context.Participants
+                .AsNoTracking()
+                .AnyAsync(participant =>
+                    participant.ParticipantId == participantId);
+
+        if (!participantExists)
+        {
+            throw new KeyNotFoundException(
+                $"Учасника з ідентифікатором {participantId} не знайдено.");
+        }
+        
         var files = await _context.ParticipantPrivateFiles
             .AsNoTracking()
             .Include(file => file.SenderParticipant)

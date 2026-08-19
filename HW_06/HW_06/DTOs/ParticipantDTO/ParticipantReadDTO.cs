@@ -27,9 +27,9 @@ public record ParticipantReadDTO
     public string Email { get; set; } = "";
 
     /// <summary>
-    /// Роль учасника під час зустрічі.
+    /// Посада або спеціалізація учасника.
     /// </summary>
-    public string? Role { get; set; }
+    public string? Position { get; set; }
     
     /// <summary>
     /// Аватарка учасника

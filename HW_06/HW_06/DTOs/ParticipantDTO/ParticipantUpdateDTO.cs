@@ -6,11 +6,6 @@ namespace HW_06.DTOs.ParticipantDTO;
 public record ParticipantUpdateDTO
 {
     /// <summary>
-    /// Унікальний ідентифікатор учасника.
-    /// </summary>
-    public int ParticipantId { get; set; }
-
-    /// <summary>
     /// Ім'я учасника.
     /// </summary>
     public string FirstName { get; set; } = string.Empty;
@@ -21,17 +16,12 @@ public record ParticipantUpdateDTO
     public string LastName { get; set; } = string.Empty;
 
     /// <summary>
-    /// Адреса електронної пошти учасника.
+    /// Посада або спеціалізація учасника.
     /// </summary>
-    public string Email { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Роль учасника.
-    /// </summary>
-    public string? Role { get; set; }
+    public string? Position { get; set; }
 
     /// <summary>
     /// Повний список ідентифікаторів зустрічей учасника.
     /// </summary>
-    public List<int> MeetingIds { get; set; } = new();
+    public List<int> MeetingIds { get; set; } = [];
 }

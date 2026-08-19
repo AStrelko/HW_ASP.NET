@@ -35,62 +35,61 @@ public class PrivateAttachmentsController : ControllerBase
     /// <param name="recipientParticipantId">
     /// Ідентифікатор учасника-отримувача.
     /// </param>
-    /// <param name="file">Файл для надсилання.</param>
-    /// <response code="201">Файл успішно надіслано.</response>
-    /// <response code="400">Дані або файл не пройшли перевірку.</response>
+    /// <param name="file">
+    /// Файл для надсилання.
+    /// </param>
+    /// <response code="201">
+    /// Файл успішно надіслано.
+    /// </response>
+    /// <response code="400">
+    /// Дані або файл не пройшли перевірку.
+    /// Дозволені формати: PDF, DOCX і TXT.
+    /// Максимальний розмір файлу — 10 МБ.
+    /// </response>
     /// <response code="404">
     /// Відправника або отримувача не знайдено.
     /// </response>
+    /// <response code="413">
+    /// Розмір HTTP-запиту перевищує допустиме значення.
+    /// </response>
     [HttpPost("send")]
     [Consumes("multipart/form-data")]
+    [RequestSizeLimit(11 * 1024 * 1024)]
+    [RequestFormLimits(
+        MultipartBodyLengthLimit = 11 * 1024 * 1024)]
     [ProducesResponseType(
         typeof(AttachmentPrivateDTO),
         StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        StatusCodes.Status404NotFound)]
+    [ProducesResponseType(
+        StatusCodes.Status413PayloadTooLarge)]
     public async Task<ActionResult<AttachmentPrivateDTO>> Upload(
         int participantId,
         [FromForm] int recipientParticipantId,
         IFormFile file)
     {
-        if (file is null || file.Length == 0)
+        var uploadedFile =
+            await _privateAttachmentService.UploadAsync(
+                participantId,
+                recipientParticipantId,
+                file);
+
+        if (uploadedFile is null)
         {
-            return BadRequest(new
+            return NotFound(new
             {
-                message = "Необхідно вибрати непорожній файл."
+                message =
+                    "Відправника або отримувача не знайдено."
             });
         }
 
-        try
-        {
-            var uploadedFile =
-                await _privateAttachmentService.UploadAsync(
-                    participantId,
-                    recipientParticipantId,
-                    file);
-
-            if (uploadedFile is null)
-            {
-                return NotFound(new
-                {
-                    message =
-                        "Відправника або отримувача не знайдено."
-                });
-            }
-
-            return Created(
-                uploadedFile.DownloadUrl,
-                uploadedFile);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(new
-            {
-                message = exception.Message
-            });
-        }
+        return Created(
+            uploadedFile.DownloadUrl,
+            uploadedFile);
     }
-
     /// <summary>
     /// Повертає приватні файли,
     /// отримані вказаним учасником.

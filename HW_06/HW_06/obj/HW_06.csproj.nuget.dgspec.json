@@ -1,36 +1,30 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\aspid\\RiderProjects\\HW_ASP.NET\\HW_06\\HW_06\\HW_06.csproj": {}
+    "C:\\Users\\Home\\Desktop\\ASP2\\HW_ASP.NET\\HW_06\\HW_06\\HW_06.csproj": {}
   },
   "projects": {
-    "C:\\Users\\aspid\\RiderProjects\\HW_ASP.NET\\HW_06\\HW_06\\HW_06.csproj": {
+    "C:\\Users\\Home\\Desktop\\ASP2\\HW_ASP.NET\\HW_06\\HW_06\\HW_06.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\aspid\\RiderProjects\\HW_ASP.NET\\HW_06\\HW_06\\HW_06.csproj",
+        "projectUniqueName": "C:\\Users\\Home\\Desktop\\ASP2\\HW_ASP.NET\\HW_06\\HW_06\\HW_06.csproj",
         "projectName": "HW_06",
-        "projectPath": "C:\\Users\\aspid\\RiderProjects\\HW_ASP.NET\\HW_06\\HW_06\\HW_06.csproj",
-        "packagesPath": "C:\\Users\\aspid\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\aspid\\RiderProjects\\HW_ASP.NET\\HW_06\\HW_06\\obj\\",
+        "projectPath": "C:\\Users\\Home\\Desktop\\ASP2\\HW_ASP.NET\\HW_06\\HW_06\\HW_06.csproj",
+        "packagesPath": "C:\\Users\\Home\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Home\\Desktop\\ASP2\\HW_ASP.NET\\HW_06\\HW_06\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\aspid\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\Home\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net10.0": {
+            "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {}
           }
@@ -45,10 +39,11 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.300"
+        "SdkAnalysisLevel": "10.0.400"
       },
       "frameworks": {
         "net10.0": {
+          "framework": "net10.0",
           "targetAlias": "net10.0",
           "dependencies": {
             "Asp.Versioning.Mvc": {
@@ -67,33 +62,45 @@
               "target": "Package",
               "version": "[35.6.1, )"
             },
+            "FluentValidation": {
+              "target": "Package",
+              "version": "[12.1.1, )"
+            },
+            "FluentValidation.DependencyInjectionExtensions": {
+              "target": "Package",
+              "version": "[12.1.1, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[10.0.11, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[10.0.8, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[10.0.8, )"
+              "version": "[10.0.11, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[10.0.8, )"
+              "version": "[10.0.11, )"
             },
             "Microsoft.EntityFrameworkCore.Relational": {
               "target": "Package",
-              "version": "[10.0.8, )"
+              "version": "[10.0.11, )"
             },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
-              "version": "[10.0.8, )"
+              "version": "[10.0.11, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[10.0.8, )"
+              "version": "[10.0.11, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
@@ -119,7 +126,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.300/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

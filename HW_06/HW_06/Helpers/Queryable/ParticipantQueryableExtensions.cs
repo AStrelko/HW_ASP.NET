@@ -105,25 +105,25 @@ public static class ParticipantQueryableExtensions
                 parameters.Descending
                     ? query
                         .OrderByDescending(participant =>
-                            participant.Email)
+                            participant.ApplicationUser!.Email)
                         .ThenByDescending(participant =>
                             participant.ParticipantId)
                     : query
                         .OrderBy(participant =>
-                            participant.Email)
+                            participant.ApplicationUser!.Email)
                         .ThenBy(participant =>
                             participant.ParticipantId),
 
-            "role" =>
+            "position" =>
                 parameters.Descending
                     ? query
                         .OrderByDescending(participant =>
-                            participant.Role)
+                            participant.Position)
                         .ThenByDescending(participant =>
                             participant.ParticipantId)
                     : query
                         .OrderBy(participant =>
-                            participant.Role)
+                            participant.Position)
                         .ThenBy(participant =>
                             participant.ParticipantId),
 

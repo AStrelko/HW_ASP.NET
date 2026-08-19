@@ -21,12 +21,13 @@ public record ParticipantDTO
     public string LastName { get; set; } = string.Empty;
 
     /// <summary>
-    /// Адреса електронної пошти учасника.
+    /// Адреса електронної пошти,
+    /// що зберігається в обліковому записі Identity.
     /// </summary>
-    public string Email { get; set; } = string.Empty;
+    public string? Email { get; set; }
 
     /// <summary>
-    /// Роль учасника під час зустрічі.
+    /// Посада або спеціалізація учасника.
     /// </summary>
-    public string? Role { get; set; }
+    public string? Position { get; set; }
 }

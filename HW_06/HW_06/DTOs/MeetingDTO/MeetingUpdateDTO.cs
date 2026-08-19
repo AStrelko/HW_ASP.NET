@@ -2,15 +2,10 @@ namespace HW_06.DTOs.MeetingDTO;
 
 /// <summary>
 /// DTO для повного оновлення інформації про зустріч.
-/// Усі поля є обов'язковими, окрім ідентифікатора кімнати.
+/// Усі основні поля є обов'язковими.
 /// </summary>
 public record MeetingUpdateDTO
 {
-    /// <summary>
-    /// Унікальний ідентифікатор зустрічі.
-    /// </summary>
-    public int MeetingId { get; set; }
-
     /// <summary>
     /// Назва зустрічі.
     /// </summary>

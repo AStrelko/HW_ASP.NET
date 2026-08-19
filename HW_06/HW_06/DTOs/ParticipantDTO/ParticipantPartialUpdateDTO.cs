@@ -17,14 +17,9 @@ public record ParticipantPartialUpdateDTO
     public string? LastName { get; set; }
 
     /// <summary>
-    /// Нова адреса електронної пошти учасника.
+    /// Посада або спеціалізація учасника.
     /// </summary>
-    public string? Email { get; set; }
-
-    /// <summary>
-    /// Нова роль учасника.
-    /// </summary>
-    public string? Role { get; set; }
+    public string? Position { get; set; }
 
     /// <summary>
     /// Новий повний список ідентифікаторів зустрічей.
