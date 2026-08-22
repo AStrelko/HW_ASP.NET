@@ -42,13 +42,9 @@ public class AuthController : ControllerBase
     [ServiceFilter(typeof(ValidationFilter<RegisterDTO>))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Register(
-        RegisterDTO dto,
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> Register(RegisterDTO dto, CancellationToken cancellationToken)
     {
-        var result = await _authService.RegisterAsync(
-            dto,
-            cancellationToken);
+        var result = await _authService.RegisterAsync(dto, cancellationToken);
 
         if (!result.Succeeded)
         {
@@ -75,33 +71,19 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status423Locked)]
-    public async Task<IActionResult> Login(
-        LoginDTO dto)
+    public async Task<IActionResult> Login(LoginDTO dto)
     {
         var result = await _authService.LoginAsync(dto);
 
-        if (result.IsLockedOut)
+        if (!result.Success)
         {
-            return StatusCode(
-                StatusCodes.Status423Locked,
-                new
-                {
-                    Message = "Обліковий запис користувача заблоковано."
-                });
-        }
-
-        if (!result.Succeeded)
-        {
-            return Unauthorized(new
+            return Unauthorized(new ProblemDetails
             {
-                Message = "Неправильний логін або пароль."
+                Title = result.Message,
+                Status = StatusCodes.Status401Unauthorized
             });
         }
 
-        return Ok(new
-        {
-            Message = "Вхід виконано успішно."
-        });
+        return Ok(result.Response);
     }
 }

@@ -27,6 +27,11 @@ public class Meeting
     /// </summary>
     public Room? Room { get; set; } 
     /// <summary>
+    /// Ідентифікатор користувача,
+    /// який організував зустріч.
+    /// </summary>
+    public string OrganizerId { get; set; } = string.Empty;
+    /// <summary>
     /// Учасники зустрічі.
     /// </summary>
     public ICollection<MeetingParticipant> MeetingParticipants { get; set; }

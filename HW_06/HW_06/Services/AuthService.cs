@@ -3,6 +3,7 @@ using HW_06.Models;
 using HW_06.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
+
 namespace HW_06.Services;
 
 /// <summary>
@@ -11,12 +12,9 @@ namespace HW_06.Services;
 public class AuthService : IAuthService
 {
     private readonly DataContext _context;
-
-    private readonly UserManager<ApplicationUser>
-        _userManager;
-
-    private readonly SignInManager<ApplicationUser>
-        _signInManager;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly ITokenService _tokenService;
 
     /// <summary>
     /// Ініціалізує сервіс автентифікації.
@@ -24,11 +22,13 @@ public class AuthService : IAuthService
     public AuthService(
         DataContext context,
         UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager)
+        SignInManager<ApplicationUser> signInManager,
+        ITokenService tokenService)
     {
         _context = context;
         _userManager = userManager;
         _signInManager = signInManager;
+        _tokenService = tokenService;
     }
 
     /// <summary>
@@ -55,6 +55,18 @@ public class AuthService : IAuthService
         {
             return result;
         }
+        
+        var roleResult =
+            await _userManager.AddToRoleAsync(
+                user,
+                "User");
+
+        if (!roleResult.Succeeded)
+        {
+            await _userManager.DeleteAsync(user);
+
+            return roleResult;
+        }
 
         var participant = new Participant
         {
@@ -75,9 +87,9 @@ public class AuthService : IAuthService
         }
         catch
         {
-            // Якщо створення Participant не вдалося,
-            // видаляємо вже створений Identity-акаунт,
-            // щоб не залишати неповні дані.
+            // Якщо створення профілю учасника не вдалося,
+            // видаляємо створений Identity-акаунт
+            // разом із його зв'язками з ролями.
             await _userManager.DeleteAsync(user);
 
             throw;
@@ -89,21 +101,45 @@ public class AuthService : IAuthService
     /// <summary>
     /// Виконує вхід користувача в систему.
     /// </summary>
-    public async Task<SignInResult> LoginAsync(
-        LoginDTO dto)
+    public async Task<LoginResult> LoginAsync(LoginDTO dto)
     {
-        var user = await _userManager.FindByEmailAsync(
-            dto.Email.Trim());
+        var user = await _userManager.FindByEmailAsync(dto.Email.Trim());
 
         if (user is null)
         {
-            return SignInResult.Failed;
+            return new LoginResult(
+                false,
+                false,
+                "Неправильний логін або пароль.",
+                null);
         }
 
-        return await _signInManager.PasswordSignInAsync(
-            user,
-            dto.Password,
-            isPersistent: false,
-            lockoutOnFailure: true);
+        var result =
+            await _signInManager.CheckPasswordSignInAsync(
+                user,
+                dto.Password,
+                lockoutOnFailure: true);
+
+        if (!result.Succeeded)
+        {
+            return new LoginResult(
+                false,
+                result.IsLockedOut,
+                result.IsLockedOut
+                    ? "Акаунт заблоковано."
+                    : "Неправильний логін або пароль.",
+                null);
+        }
+
+        var token = await _tokenService.CreateAccessTokenAsync(user);
+
+        return new LoginResult(
+            true,
+            false,
+            null,
+            new AuthResponseDto(
+                Message: "Вхід виконано успішно.",
+                Token: token.Token,
+                ExpiresAtUtc: token.ExpiresAtUtc));
     }
 }

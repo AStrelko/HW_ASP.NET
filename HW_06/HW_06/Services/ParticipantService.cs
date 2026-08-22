@@ -94,8 +94,7 @@ public class ParticipantService : IParticipantService
     /// Сторінка учасників разом з інформацією
     /// про пагінацію.
     /// </returns>
-    public async Task<PagedResult<ParticipantReadDTO>> GetAllAsync(
-        ParticipantQueryParameters parameters)
+    public async Task<PagedResult<ParticipantReadDTO>> GetAllAsync(ParticipantQueryParameters parameters)
     {
         ArgumentNullException.ThrowIfNull(parameters);
     
@@ -809,5 +808,18 @@ public async Task<ParticipantDetailDTO?> GetByIdAsync(int id)
                 $"Зустрічі не знайдено: " +
                 $"{string.Join(", ", missingMeetingIds)}.");
         }
+    }
+    
+    public async Task<int?> GetParticipantIdByUserIdAsync(
+        string applicationUserId)
+    {
+        return await _context.Participants
+            .AsNoTracking()
+            .Where(participant =>
+                participant.ApplicationUserId ==
+                applicationUserId)
+            .Select(participant =>
+                (int?)participant.ParticipantId)
+            .FirstOrDefaultAsync();
     }
 }

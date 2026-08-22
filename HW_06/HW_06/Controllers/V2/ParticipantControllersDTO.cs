@@ -11,6 +11,7 @@ using HW_06.DTOs.Files;
 using HW_06.Filters;
 using HW_06.Models.Files;
 using HW_06.Validators.FileValid;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HW_06.Controllers;
 
@@ -82,6 +83,7 @@ public class ParticipantControllersDTO : ControllerBase
     /// Учасника із зазначеним ідентифікатором
     /// або файл аватара не знайдено.
     /// </response>
+    [Authorize]
     [HttpGet("{participantId:int}/avatar/file")]
     [ProducesResponseType(
         typeof(FileResult),
@@ -151,8 +153,8 @@ public class ParticipantControllersDTO : ControllerBase
     /// <returns>
     /// DTO з абсолютним URL власного або стандартного аватара.
     /// </returns>
-    private ParticipantAvatarDTO AddAvatarUrl(
-        ParticipantAvatarDTO participantAvatar)
+    [Authorize(Roles = "Admin")]
+    private ParticipantAvatarDTO AddAvatarUrl(ParticipantAvatarDTO participantAvatar)
     {
         var avatarUrl = Url.Action(
             action: nameof(GetAvatarFileAsync),
@@ -190,6 +192,7 @@ public class ParticipantControllersDTO : ControllerBase
     /// <response code="404">
     /// Учасника із зазначеним ідентифікатором не знайдено.
     /// </response>
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{participantId:int}/avatar")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -252,6 +255,7 @@ public class ParticipantControllersDTO : ControllerBase
     /// <response code="404">
     /// Учасника із зазначеним ідентифікатором не знайдено.
     /// </response>
+    [Authorize]
     [HttpGet("{id:int}")]
     [ProducesResponseType<ParticipantDetailDTO>(
         StatusCodes.Status200OK)]
@@ -277,94 +281,95 @@ public class ParticipantControllersDTO : ControllerBase
    
     
     /// <summary>
-/// Встановлює або замінює аватар учасника.
-/// </summary>
-/// <remarks>
-/// Якщо учасник ще не має аватара, файл буде збережено.
-/// Якщо аватар уже існує, він буде замінений новим файлом.
-/// </remarks>
-/// <param name="participantId">
-/// Унікальний ідентифікатор учасника.
-/// </param>
-/// <param name="dto">
-/// Дані форми з файлом аватара.
-/// </param>
-/// <param name="cancellationToken">
-/// Токен скасування операції.
-/// </param>
-/// <returns>
-/// Дані учасника з актуальним посиланням на аватар.
-/// </returns>
-/// <response code="200">
-/// Аватар успішно встановлено або замінено.
-/// </response>
-/// <response code="400">
-/// Файл не передано або він не пройшов перевірку.
-/// </response>
-/// <response code="404">
-/// Учасника із зазначеним ідентифікатором не знайдено.
-/// </response>
-/// <response code="413">
-/// Розмір файлу перевищує допустиме значення.
-/// </response>
-[HttpPut("{participantId:int}/avatar")]
-[Consumes("multipart/form-data")]
-[Produces("application/json")]
-[RequestSizeLimit(MaxAvatarSize)]
-[ProducesResponseType<ParticipantAvatarDTO>(
-    StatusCodes.Status200OK)]
-[ProducesResponseType(
-    StatusCodes.Status400BadRequest)]
-[ProducesResponseType(
-    StatusCodes.Status404NotFound)]
-[ProducesResponseType(
-    StatusCodes.Status413PayloadTooLarge)]
-public async Task<ActionResult<ParticipantAvatarDTO>>
-    UploadAvatarAsync(
-        int participantId,
-        [FromForm] AvatarUploadDTO dto,
-        CancellationToken cancellationToken)
-{
-    var validationError =
-        AvatarFileValidator.ValidateAvatar(
-            dto.File,
-            MaxAvatarSize);
-
-    if (validationError is not null)
+    /// Встановлює або замінює аватар учасника.
+    /// </summary>
+    /// <remarks>
+    /// Якщо учасник ще не має аватара, файл буде збережено.
+    /// Якщо аватар уже існує, він буде замінений новим файлом.
+    /// </remarks>
+    /// <param name="participantId">
+    /// Унікальний ідентифікатор учасника.
+    /// </param>
+    /// <param name="dto">
+    /// Дані форми з файлом аватара.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Токен скасування операції.
+    /// </param>
+    /// <returns>
+    /// Дані учасника з актуальним посиланням на аватар.
+    /// </returns>
+    /// <response code="200">
+    /// Аватар успішно встановлено або замінено.
+    /// </response>
+    /// <response code="400">
+    /// Файл не передано або він не пройшов перевірку.
+    /// </response>
+    /// <response code="404">
+    /// Учасника із зазначеним ідентифікатором не знайдено.
+    /// </response>
+    /// <response code="413">
+    /// Розмір файлу перевищує допустиме значення.
+    /// </response>
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{participantId:int}/avatar")]
+    [Consumes("multipart/form-data")]
+    [Produces("application/json")]
+    [RequestSizeLimit(MaxAvatarSize)]
+    [ProducesResponseType<ParticipantAvatarDTO>(
+        StatusCodes.Status200OK)]
+    [ProducesResponseType(
+        StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(
+        StatusCodes.Status404NotFound)]
+    [ProducesResponseType(
+        StatusCodes.Status413PayloadTooLarge)]
+    public async Task<ActionResult<ParticipantAvatarDTO>>
+        UploadAvatarAsync(
+            int participantId,
+            [FromForm] AvatarUploadDTO dto,
+            CancellationToken cancellationToken)
     {
-        return BadRequest(new
+        var validationError =
+            AvatarFileValidator.ValidateAvatar(
+                dto.File,
+                MaxAvatarSize);
+
+        if (validationError is not null)
         {
-            message = validationError
-        });
-    }
+            return BadRequest(new
+            {
+                message = validationError
+            });
+        }
 
-    var participantAvatar =
-        await _service.UploadAvatarAsync(
-            participantId,
-            dto.File,
-            cancellationToken);
+        var participantAvatar =
+            await _service.UploadAvatarAsync(
+                participantId,
+                dto.File,
+                cancellationToken);
 
-    if (participantAvatar is null)
-    {
-        return NotFound(new
+        if (participantAvatar is null)
         {
-            message =
-                $"Учасника з ідентифікатором {participantId} не знайдено."
-        });
-    }
+            return NotFound(new
+            {
+                message =
+                    $"Учасника з ідентифікатором {participantId} не знайдено."
+            });
+        }
 
-    return Ok(
-        AddAvatarUrl(participantAvatar));
-}
+        return Ok(
+            AddAvatarUrl(participantAvatar));
+    }
     
     /// <summary>
     /// Повне оновлення інформації про учасника.
     /// </summary>
     /// <param name="id">Ідентифікатор учасника.</param>
     /// <param name="dto">Нові дані учасника.</param>
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")]
-    [ServiceFilter(typeof(
-        ValidationFilter<ParticipantUpdateDTO>))]
+    [ServiceFilter(typeof(ValidationFilter<ParticipantUpdateDTO>))]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -392,6 +397,7 @@ public async Task<ActionResult<ParticipantAvatarDTO>>
     /// </summary>
     /// <param name="id">Ідентифікатор учасника.</param>
     /// <param name="dto">Поля, які необхідно оновити.</param>
+    [Authorize(Roles = "Admin")]
     [HttpPatch("{id:int}")]
     [ServiceFilter(typeof(
         ValidationFilter<ParticipantPartialUpdateDTO>))]
@@ -421,6 +427,7 @@ public async Task<ActionResult<ParticipantAvatarDTO>>
     /// Видалення учасника.
     /// </summary>
     /// <param name="id">Ідентифікатор учасника.</param>
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -446,6 +453,7 @@ public async Task<ActionResult<ParticipantAvatarDTO>>
     /// </summary>
     /// <param name="ids">Список ідентифікаторів учасників.</param>
     /// <returns>Кількість видалених учасників.</returns>
+    [Authorize(Roles = "Admin")]
     [HttpDelete("delete-many")]
     [ProducesResponseType<int>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -491,6 +499,7 @@ public async Task<ActionResult<ParticipantAvatarDTO>>
     /// <response code="404">
     /// Учасника із зазначеним ідентифікатором не знайдено.
     /// </response>
+    [Authorize]
     [HttpGet("{id:int}/meetings")]
     [ProducesResponseType<List<MeetingReadDTO>>(
         StatusCodes.Status200OK)]

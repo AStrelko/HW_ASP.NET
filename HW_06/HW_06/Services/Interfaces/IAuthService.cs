@@ -12,13 +12,10 @@ public interface IAuthService
     /// Реєструє нового користувача
     /// та створює пов'язаний профіль учасника.
     /// </summary>
-    Task<IdentityResult> RegisterAsync(
-        RegisterDTO dto,
-        CancellationToken cancellationToken = default);
+    Task<IdentityResult> RegisterAsync(RegisterDTO dto, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Виконує вхід користувача в систему.
     /// </summary>
-    Task<SignInResult> LoginAsync(
-        LoginDTO dto);
+    Task<LoginResult> LoginAsync(LoginDTO dto);
 }

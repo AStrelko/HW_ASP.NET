@@ -599,14 +599,28 @@
             Керує приватними файлами учасників.
             </summary>
         </member>
-        <member name="M:HW_06.Controllers.PrivateAttachmentsController.#ctor(HW_06.Services.Interfaces.IPrivateAttachmentService)">
+        <member name="M:HW_06.Controllers.PrivateAttachmentsController.#ctor(HW_06.Services.Interfaces.IPrivateAttachmentService,HW_06.Services.Interfaces.IParticipantService)">
             <summary>
             Ініціалізує новий екземпляр контролера
             приватних файлів учасників.
             </summary>
             <param name="privateAttachmentService">
-            Сервіс роботи з приватними файлами.
+            Сервіс для роботи з приватними файлами.
             </param>
+            <param name="participantService">
+            Сервіс для роботи з учасниками.
+            </param>
+        </member>
+        <member name="M:HW_06.Controllers.PrivateAttachmentsController.GetCurrentParticipantIdAsync">
+            <summary>
+            Повертає ідентифікатор учасника,
+            пов'язаного з поточним авторизованим користувачем.
+            </summary>
+            <returns>
+            Ідентифікатор учасника або
+            <see langword="null"/>, якщо користувача
+            не вдалося визначити.
+            </returns>
         </member>
         <member name="M:HW_06.Controllers.PrivateAttachmentsController.Upload(System.Int32,System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
             <summary>
@@ -699,6 +713,16 @@
             Файл не знайдено або учасник не має доступу.
             </response>
         </member>
+        <member name="M:HW_06.Controllers.PrivateAttachmentsController.IsAdmin">
+            <summary>
+            Перевіряє, чи має поточний користувач
+            роль адміністратора.
+            </summary>
+            <returns>
+            <see langword="true"/>, якщо користувач має роль Admin;
+            інакше — <see langword="false"/>.
+            </returns>
+        </member>
         <member name="M:HW_06.Controllers.PrivateAttachmentsController.Delete(System.Int32,System.Int32)">
             <summary>
             Видаляє приватний файл.
@@ -709,9 +733,99 @@
             <param name="fileId">
             Ідентифікатор приватного файлу.
             </param>
-            <response code="204">Файл успішно видалено.</response>
+            <response code="204">
+            Файл успішно видалено.
+            </response>
+            <response code="403">
+            Користувач не має права видаляти файл.
+            </response>
             <response code="404">
-            Файл не знайдено або учасник не має права його видаляти.
+            Файл не знайдено або учасник
+            не має права його видаляти.
+            </response>
+        </member>
+        <member name="T:HW_06.Controllers.RoleController">
+            <summary>
+            Керує ролями користувачів.
+            Доступ до операцій має лише адміністратор.
+            </summary>
+        </member>
+        <member name="M:HW_06.Controllers.RoleController.#ctor(HW_06.Services.Interfaces.IRoleService)">
+            <summary>
+            Ініціалізує контролер
+            для роботи з ролями користувачів.
+            </summary>
+            <param name="roleService">
+            Сервіс для роботи з ролями.
+            </param>
+        </member>
+        <member name="M:HW_06.Controllers.RoleController.GetAll">
+            <summary>
+            Повертає список усіх доступних ролей.
+            </summary>
+            <returns>
+            Список назв ролей.
+            </returns>
+            <response code="200">
+            Список ролей успішно отримано.
+            </response>
+            <response code="401">
+            Користувач не автентифікований.
+            </response>
+            <response code="403">
+            Користувач не має ролі Admin.
+            </response>
+        </member>
+        <member name="M:HW_06.Controllers.RoleController.GetUserRoles(System.Int32)">
+            <summary>
+            Повертає ролі користувача,
+            пов'язаного з указаним учасником.
+            </summary>
+            <param name="participantId">
+            Ідентифікатор учасника.
+            </param>
+            <returns>
+            Список ролей користувача,
+            пов'язаного з учасником.
+            </returns>
+            <response code="200">
+            Ролі користувача успішно отримано.
+            </response>
+            <response code="401">
+            Користувач не автентифікований.
+            </response>
+            <response code="403">
+            Користувач не має ролі Admin.
+            </response>
+            <response code="404">
+            Учасника або пов'язаний обліковий запис не знайдено.
+            </response>
+        </member>
+        <member name="M:HW_06.Controllers.RoleController.AssignRole(HW_06.DTOs.IdentityDTO.UserRoleDTO)">
+            <summary>
+            Змінює роль користувача,
+            пов'язаного з указаним учасником.
+            Поточна роль буде замінена новою.
+            </summary>
+            <param name="dto">
+            Ідентифікатор учасника
+            та назва нової ролі.
+            </param>
+            <response code="200">
+            Роль користувача успішно змінено.
+            </response>
+            <response code="400">
+            Дані не пройшли перевірку
+            або роль не вдалося змінити.
+            </response>
+            <response code="401">
+            Користувач не автентифікований.
+            </response>
+            <response code="403">
+            Користувач не має ролі Admin.
+            </response>
+            <response code="404">
+            Учасника, обліковий запис або роль не знайдено.
             </response>
         </member>
         <member name="T:HW_06.DataContext">
@@ -1043,6 +1157,31 @@
             Посада або спеціалізація учасника.
             </summary>
         </member>
+        <member name="T:HW_06.DTOs.IdentityDTO.RoleDTO">
+            <summary>
+            DTO для роботи з роллю користувача.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.IdentityDTO.RoleDTO.RoleName">
+            <summary>
+            Назва ролі.
+            </summary>
+        </member>
+        <member name="T:HW_06.DTOs.IdentityDTO.UserRoleDTO">
+            <summary>
+            DTO для зміни ролі учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.IdentityDTO.UserRoleDTO.ParticipantId">
+            <summary>
+            Ідентифікатор учасника.
+            </summary>
+        </member>
+        <member name="P:HW_06.DTOs.IdentityDTO.UserRoleDTO.RoleName">
+            <summary>
+            Назва нової ролі.
+            </summary>
+        </member>
         <member name="T:HW_06.DTOs.MeetingDTO.MeetingCreateDTO">
             <summary>
             DTO для створення нової зустрічі.
@@ -1103,6 +1242,11 @@
             Номер кімнати, у якій проводиться зустріч.
             </summary>
         </member>
+        <member name="P:HW_06.DTOs.MeetingDTO.MeetingDetailDTO.Organizer">
+            <summary>
+            Організатор зустрічі.
+            </summary>
+        </member>
         <member name="P:HW_06.DTOs.MeetingDTO.MeetingDetailDTO.Participants">
             <summary>
             Список учасників зустрічі.
@@ -1111,6 +1255,18 @@
         <member name="P:HW_06.DTOs.MeetingDTO.MeetingDetailDTO.Attachments">
             <summary>
             Публічні документи, прикріплені до зустрічі.
+            </summary>
+        </member>
+        <member name="T:HW_06.DTOs.MeetingDTO.MeetingOrganizerDTO">
+            <summary>
+            Коротка інформація
+            про організатора зустрічі.
+            </summary>
+        </member>
+        <member name="M:HW_06.DTOs.MeetingDTO.MeetingOrganizerDTO.#ctor(System.Int32,System.String,System.String)">
+            <summary>
+            Коротка інформація
+            про організатора зустрічі.
             </summary>
         </member>
         <member name="T:HW_06.DTOs.MeetingDTO.MeetingPartialUpdateDTO">
@@ -1630,8 +1786,25 @@
         </member>
         <member name="T:HW_06.Helpers.SeedData">
             <summary>
-            Клас для заповнення бази даних тестовими даними.
+            Клас для початкового заповнення
+            бази даних тестовими даними.
             </summary>
+        </member>
+        <member name="M:HW_06.Helpers.SeedData.InitializeAsync(HW_06.DataContext,Microsoft.AspNetCore.Identity.UserManager{HW_06.Models.ApplicationUser},Microsoft.AspNetCore.Identity.RoleManager{Microsoft.AspNetCore.Identity.IdentityRole})">
+            <summary>
+            Створює початкові ролі,
+            користувачів, учасників, кімнати,
+            зустрічі та зв'язки між ними.
+            </summary>
+            <param name="context">
+            Контекст бази даних.
+            </param>
+            <param name="userManager">
+            Менеджер користувачів ASP.NET Identity.
+            </param>
+            <param name="roleManager">
+            Менеджер ролей ASP.NET Identity.
+            </param>
         </member>
         <member name="T:HW_06.Middleware.ExceptionHandlingMiddleware">
             <summary>
@@ -1703,16 +1876,16 @@
             технічного обслуговування.
             </summary>
         </member>
-        <member name="T:HW_06.Migrations.InitialIdentity">
+        <member name="T:HW_06.Migrations.InitialCreate">
             <inheritdoc />
         </member>
-        <member name="M:HW_06.Migrations.InitialIdentity.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:HW_06.Migrations.InitialCreate.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:HW_06.Migrations.InitialIdentity.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+        <member name="M:HW_06.Migrations.InitialCreate.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
             <inheritdoc />
         </member>
-        <member name="M:HW_06.Migrations.InitialIdentity.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+        <member name="M:HW_06.Migrations.InitialCreate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <inheritdoc />
         </member>
         <member name="T:HW_06.Models.ApplicationUser">
@@ -1799,6 +1972,12 @@
         <member name="P:HW_06.Models.Meeting.Room">
             <summary>
             Номер кімнати зустрічі.
+            </summary>
+        </member>
+        <member name="P:HW_06.Models.Meeting.OrganizerId">
+            <summary>
+            Ідентифікатор користувача,
+            який організував зустріч.
             </summary>
         </member>
         <member name="P:HW_06.Models.Meeting.MeetingParticipants">
@@ -2165,7 +2344,7 @@
             Сервіс для реєстрації та автентифікації користувачів.
             </summary>
         </member>
-        <member name="M:HW_06.Services.AuthService.#ctor(HW_06.DataContext,Microsoft.AspNetCore.Identity.UserManager{HW_06.Models.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{HW_06.Models.ApplicationUser})">
+        <member name="M:HW_06.Services.AuthService.#ctor(HW_06.DataContext,Microsoft.AspNetCore.Identity.UserManager{HW_06.Models.ApplicationUser},Microsoft.AspNetCore.Identity.SignInManager{HW_06.Models.ApplicationUser},HW_06.Services.Interfaces.ITokenService)">
             <summary>
             Ініціалізує сервіс автентифікації.
             </summary>
@@ -2582,6 +2761,19 @@
             інакше <see langword="false"/>.
             </returns>
         </member>
+        <member name="M:HW_06.Services.Interfaces.IParticipantService.GetParticipantIdByUserIdAsync(System.String)">
+            <summary>
+            Повертає ідентифікатор учасника,
+            пов'язаного з указаним користувачем Identity.
+            </summary>
+            <param name="applicationUserId">
+            Ідентифікатор користувача ASP.NET Identity.
+            </param>
+            <returns>
+            Ідентифікатор учасника або
+            <see langword="null"/>, якщо учасника не знайдено.
+            </returns>
+        </member>
         <member name="T:HW_06.Services.Interfaces.IPrivateAttachmentService">
             <summary>
             Визначає операції для роботи
@@ -2620,6 +2812,50 @@
             <summary>
             Видаляє приватний файл.
             </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IPrivateAttachmentService.DeleteByAdminAsync(System.Int32)">
+            <summary>
+            Видаляє приватний файл
+            без перевірки учасника.
+            Використовується для адміністративних операцій.
+            </summary>
+        </member>
+        <member name="T:HW_06.Services.Interfaces.IRoleService">
+            <summary>
+            Визначає операції для роботи
+            з ролями користувачів.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IRoleService.GetAllRolesAsync">
+            <summary>
+            Повертає список усіх доступних ролей.
+            </summary>
+            <returns>
+            Список назв ролей.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IRoleService.GetUserRolesAsync(System.Int32)">
+            <summary>
+            Повертає ролі конкретного користувача.
+            </summary>
+            <param name="userId">
+            Ідентифікатор користувача ASP.NET Identity.
+            </param>
+            <returns>
+            Список ролей користувача.
+            </returns>
+        </member>
+        <member name="M:HW_06.Services.Interfaces.IRoleService.AssignRoleAsync(HW_06.DTOs.IdentityDTO.UserRoleDTO)">
+            <summary>
+            Призначає роль користувачу.
+            </summary>
+            <param name="dto">
+            Ідентифікатор користувача
+            та назва ролі.
+            </param>
+            <returns>
+            Результат виконання операції Identity.
+            </returns>
         </member>
         <member name="T:HW_06.Services.LocalFileStorageService">
             <summary>
@@ -3384,6 +3620,21 @@
             <see langword="false"/>.
             </returns>
         </member>
+        <member name="M:HW_06.Services.PrivateAttachmentService.DeleteByAdminAsync(System.Int32)">
+            <summary>
+            Видаляє приватний документ
+            за його ідентифікатором
+            без перевірки учасника.
+            </summary>
+            <param name="fileId">
+            Ідентифікатор документа.
+            </param>
+            <returns>
+            <see langword="true"/>,
+            якщо документ успішно видалено;
+            інакше — <see langword="false"/>.
+            </returns>
+        </member>
         <member name="T:HW_06.Services.Results.AttachmentDownloadResult">
             <summary>
             Містить дані документа, підготовленого для завантаження.
@@ -3414,6 +3665,50 @@
             <summary>
             Оригінальне ім'я документа для клієнта.
             </summary>
+        </member>
+        <member name="T:HW_06.Services.RoleService">
+            <summary>
+            Сервіс для роботи
+            з ролями користувачів.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.RoleService.#ctor(HW_06.DataContext,Microsoft.AspNetCore.Identity.RoleManager{Microsoft.AspNetCore.Identity.IdentityRole},Microsoft.AspNetCore.Identity.UserManager{HW_06.Models.ApplicationUser})">
+            <summary>
+            Ініціалізує сервіс роботи з ролями.
+            </summary>
+            <param name="context">
+            Контекст бази даних.
+            </param>
+            <param name="roleManager">
+            Менеджер ролей ASP.NET Identity.
+            </param>
+            <param name="userManager">
+            Менеджер користувачів ASP.NET Identity.
+            </param>
+        </member>
+        <member name="M:HW_06.Services.RoleService.GetAllRolesAsync">
+            <summary>
+            Повертає список усіх доступних ролей.
+            </summary>
+        </member>
+        <member name="M:HW_06.Services.RoleService.GetUserRolesAsync(System.Int32)">
+            <summary>
+            Повертає ролі користувача,
+            пов'язаного з указаним учасником.
+            </summary>
+            <param name="participantId">
+            Ідентифікатор учасника.
+            </param>
+        </member>
+        <member name="M:HW_06.Services.RoleService.AssignRoleAsync(HW_06.DTOs.IdentityDTO.UserRoleDTO)">
+            <summary>
+            Призначає учаснику нову роль,
+            попередньо видаляючи всі поточні ролі.
+            </summary>
+            <param name="dto">
+            Ідентифікатор учасника
+            та назва нової ролі.
+            </param>
         </member>
         <member name="T:HW_06.Configurations.MeetingAttachmentConfiguration">
             <summary>
@@ -3638,6 +3933,18 @@
             <see langword="null"/>, якщо файл пройшов перевірку.
             </returns>
         </member>
+        <member name="T:HW_06.Validators.IdentityValid.IdentityValidationExtensions">
+            <summary>
+            Містить спільні правила валідації
+            для даних автентифікації та ролей користувачів.
+            </summary>
+        </member>
+        <member name="M:HW_06.Validators.IdentityValid.IdentityValidationExtensions.ValidParticipantId``1(FluentValidation.IRuleBuilder{``0,System.Int32})">
+            <summary>
+            Перевіряє коректність
+            ідентифікатора учасника.
+            </summary>
+        </member>
         <member name="T:HW_06.Validators.IdentityValid.LoginDTOValidator">
             <summary>
             Виконує перевірку даних
@@ -3648,6 +3955,17 @@
             <summary>
             Виконує перевірку даних
             для реєстрації нового користувача.
+            </summary>
+        </member>
+        <member name="T:HW_06.Validators.IdentityValid.RoleDTOValidator">
+            <summary>
+            Виконує перевірку даних ролі.
+            </summary>
+        </member>
+        <member name="T:HW_06.Validators.IdentityValid.UserRoleDTOValidator">
+            <summary>
+            Виконує перевірку даних
+            для зміни ролі учасника.
             </summary>
         </member>
         <member name="T:HW_06.Validators.MeetingValid.MeetingCreateValidator">

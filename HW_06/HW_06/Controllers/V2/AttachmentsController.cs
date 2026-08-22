@@ -1,6 +1,7 @@
 using HW_06.DTOs.Files;
 using HW_06.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HW_06.Controllers;
 
@@ -20,8 +21,7 @@ public class AttachmentsController : ControllerBase
     /// <param name="attachmentService">
     /// Сервіс для роботи з публічними файлами-вкладеннями.
     /// </param>
-    public AttachmentsController(
-        IAttachmentService attachmentService)
+    public AttachmentsController(IAttachmentService attachmentService)
     {
         _attachmentService = attachmentService;
     }
@@ -48,36 +48,25 @@ public class AttachmentsController : ControllerBase
     /// <response code="404">
     /// Зустріч не знайдено.
     /// </response>
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [Consumes("multipart/form-data")]
-    [ProducesResponseType(
-        typeof(AttachmentPublicDTO),
-        StatusCodes.Status201Created)]
-    [ProducesResponseType(
-        StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(
-        StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<AttachmentPublicDTO>> Upload(
-        int meetingId,
-        IFormFile file)
+    [ProducesResponseType(typeof(AttachmentPublicDTO), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<AttachmentPublicDTO>> Upload(int meetingId, IFormFile file)
     {
-        var attachment =
-            await _attachmentService.UploadAsync(
-                meetingId,
-                file);
+        var attachment = await _attachmentService.UploadAsync(meetingId, file);
 
         if (attachment is null)
         {
             return NotFound(new
             {
-                message =
-                    $"Зустріч з ідентифікатором {meetingId} не знайдена."
+                message = $"Зустріч з ідентифікатором {meetingId} не знайдена."
             });
         }
 
-        return Created(
-            attachment.DownloadUrl,
-            attachment);
+        return Created(attachment.DownloadUrl, attachment);
     }
 
     /// <summary>
@@ -96,24 +85,19 @@ public class AttachmentsController : ControllerBase
     /// <response code="404">
     /// Зустріч не знайдено.
     /// </response>
+    [Authorize]
     [HttpGet]
-    [ProducesResponseType(
-        typeof(IReadOnlyCollection<AttachmentPublicDTO>),
-        StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IReadOnlyCollection<AttachmentPublicDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<
-        IReadOnlyCollection<AttachmentPublicDTO>>> GetAll(
-        int meetingId)
+    public async Task<ActionResult<IReadOnlyCollection<AttachmentPublicDTO>>> GetAll(int meetingId)
     {
-        var attachments =
-            await _attachmentService.GetAllAsync(meetingId);
+        var attachments = await _attachmentService.GetAllAsync(meetingId);
 
         if (attachments is null)
         {
             return NotFound(new
             {
-                message =
-                    $"Зустріч з ідентифікатором {meetingId} не знайдена."
+                message = $"Зустріч з ідентифікатором {meetingId} не знайдена."
             });
         }
 
@@ -136,24 +120,19 @@ public class AttachmentsController : ControllerBase
     /// <response code="404">
     /// Документ не знайдено або він не належить указаній зустрічі.
     /// </response>
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{attachmentId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(
-        int meetingId,
-        int attachmentId)
+    public async Task<IActionResult> Delete(int meetingId, int attachmentId)
     {
-        var deleted = await _attachmentService.DeleteAsync(
-            meetingId,
-            attachmentId);
+        var deleted = await _attachmentService.DeleteAsync(meetingId, attachmentId);
 
         if (!deleted)
         {
             return NotFound(new
             {
-                message =
-                    $"Документ з ідентифікатором {attachmentId} " +
-                    $"не знайдено для зустрічі {meetingId}."
+                message = $"Документ з ідентифікатором {attachmentId} " + $"не знайдено для зустрічі {meetingId}."
             });
         }
 
@@ -176,30 +155,22 @@ public class AttachmentsController : ControllerBase
     /// <response code="404">
     /// Документ не знайдено або файл відсутній у сховищі.
     /// </response>
+    [Authorize]
     [HttpGet("{attachmentId:int}/download")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Download(
-        int meetingId,
-        int attachmentId)
+    public async Task<IActionResult> Download(int meetingId, int attachmentId)
     {
-        var document = await _attachmentService.DownloadAsync(
-            meetingId,
-            attachmentId);
+        var document = await _attachmentService.DownloadAsync(meetingId, attachmentId);
 
         if (document is null)
         {
             return NotFound(new
             {
-                message =
-                    $"Документ з ідентифікатором {attachmentId} " +
-                    $"не знайдено для зустрічі {meetingId}."
+                message = $"Документ з ідентифікатором {attachmentId} " + $"не знайдено для зустрічі {meetingId}."
             });
         }
 
-        return File(
-            document.Content,
-            document.ContentType,
-            document.OriginalFileName);
+        return File(document.Content, document.ContentType, document.OriginalFileName);
     }
 }

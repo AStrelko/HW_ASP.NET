@@ -125,12 +125,28 @@ public class MeetingService : IMeetingService
             _mapper.Map<MeetingDetailDTO>(
                 meeting);
 
+        var organizer =
+            await _context.Participants
+                .AsNoTracking()
+                .FirstOrDefaultAsync(participant =>
+                    participant.ApplicationUserId ==
+                    meeting.OrganizerId);
+
+        if (organizer is not null)
+        {
+            dto.Organizer =
+                new MeetingOrganizerDTO(
+                    organizer.ParticipantId,
+                    organizer.FirstName,
+                    organizer.LastName);
+        }
+
         dto.Attachments = dto.Attachments
             .Select(attachment => attachment with
             {
                 DownloadUrl =
-                    $"/api/meetings/{meeting.MeetingId}/attachments/" +
-                    $"{attachment.Id}/download"
+                $"/api/meetings/{meeting.MeetingId}/attachments/" +
+                $"{attachment.Id}/download"
             })
             .ToList();
 

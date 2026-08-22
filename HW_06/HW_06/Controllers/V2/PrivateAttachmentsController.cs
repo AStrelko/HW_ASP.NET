@@ -1,6 +1,9 @@
 using HW_06.DTOs.Files;
 using HW_06.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace HW_06.Controllers;
 
@@ -8,22 +11,53 @@ namespace HW_06.Controllers;
 /// Керує приватними файлами учасників.
 /// </summary>
 [ApiController]
+[Authorize]
 [Route("api/participants/{participantId:int}/private-files")]
 public class PrivateAttachmentsController : ControllerBase
 {
     private readonly IPrivateAttachmentService _privateAttachmentService;
+    private readonly IParticipantService _participantService;
+
 
     /// <summary>
     /// Ініціалізує новий екземпляр контролера
     /// приватних файлів учасників.
     /// </summary>
     /// <param name="privateAttachmentService">
-    /// Сервіс роботи з приватними файлами.
+    /// Сервіс для роботи з приватними файлами.
     /// </param>
-    public PrivateAttachmentsController(
-        IPrivateAttachmentService privateAttachmentService)
+    /// <param name="participantService">
+    /// Сервіс для роботи з учасниками.
+    /// </param>
+    public PrivateAttachmentsController(IPrivateAttachmentService privateAttachmentService,
+        IParticipantService participantService)
     {
+        ArgumentNullException.ThrowIfNull(privateAttachmentService);
+        ArgumentNullException.ThrowIfNull(participantService);
+
         _privateAttachmentService = privateAttachmentService;
+        _participantService = participantService;
+    }
+    
+    /// <summary>
+    /// Повертає ідентифікатор учасника,
+    /// пов'язаного з поточним авторизованим користувачем.
+    /// </summary>
+    /// <returns>
+    /// Ідентифікатор учасника або
+    /// <see langword="null"/>, якщо користувача
+    /// не вдалося визначити.
+    /// </returns>
+    private async Task<int?> GetCurrentParticipantIdAsync()
+    {
+        var userId = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return null;
+        }
+
+        return await _participantService.GetParticipantIdByUserIdAsync(userId);
     }
 
     /// <summary>
@@ -55,41 +89,35 @@ public class PrivateAttachmentsController : ControllerBase
     [HttpPost("send")]
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(11 * 1024 * 1024)]
-    [RequestFormLimits(
-        MultipartBodyLengthLimit = 11 * 1024 * 1024)]
-    [ProducesResponseType(
-        typeof(AttachmentPrivateDTO),
-        StatusCodes.Status201Created)]
-    [ProducesResponseType(
-        StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(
-        StatusCodes.Status404NotFound)]
-    [ProducesResponseType(
-        StatusCodes.Status413PayloadTooLarge)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 11 * 1024 * 1024)]
+    [ProducesResponseType(typeof(AttachmentPrivateDTO), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
     public async Task<ActionResult<AttachmentPrivateDTO>> Upload(
-        int participantId,
-        [FromForm] int recipientParticipantId,
-        IFormFile file)
+        int participantId, [FromForm] int recipientParticipantId, IFormFile file)
     {
-        var uploadedFile =
-            await _privateAttachmentService.UploadAsync(
-                participantId,
-                recipientParticipantId,
-                file);
+        var currentParticipantId = await GetCurrentParticipantIdAsync();
+
+        if (currentParticipantId != participantId)
+        {
+            return Forbid();
+        }
+
+        var uploadedFile = await _privateAttachmentService.UploadAsync(
+                participantId, recipientParticipantId, file);
 
         if (uploadedFile is null)
         {
             return NotFound(new
             {
-                message =
-                    "Відправника або отримувача не знайдено."
+                message = "Відправника або отримувача не знайдено."
             });
         }
 
-        return Created(
-            uploadedFile.DownloadUrl,
-            uploadedFile);
+        return Created(uploadedFile.DownloadUrl, uploadedFile);
     }
+    
     /// <summary>
     /// Повертає приватні файли,
     /// отримані вказаним учасником.
@@ -104,17 +132,17 @@ public class PrivateAttachmentsController : ControllerBase
     /// Список отриманих приватних файлів успішно сформовано.
     /// </response>
     [HttpGet("received")]
-    [ProducesResponseType(
-        typeof(IReadOnlyCollection<AttachmentPrivateDTO>),
-        StatusCodes.Status200OK)]
-    public async Task<ActionResult<
-        IReadOnlyCollection<AttachmentPrivateDTO>>> GetReceived(
-        int participantId)
+    [ProducesResponseType(typeof(IReadOnlyCollection<AttachmentPrivateDTO>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyCollection<AttachmentPrivateDTO>>> GetReceived(int participantId)
     {
-        var files =
-            await _privateAttachmentService.GetReceivedFilesAsync(
-                participantId);
+        var currentParticipantId = await GetCurrentParticipantIdAsync();
 
+        if (currentParticipantId != participantId)
+        {
+            return Forbid();
+        }
+
+        var files = await _privateAttachmentService.GetReceivedFilesAsync(participantId);
         return Ok(files);
     }
 
@@ -132,17 +160,17 @@ public class PrivateAttachmentsController : ControllerBase
     /// Список надісланих приватних файлів успішно сформовано.
     /// </response>
     [HttpGet("sent")]
-    [ProducesResponseType(
-        typeof(IReadOnlyCollection<AttachmentPrivateDTO>),
-        StatusCodes.Status200OK)]
-    public async Task<ActionResult<
-        IReadOnlyCollection<AttachmentPrivateDTO>>> GetSent(
-        int participantId)
+    [ProducesResponseType(typeof(IReadOnlyCollection<AttachmentPrivateDTO>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyCollection<AttachmentPrivateDTO>>> GetSent(int participantId)
     {
-        var files =
-            await _privateAttachmentService.GetSentFilesAsync(
-                participantId);
+        var currentParticipantId = await GetCurrentParticipantIdAsync();
 
+        if (currentParticipantId != participantId)
+        {
+            return Forbid();
+        }
+
+        var files = await _privateAttachmentService.GetSentFilesAsync(participantId);
         return Ok(files);
     }
 
@@ -166,22 +194,22 @@ public class PrivateAttachmentsController : ControllerBase
         typeof(AttachmentPrivateDTO),
         StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<AttachmentPrivateDTO>> GetById(
-        int participantId,
-        int fileId)
+    public async Task<ActionResult<AttachmentPrivateDTO>> GetById(int participantId, int fileId)
     {
-        var privateFile =
-            await _privateAttachmentService.GetByIdAsync(
-                fileId,
-                participantId);
+        var currentParticipantId = await GetCurrentParticipantIdAsync();
+
+        if (currentParticipantId != participantId)
+        {
+            return Forbid();
+        }
+
+        var privateFile = await _privateAttachmentService.GetByIdAsync(fileId, participantId);
 
         if (privateFile is null)
         {
             return NotFound(new
             {
-                message =
-                    $"Приватний файл з ідентифікатором {fileId} " +
-                    "не знайдено або доступ заборонено."
+                message = $"Приватний файл з ідентифікатором {fileId} " + "не знайдено або доступ заборонено."
             });
         }
 
@@ -205,29 +233,39 @@ public class PrivateAttachmentsController : ControllerBase
     [HttpGet("{fileId:int}/download")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Download(
-        int participantId,
-        int fileId)
+    public async Task<IActionResult> Download(int participantId, int fileId)
     {
-        var document =
-            await _privateAttachmentService.DownloadAsync(
-                fileId,
-                participantId);
+        var currentParticipantId = await GetCurrentParticipantIdAsync();
+
+        if (currentParticipantId != participantId)
+        {
+            return Forbid();
+        }
+
+        var document = await _privateAttachmentService.DownloadAsync(fileId, participantId);
 
         if (document is null)
         {
             return NotFound(new
             {
-                message =
-                    $"Приватний файл з ідентифікатором {fileId} " +
-                    "не знайдено або доступ заборонено."
+                message = $"Приватний файл з ідентифікатором {fileId} " + "не знайдено або доступ заборонено."
             });
         }
 
-        return File(
-            document.Content,
-            document.ContentType,
-            document.OriginalFileName);
+        return File(document.Content, document.ContentType, document.OriginalFileName);
+    }
+
+    /// <summary>
+    /// Перевіряє, чи має поточний користувач
+    /// роль адміністратора.
+    /// </summary>
+    /// <returns>
+    /// <see langword="true"/>, якщо користувач має роль Admin;
+    /// інакше — <see langword="false"/>.
+    /// </returns>
+    private bool IsAdmin()
+    {
+        return User.IsInRole("Admin");
     }
 
     /// <summary>
@@ -239,32 +277,73 @@ public class PrivateAttachmentsController : ControllerBase
     /// <param name="fileId">
     /// Ідентифікатор приватного файлу.
     /// </param>
-    /// <response code="204">Файл успішно видалено.</response>
+    /// <response code="204">
+    /// Файл успішно видалено.
+    /// </response>
+    /// <response code="403">
+    /// Користувач не має права видаляти файл.
+    /// </response>
     /// <response code="404">
-    /// Файл не знайдено або учасник не має права його видаляти.
+    /// Файл не знайдено або учасник
+    /// не має права його видаляти.
     /// </response>
     [HttpDelete("{fileId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(
-        int participantId,
-        int fileId)
+    public async Task<IActionResult> Delete(int participantId, int fileId)
     {
-        var deleted =
-            await _privateAttachmentService.DeleteAsync(
-                fileId,
-                participantId);
+        bool deleted;
+
+        if (IsAdmin())
+        {
+            deleted = await _privateAttachmentService.DeleteByAdminAsync(fileId);
+        }
+        else
+        {
+            var currentParticipantId =await GetCurrentParticipantIdAsync();
+
+            if (currentParticipantId != participantId)
+            {
+                return Forbid();
+            }
+
+            deleted = await _privateAttachmentService.DeleteAsync(fileId, participantId);
+        }
 
         if (!deleted)
         {
             return NotFound(new
             {
-                message =
-                    $"Приватний файл з ідентифікатором {fileId} " +
-                    "не знайдено або видалення заборонено."
+                message = $"Приватний файл з ідентифікатором {fileId} " + "не знайдено або видалення заборонено."
             });
         }
 
         return NoContent();
+    }
+    
+    /// <summary>
+    /// Повертає список усіх приватних файлів.
+    /// Доступно лише адміністратору.
+    /// </summary>
+    /// <response code="200">
+    /// Список приватних файлів успішно отримано.
+    /// </response>
+    /// <response code="401">
+    /// Користувач не автентифікований.
+    /// </response>
+    /// <response code="403">
+    /// Користувач не має ролі Admin.
+    /// </response>
+    [HttpGet("/api/private-files")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<AttachmentPrivateDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<IReadOnlyCollection<AttachmentPrivateDTO>>> GetAll()
+    {
+        var files = await _privateAttachmentService.GetAllAsync();
+
+        return Ok(files);
     }
 }

@@ -25,5 +25,9 @@ public class MeetingConfiguration : IEntityTypeConfiguration<Meeting>
 
         builder.Property(x => x.Description)
             .HasMaxLength(1000);
+        
+        builder.Property(x => x.OrganizerId)
+            .HasMaxLength(450)
+            .IsRequired();
     }
 }

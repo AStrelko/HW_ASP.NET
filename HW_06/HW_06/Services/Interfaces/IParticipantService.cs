@@ -25,8 +25,7 @@ public interface IParticipantService
     /// <returns>
     /// Сторінку учасників разом із даними пагінації.
     /// </returns>
-    Task<PagedResult<ParticipantReadDTO>> GetAllAsync(
-        ParticipantQueryParameters parameters);
+    Task<PagedResult<ParticipantReadDTO>> GetAllAsync(ParticipantQueryParameters parameters);
 
     /// <summary>
     /// Отримує учасника за його ідентифікатором.
@@ -53,9 +52,7 @@ public interface IParticipantService
     /// <see langword="true"/>, якщо учасника успішно оновлено;
     /// інакше <see langword="false"/>.
     /// </returns>
-    Task<bool> UpdateAsync(
-        int id,
-        ParticipantUpdateDTO dto);
+    Task<bool> UpdateAsync(int id, ParticipantUpdateDTO dto);
 
     /// <summary>
     /// Частково оновлює інформацію про учасника.
@@ -70,9 +67,7 @@ public interface IParticipantService
     /// <see langword="true"/>, якщо учасника успішно оновлено;
     /// інакше <see langword="false"/>.
     /// </returns>
-    Task<bool> PartialUpdateAsync(
-        int id,
-        ParticipantPartialUpdateDTO dto);
+    Task<bool> PartialUpdateAsync(int id, ParticipantPartialUpdateDTO dto);
 
     /// <summary>
     /// Видаляє учасника.
@@ -124,8 +119,7 @@ public interface IParticipantService
     /// DTO учасника з даними аватара або
     /// <see langword="null"/>, якщо учасника не знайдено.
     /// </returns>
-    Task<ParticipantAvatarDTO?> GetAvatarAsync(
-        int participantId);
+    Task<ParticipantAvatarDTO?> GetAvatarAsync(int participantId);
 
     /// <summary>
     /// Додати аватар учаснику.
@@ -143,9 +137,7 @@ public interface IParticipantService
     /// DTO учасника з даними доданого аватара або
     /// <see langword="null"/>, якщо учасника не знайдено.
     /// </returns>
-    Task<ParticipantAvatarDTO?> UploadAvatarAsync(
-        int participantId,
-        IFormFile file,
+    Task<ParticipantAvatarDTO?> UploadAvatarAsync(int participantId, IFormFile file,
         CancellationToken cancellationToken = default);
     
     
@@ -163,7 +155,20 @@ public interface IParticipantService
     /// <see langword="true"/>, якщо учасника знайдено;
     /// інакше <see langword="false"/>.
     /// </returns>
-    Task<bool> ResetAvatarAsync(
-        int participantId,
-        CancellationToken cancellationToken = default);
+    Task<bool> ResetAvatarAsync(int participantId, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Повертає ідентифікатор учасника,
+    /// пов'язаного з указаним користувачем Identity.
+    /// </summary>
+    /// <param name="applicationUserId">
+    /// Ідентифікатор користувача ASP.NET Identity.
+    /// </param>
+    /// <returns>
+    /// Ідентифікатор учасника або
+    /// <see langword="null"/>, якщо учасника не знайдено.
+    /// </returns>
+    Task<int?> GetParticipantIdByUserIdAsync(string applicationUserId);
+    
+  
 }

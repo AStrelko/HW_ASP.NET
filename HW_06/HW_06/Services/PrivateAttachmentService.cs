@@ -494,4 +494,71 @@ public class PrivateAttachmentService : IPrivateAttachmentService
 
         return true;
     }
+    
+    /// <summary>
+    /// Видаляє приватний документ
+    /// за його ідентифікатором
+    /// без перевірки учасника.
+    /// </summary>
+    /// <param name="fileId">
+    /// Ідентифікатор документа.
+    /// </param>
+    /// <returns>
+    /// <see langword="true"/>,
+    /// якщо документ успішно видалено;
+    /// інакше — <see langword="false"/>.
+    /// </returns>
+    public async Task<bool> DeleteByAdminAsync(
+        int fileId)
+    {
+        var privateFile =
+            await _context.ParticipantPrivateFiles
+                .FirstOrDefaultAsync(file =>
+                    file.Id == fileId);
+
+        if (privateFile is null)
+        {
+            return false;
+        }
+
+        var fullFilePath =
+            Path.Combine(
+                _environment.ContentRootPath,
+                "uploads",
+                "PrivateFile",
+                "Participants",
+                privateFile.StoredFileName);
+
+        _context.ParticipantPrivateFiles.Remove(
+            privateFile);
+
+        await _context.SaveChangesAsync();
+
+        if (File.Exists(fullFilePath))
+        {
+            File.Delete(fullFilePath);
+        }
+
+        return true;
+    }
+    
+    /// <summary>
+    /// Повертає список усіх приватних файлів
+    /// усіх учасників.
+    /// </summary>
+    /// <returns>
+    /// Колекція всіх приватних файлів.
+    /// </returns>
+    public async Task<IReadOnlyCollection<AttachmentPrivateDTO>> GetAllAsync()
+    {
+        var files =
+            await _context.ParticipantPrivateFiles
+                .AsNoTracking()
+                .OrderByDescending(file => file.Id)
+                .ToListAsync();
+
+        return _mapper.Map<
+            IReadOnlyCollection<AttachmentPrivateDTO>>(
+            files);
+    }
 }

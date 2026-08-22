@@ -4,6 +4,7 @@ using HW_06.Filters;
 using HW_06.Helpers.Pagination;
 using HW_06.Helpers.QueryParameters;
 using HW_06.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HW_06.Controllers;
@@ -86,13 +87,11 @@ public class MeetingControllersDTO : ControllerBase
     /// <response code="404">
     /// Зустріч із зазначеним ідентифікатором не знайдено.
     /// </response>
+    [Authorize]
     [HttpGet("{id:int}")]
-    [ProducesResponseType<MeetingDetailDTO>(
-        StatusCodes.Status200OK)]
-    [ProducesResponseType(
-        StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<MeetingDetailDTO>>
-        GetById(int id)
+    [ProducesResponseType<MeetingDetailDTO>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<MeetingDetailDTO>> GetById(int id)
     {
         var meeting =
             await _service.GetByIdAsync(id);
@@ -125,6 +124,7 @@ public class MeetingControllersDTO : ControllerBase
     /// Передані дані не пройшли перевірку
     /// або пов'язані сутності не знайдено.
     /// </response>
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ServiceFilter(typeof(
         ValidationFilter<MeetingCreateDTO>))]
@@ -171,6 +171,7 @@ public class MeetingControllersDTO : ControllerBase
     /// <response code="404">
     /// Зустріч із зазначеним ідентифікатором не знайдено.
     /// </response>
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")]
     [ServiceFilter(typeof(
         ValidationFilter<MeetingUpdateDTO>))]
@@ -224,6 +225,7 @@ public class MeetingControllersDTO : ControllerBase
     /// <response code="404">
     /// Зустріч із зазначеним ідентифікатором не знайдено.
     /// </response>
+    [Authorize(Roles = "Admin")]
     [HttpPatch("{id:int}")]
     [ServiceFilter(typeof(
         ValidationFilter<MeetingPartialUpdateDTO>))]
@@ -269,6 +271,7 @@ public class MeetingControllersDTO : ControllerBase
     /// <response code="404">
     /// Зустріч із зазначеним ідентифікатором не знайдено.
     /// </response>
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     [ProducesResponseType(
         StatusCodes.Status204NoContent)]
@@ -309,6 +312,7 @@ public class MeetingControllersDTO : ControllerBase
     /// Список ідентифікаторів не передано
     /// або він порожній.
     /// </response>
+    [Authorize(Roles = "Admin")]
     [HttpDelete("delete-many")]
     [ProducesResponseType<int>(
         StatusCodes.Status200OK)]
@@ -362,17 +366,12 @@ public class MeetingControllersDTO : ControllerBase
     /// <response code="404">
     /// Учасника із зазначеним ідентифікатором не знайдено.
     /// </response>
-    [HttpGet(
-        "by-participant/{participantId:int}")]
-    [ProducesResponseType<IEnumerable<MeetingReadDTO>>(
-        StatusCodes.Status200OK)]
-    [ProducesResponseType(
-        StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(
-        StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IEnumerable<MeetingReadDTO>>>
-        GetByParticipant(
-            int participantId)
+    [Authorize]
+    [HttpGet("by-participant/{participantId:int}")]
+    [ProducesResponseType<IEnumerable<MeetingReadDTO>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IEnumerable<MeetingReadDTO>>> GetByParticipant(int participantId)
     {
         var meetings =
             await _service.GetByParticipantAsync(

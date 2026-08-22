@@ -350,3 +350,5 @@ C:\Users\Home\Desktop\ASP2\HW_ASP.NET\HW_06\HW_06\bin\Debug\net10.0\runtimes\osx
 C:\Users\Home\Desktop\ASP2\HW_ASP.NET\HW_06\HW_06\bin\Debug\net10.0\runtimes\win-arm64\native\msalruntime_arm64.dll
 C:\Users\Home\Desktop\ASP2\HW_ASP.NET\HW_06\HW_06\bin\Debug\net10.0\runtimes\win-x64\native\msalruntime.dll
 C:\Users\Home\Desktop\ASP2\HW_ASP.NET\HW_06\HW_06\bin\Debug\net10.0\runtimes\win-x86\native\msalruntime_x86.dll
+C:\Users\Home\Desktop\ASP2\HW_ASP.NET\HW_06\HW_06\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Home\Desktop\ASP2\HW_ASP.NET\HW_06\HW_06\bin\Debug\net10.0\Microsoft.Bcl.Cryptography.dll

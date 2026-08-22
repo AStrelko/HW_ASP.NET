@@ -32,6 +32,11 @@ public record MeetingDetailDTO
     /// Номер кімнати, у якій проводиться зустріч.
     /// </summary>
     public int? RoomNumber { get; set; }
+    
+    /// <summary>
+    /// Організатор зустрічі.
+    /// </summary>
+    public MeetingOrganizerDTO? Organizer { get; set; }
 
     /// <summary>
     /// Список учасників зустрічі.
