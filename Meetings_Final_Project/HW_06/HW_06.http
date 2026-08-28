@@ -1,0 +1,108 @@
+@HW_06_HostAddress = http://localhost:5165
+
+###======= тестування ============
+
+### Створити нову зустріч
+POST {{HW_06_HostAddress}}/api/meetingsDTO
+Content-Type: application/json
+
+{
+  "title": "Тестова зустріч",
+  "description": "Створення через DTO",
+  "dateTime": "2026-07-15T15:00:00",
+  "roomId": 2,
+  "participantIds": [1,2,3,4,5]
+}
+
+### Список зустрічей
+GET {{HW_06_HostAddress}}/api/meetingsDTO
+
+### Детальна інформація
+GET {{HW_06_HostAddress}}/api/meetingsDTO/22
+
+### Повне оновлення зустрічі
+PUT {{HW_06_HostAddress}}/api/meetingsDTO/22
+Content-Type: application/json
+
+{
+  "meetingId": 22,
+  "title": "Оновлена зустріч",
+  "description": "Повністю змінений опис",
+  "dateTime": "2026-07-20T15:00:00",
+  "roomId": 5,
+  "participantIds": [2,4,6,8]
+}
+
+### Часткове оновлення назви
+PATCH {{HW_06_HostAddress}}/api/meetingsDTO/21
+Content-Type: application/json
+
+{
+  "title": "PATCH: нова назва"
+}
+
+### Часткове оновлення кімнати
+PATCH {{HW_06_HostAddress}}/api/meetingsDTO/22
+Content-Type: application/json
+
+{
+  "roomId": 7
+}
+
+### Часткове оновлення дати
+PATCH {{HW_06_HostAddress}}/api/meetingsDTO/22
+Content-Type: application/json
+
+{
+  "dateTime": "2026-08-01T10:00:00"
+}
+
+### Видалити зустріч
+DELETE {{HW_06_HostAddress}}/api/meetingsDTO/22
+
+### Отримати всі зустрічі конкретного учасника
+GET {{HW_06_HostAddress}}/api/meetingsDTO/by-participant/5
+Accept: application/json
+
+### Отримати всіх учасників
+GET {{HW_06_HostAddress}}/api/participantDTO
+Accept: application/json
+
+### Отримати учасника за ID
+GET {{HW_06_HostAddress}}/api/participantDTO/1
+Accept: application/json
+
+### Створити учасника
+POST {{HW_06_HostAddress}}/api/participantDTO
+Content-Type: application/json
+
+{
+  "firstName": "Іван",
+  "lastName": "Петренко",
+  "email": "ivan.petrenko@gmail.com",
+  "role": "Developer"
+}
+
+### Повністю оновити учасника
+PUT {{HW_06_HostAddress}}/api/participantDTO/31
+Content-Type: application/json
+
+{
+  "participantId": 31,
+  "firstName": "Петро",
+  "lastName": "Іваненко",
+  "email": "petro@gmail.com",
+  "role": "Team Lead"
+}
+
+### Частково оновити учасника
+PATCH {{HW_06_HostAddress}}/api/participantDTO/1
+Content-Type: application/json
+
+{
+  "role": "Project Manager"
+}
+
+### Видалити учасника
+DELETE {{HW_06_HostAddress}}/api/participantDTO/31
+Accept: application/json
