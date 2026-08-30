@@ -4,44 +4,50 @@ using HW_06.Models;
 namespace HW_06.Helpers.Queryable;
 
 /// <summary>
-/// Методи розширення для пошуку та сортування учасників.
+/// Методи розширення для пошуку
+/// та сортування учасників.
 /// </summary>
 public static class ParticipantQueryableExtensions
 {
     /// <summary>
-    /// Застосовує пошук учасників за прізвищем.
+    /// Застосовує пошук учасників
+    /// за ім'ям, прізвищем або email.
     /// </summary>
     /// <param name="query">
     /// Вихідна послідовність учасників.
     /// </param>
-    /// <param name="searchLastName">
-    /// Частина або повне прізвище для пошуку.
-    /// Якщо значення не вказано, пошук не застосовується.
+    /// <param name="search">
+    /// Пошуковий рядок.
     /// </param>
     /// <returns>
-    /// Відфільтрована послідовність учасників або вихідна колекція,
-    /// якщо параметр пошуку не заданий.
+    /// Запит із застосованим пошуком.
     /// </returns>
     public static IQueryable<Participant> ApplySearch(
         this IQueryable<Participant> query,
-        string? searchLastName)
+        string? search)
     {
         ArgumentNullException.ThrowIfNull(query);
 
-        if (string.IsNullOrWhiteSpace(searchLastName))
+        if (string.IsNullOrWhiteSpace(search))
         {
             return query;
         }
 
-        var search = searchLastName.Trim();
+        var searchValue =
+            search.Trim();
 
         return query.Where(participant =>
-            participant.LastName.Contains(search));
+            participant.FirstName.Contains(searchValue) ||
+            participant.LastName.Contains(searchValue) ||
+            (participant.ApplicationUser != null &&
+             participant.ApplicationUser.Email != null &&
+             participant.ApplicationUser.Email.Contains(
+                 searchValue)));
     }
 
     /// <summary>
-    /// Застосовує сортування учасників відповідно
-    /// до заданих параметрів.
+    /// Застосовує сортування учасників
+    /// відповідно до заданих параметрів.
     /// </summary>
     /// <param name="query">
     /// Вихідна послідовність учасників.
@@ -50,11 +56,8 @@ public static class ParticipantQueryableExtensions
     /// Параметри сортування.
     /// </param>
     /// <returns>
-    /// Послідовність учасників із застосованим сортуванням.
-    /// Якщо параметри сортування не задані,
-    /// використовується сортування за ідентифікатором.
+    /// Відсортований запит учасників.
     /// </returns>
-
     public static IQueryable<Participant> ApplySorting(
         this IQueryable<Participant> query,
         ParticipantQueryParameters parameters)
@@ -62,9 +65,10 @@ public static class ParticipantQueryableExtensions
         ArgumentNullException.ThrowIfNull(query);
         ArgumentNullException.ThrowIfNull(parameters);
 
-        var sortBy = parameters.SortBy?
-            .Trim()
-            .ToLowerInvariant();
+        var sortBy =
+            parameters.SortBy?
+                .Trim()
+                .ToLowerInvariant();
 
         return sortBy switch
         {
@@ -80,7 +84,7 @@ public static class ParticipantQueryableExtensions
                     ? query
                         .OrderByDescending(participant =>
                             participant.FirstName)
-                        .ThenByDescending(participant =>
+                        .ThenBy(participant =>
                             participant.ParticipantId)
                     : query
                         .OrderBy(participant =>
@@ -93,7 +97,7 @@ public static class ParticipantQueryableExtensions
                     ? query
                         .OrderByDescending(participant =>
                             participant.LastName)
-                        .ThenByDescending(participant =>
+                        .ThenBy(participant =>
                             participant.ParticipantId)
                     : query
                         .OrderBy(participant =>
@@ -106,7 +110,7 @@ public static class ParticipantQueryableExtensions
                     ? query
                         .OrderByDescending(participant =>
                             participant.ApplicationUser!.Email)
-                        .ThenByDescending(participant =>
+                        .ThenBy(participant =>
                             participant.ParticipantId)
                     : query
                         .OrderBy(participant =>
@@ -119,7 +123,7 @@ public static class ParticipantQueryableExtensions
                     ? query
                         .OrderByDescending(participant =>
                             participant.Position)
-                        .ThenByDescending(participant =>
+                        .ThenBy(participant =>
                             participant.ParticipantId)
                     : query
                         .OrderBy(participant =>
@@ -127,11 +131,14 @@ public static class ParticipantQueryableExtensions
                         .ThenBy(participant =>
                             participant.ParticipantId),
 
-            _ => parameters.Descending
-                ? query.OrderByDescending(participant =>
-                    participant.ParticipantId)
-                : query.OrderBy(participant =>
-                    participant.ParticipantId)
+            _ =>
+                parameters.Descending
+                    ? query
+                        .OrderByDescending(participant =>
+                            participant.ParticipantId)
+                    : query
+                        .OrderBy(participant =>
+                            participant.ParticipantId)
         };
     }
 }

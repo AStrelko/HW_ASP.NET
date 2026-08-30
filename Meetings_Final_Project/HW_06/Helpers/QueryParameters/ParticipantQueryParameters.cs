@@ -17,9 +17,9 @@ public record ParticipantQueryParameters
     public int PageSize { get; set; } = 10;
 
     /// <summary>
-    /// Пошук за прізвищем.
+    /// Пошук за ім'ям, прізвищем або email.
     /// </summary>
-    public string? SearchLastName { get; set; }
+    public string? Search { get; set; }
 
     /// <summary>
     /// Поле для сортування.
@@ -27,7 +27,8 @@ public record ParticipantQueryParameters
     public string? SortBy { get; set; }
 
     /// <summary>
-    /// Використовувати сортування у зворотному порядку.
+    /// Використовувати сортування
+    /// у зворотному порядку.
     /// </summary>
     public bool Descending { get; set; }
 }

@@ -22,11 +22,9 @@ public class UploadPrivateAttachmentCommandHandler
 
     private readonly IMapper _mapper;
 
-    private readonly IWebHostEnvironment
-        _environment;
+    private readonly IWebHostEnvironment _environment;
 
-    private readonly FileStorageOptions
-        _fileStorageOptions;
+    private readonly FileStorageOptions _fileStorageOptions;
 
     private readonly ILogger<UploadPrivateAttachmentCommandHandler>
         _logger;
@@ -48,8 +46,7 @@ public class UploadPrivateAttachmentCommandHandler
     /// Налаштування файлового сховища.
     /// </param>
     /// <param name="logger">
-    /// Сервіс журналювання подій надсилання
-    /// приватних файлів.
+    /// Сервіс журналювання подій надсилання файлів.
     /// </param>
     public UploadPrivateAttachmentCommandHandler(
         DataContext context,
@@ -72,8 +69,10 @@ public class UploadPrivateAttachmentCommandHandler
     }
 
     /// <summary>
-    /// Надсилає приватний файл
-    /// від одного учасника іншому.
+    /// Надсилає приватний файл від одного учасника іншому.
+    /// Помилки повторного читання даних або формування DTO
+    /// після успішного збереження запису в БД
+    /// не спричиняють видалення файлу.
     /// </summary>
     /// <param name="request">
     /// Команда з даними приватного файлу,
@@ -138,8 +137,7 @@ public class UploadPrivateAttachmentCommandHandler
         var validationError =
             await PrivateDocumentValidator.ValidateAsync(
                 request.File,
-                _fileStorageOptions
-                    .MaxPrivateDocumentSizeBytes);
+                _fileStorageOptions.MaxPrivateDocumentSizeBytes);
 
         if (validationError is not null)
         {
@@ -173,6 +171,38 @@ public class UploadPrivateAttachmentCommandHandler
                 privateFilesDirectory,
                 storedFileName);
 
+        var privateFile =
+            new ParticipantPrivateFile
+            {
+                OriginalFileName =
+                    originalFileName,
+
+                StoredFileName =
+                    storedFileName,
+
+                ContentType =
+                    string.IsNullOrWhiteSpace(
+                        request.File.ContentType)
+                        ? "application/octet-stream"
+                        : request.File.ContentType,
+
+                SizeBytes =
+                    request.File.Length,
+
+                UploadedAtUtc =
+                    DateTime.UtcNow,
+
+                SenderParticipantId =
+                    request.SenderParticipantId,
+
+                RecipientParticipantId =
+                    request.RecipientParticipantId
+            };
+
+        // Видаляємо під час відкату лише файл,
+        // створений поточною операцією.
+        var fileCreated = false;
+
         try
         {
             await using (var fileStream =
@@ -180,99 +210,100 @@ public class UploadPrivateAttachmentCommandHandler
                              fullFilePath,
                              FileMode.CreateNew,
                              FileAccess.Write,
-                             FileShare.None))
+                             FileShare.None,
+                             bufferSize: 81920,
+                             useAsync: true))
             {
+                fileCreated = true;
+
                 await request.File.CopyToAsync(
                     fileStream,
                     cancellationToken);
             }
-
-            var privateFile =
-                new ParticipantPrivateFile
-                {
-                    OriginalFileName =
-                        originalFileName,
-
-                    StoredFileName =
-                        storedFileName,
-
-                    ContentType =
-                        string.IsNullOrWhiteSpace(
-                            request.File.ContentType)
-                            ? "application/octet-stream"
-                            : request.File.ContentType,
-
-                    SizeBytes =
-                        request.File.Length,
-
-                    UploadedAtUtc =
-                        DateTime.UtcNow,
-
-                    SenderParticipantId =
-                        request.SenderParticipantId,
-
-                    RecipientParticipantId =
-                        request.RecipientParticipantId
-                };
 
             _context.ParticipantPrivateFiles.Add(
                 privateFile);
 
             await _context.SaveChangesAsync(
                 cancellationToken);
-
-            var savedPrivateFile =
-                await _context.ParticipantPrivateFiles
-                    .AsNoTracking()
-                    .Include(item =>
-                        item.SenderParticipant)
-                    .Include(item =>
-                        item.RecipientParticipant)
-                    .FirstAsync(
-                        item =>
-                            item.Id ==
-                            privateFile.Id,
-                        cancellationToken);
-
-            var dto =
-                _mapper.Map<AttachmentPrivateDTO>(
-                    savedPrivateFile);
-
-            _logger.LogInformation(
-                "Приватний файл успішно надіслано. "
-                + "FileId: {FileId}, "
-                + "SenderParticipantId: {SenderParticipantId}, "
-                + "RecipientParticipantId: {RecipientParticipantId}, "
-                + "SizeBytes: {SizeBytes}",
-                savedPrivateFile.Id,
-                request.SenderParticipantId,
-                request.RecipientParticipantId,
-                savedPrivateFile.SizeBytes);
-
-            return dto with
-            {
-                DownloadUrl =
-                    $"/api/participants/"
-                    + $"{request.RecipientParticipantId}"
-                    + $"/private-files/{savedPrivateFile.Id}/download"
-            };
         }
         catch
         {
-            if (File.Exists(fullFilePath))
+            if (fileCreated)
             {
-                File.Delete(fullFilePath);
+                try
+                {
+                    // File.Delete не кидає виняток,
+                    // якщо файл уже відсутній.
+                    File.Delete(
+                        fullFilePath);
 
-                _logger.LogWarning(
-                    "Фізичний приватний файл видалено під час відкату "
-                    + "невдалої операції надсилання. "
-                    + "SenderParticipantId: {SenderParticipantId}, "
-                    + "RecipientParticipantId: {RecipientParticipantId}",
-                    request.SenderParticipantId,
-                    request.RecipientParticipantId);
+                    _logger.LogWarning(
+                        "Виконано очищення приватного файлу "
+                        + "після невдалої операції надсилання. "
+                        + "SenderParticipantId: {SenderParticipantId}, "
+                        + "RecipientParticipantId: {RecipientParticipantId}, "
+                        + "StoredFileName: {StoredFileName}",
+                        request.SenderParticipantId,
+                        request.RecipientParticipantId,
+                        storedFileName);
+                }
+                catch (Exception cleanupException)
+                {
+                    // Помилка очищення не повинна
+                    // підміняти початковий виняток.
+                    _logger.LogError(
+                        cleanupException,
+                        "Не вдалося видалити приватний файл "
+                        + "під час очищення після помилки. "
+                        + "SenderParticipantId: {SenderParticipantId}, "
+                        + "RecipientParticipantId: {RecipientParticipantId}, "
+                        + "StoredFileName: {StoredFileName}",
+                        request.SenderParticipantId,
+                        request.RecipientParticipantId,
+                        storedFileName);
+                }
             }
 
             throw;
         }
+
+        // Запис успішно збережено в БД.
+        // Подальші помилки не запускають видалення файлу.
+
+        _logger.LogInformation(
+            "Приватний файл успішно збережено для отримувача. "
+            + "FileId: {FileId}, "
+            + "SenderParticipantId: {SenderParticipantId}, "
+            + "RecipientParticipantId: {RecipientParticipantId}, "
+            + "SizeBytes: {SizeBytes}",
+            privateFile.Id,
+            privateFile.SenderParticipantId,
+            privateFile.RecipientParticipantId,
+            privateFile.SizeBytes);
+
+        var savedPrivateFile =
+            await _context.ParticipantPrivateFiles
+                .AsNoTracking()
+                .Include(item =>
+                    item.SenderParticipant)
+                .Include(item =>
+                    item.RecipientParticipant)
+                .FirstAsync(
+                    item =>
+                        item.Id == privateFile.Id,
+                    cancellationToken);
+
+        var dto =
+            _mapper.Map<AttachmentPrivateDTO>(
+                savedPrivateFile);
+
+        return dto with
+        {
+            DownloadUrl =
+                $"/api/participants/"
+                + $"{request.RecipientParticipantId}"
+                + $"/private-files/{savedPrivateFile.Id}/download"
+        };
     }
 }

@@ -18,6 +18,7 @@ public class GetAllMeetingsQueryHandler
         PagedResult<MeetingReadDTO>>
 {
     private readonly DataContext _context;
+
     private readonly IMapper _mapper;
 
     /// <summary>
@@ -43,6 +44,16 @@ public class GetAllMeetingsQueryHandler
     /// <summary>
     /// Отримує сторінку зі списком зустрічей.
     /// </summary>
+    /// <param name="request">
+    /// Запит із параметрами фільтрації,
+    /// пошуку, сортування та пагінації.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Токен скасування асинхронної операції.
+    /// </param>
+    /// <returns>
+    /// Сторінка зі списком зустрічей.
+    /// </returns>
     public async Task<PagedResult<MeetingReadDTO>> Handle(
         GetAllMeetingsQuery request,
         CancellationToken cancellationToken)
@@ -51,19 +62,16 @@ public class GetAllMeetingsQueryHandler
 
         IQueryable<Meeting> query =
             _context.Meetings
-                .AsNoTracking()
-                .Include(meeting =>
-                    meeting.Room)
-                .Include(meeting =>
-                    meeting.MeetingParticipants);
+                .AsNoTracking();
 
-        query = query
-            .ApplySearch(
-                request.Parameters.Search)
-            .ApplyFilter(
-                request.Filter)
-            .ApplySorting(
-                request.Parameters);
+        query =
+            query
+                .ApplySearch(
+                    request.Parameters.Search)
+                .ApplyFilter(
+                    request.Filter)
+                .ApplySorting(
+                    request.Parameters);
 
         return await query
             .ToPagedResultAsync<
@@ -71,6 +79,7 @@ public class GetAllMeetingsQueryHandler
                 MeetingReadDTO>(
                     request.Parameters.Page,
                     request.Parameters.PageSize,
-                    _mapper);
+                    _mapper,
+                    cancellationToken);
     }
 }

@@ -1,22 +1,36 @@
 using Bogus;
+using HW_06.Common.Constants;
 using HW_06.Models;
 using Microsoft.AspNetCore.Identity;
-using HW_06.Common.Constants;
+using Microsoft.EntityFrameworkCore;
 
 namespace HW_06.Helpers;
 
 /// <summary>
 /// Клас для початкового заповнення
 /// бази даних тестовими даними.
+/// Викликається з Program.cs, якщо в конфігурації
+/// Seed:Enabled встановлено значення true.
+/// Заповнення виконується лише за відсутності
+/// користувачів, учасників, кімнат і зустрічей.
 /// </summary>
 public static class SeedData
 {
+    // Пароль призначений виключно
+    // для демонстраційних облікових записів.
     private const string DefaultPassword = "Test123";
 
     /// <summary>
     /// Створює початкові ролі,
     /// користувачів, учасників, кімнати,
     /// зустрічі та зв'язки між ними.
+    /// Перевірка прапорця Seed:Enabled
+    /// виконується в Program.cs перед викликом.
+    /// Якщо користувачі, учасники, кімнати
+    /// або зустрічі вже існують,
+    /// заповнення пропускається.
+    /// Частково заповнена база автоматично
+    /// не доповнюється.
     /// </summary>
     /// <param name="context">
     /// Контекст бази даних.
@@ -36,7 +50,18 @@ public static class SeedData
         ArgumentNullException.ThrowIfNull(userManager);
         ArgumentNullException.ThrowIfNull(roleManager);
 
-        if (context.Meetings.Any())
+        //
+        // Перевірка наявності даних.
+        // Відсутність лише зустрічей
+        // не означає, що база порожня.
+        // Наявність лише ролей
+        // не перешкоджає заповненню.
+        //
+
+        if (await context.Users.AnyAsync() ||
+            await context.Participants.AnyAsync() ||
+            await context.Rooms.AnyAsync() ||
+            await context.Meetings.AnyAsync())
         {
             return;
         }
@@ -67,11 +92,12 @@ public static class SeedData
                 faker => faker.Random.Int(100, 120))
             .Generate(10);
 
-        context.Rooms.AddRange(rooms);
+        context.Rooms.AddRange(
+            rooms);
+
         await context.SaveChangesAsync();
 
         // ---------------- Користувачі та учасники ----------------
-        
 
         var participants =
             new List<Participant>();
@@ -227,8 +253,7 @@ public static class SeedData
             selectedParticipants.Add(
                 organizer);
 
-            foreach (var participant
-                     in selectedParticipants)
+            foreach (var participant in selectedParticipants)
             {
                 meetingParticipants.Add(
                     new MeetingParticipant
