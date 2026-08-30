@@ -1,13 +1,13 @@
+using System.Diagnostics;
+using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HW_06.Middleware;
 
 /// <summary>
-/// Глобально обробляє винятки,
-/// що виникають під час виконання HTTP-запитів,
-/// та перетворює їх на коректні HTTP-відповіді
-/// у форматі ProblemDetails.
+/// Глобально обробляє винятки HTTP-запитів
+/// та формує відповіді у форматі ProblemDetails.
 /// </summary>
 public class ExceptionHandlingMiddleware
 {
@@ -52,10 +52,36 @@ public class ExceptionHandlingMiddleware
         {
             await _next(context);
         }
+        catch (OperationCanceledException)
+            when (context.RequestAborted.IsCancellationRequested)
+        {
+            // Клієнт скасував запит.
+            // Не намагаємося надсилати йому JSON-відповідь.
+            if (!context.Response.HasStarted)
+            {
+                context.Response.StatusCode =
+                    StatusCodes.Status499ClientClosedRequest;
+            }
+        }
+        catch (Exception exception)
+            when (context.Response.HasStarted)
+        {
+            _logger.LogError(
+                exception,
+                "Помилка після початку надсилання відповіді "
+                + "для запиту {Method} {Path}.",
+                context.Request.Method,
+                context.Request.Path);
+
+            // Заголовки або частину тіла вже надіслано.
+            // Замінити відповідь на ProblemDetails неможливо.
+            throw;
+        }
         catch (ValidationException exception)
         {
             _logger.LogWarning(
-                "Помилка валідації під час виконання запиту {Method} {Path}.",
+                "Помилка валідації під час виконання "
+                + "запиту {Method} {Path}.",
                 context.Request.Method,
                 context.Request.Path);
 
@@ -66,7 +92,8 @@ public class ExceptionHandlingMiddleware
         catch (ArgumentException exception)
         {
             _logger.LogWarning(
-                "Некоректний запит {Method} {Path}. Причина: {Message}",
+                "Некоректний запит {Method} {Path}. "
+                + "Причина: {Message}",
                 context.Request.Method,
                 context.Request.Path,
                 exception.Message);
@@ -74,13 +101,14 @@ public class ExceptionHandlingMiddleware
             await HandleExceptionAsync(
                 context,
                 StatusCodes.Status400BadRequest,
-                "Некоректний запит",
+                "Некоректний запит.",
                 exception.Message);
         }
         catch (KeyNotFoundException exception)
         {
             _logger.LogWarning(
-                "Ресурс не знайдено під час виконання запиту {Method} {Path}. Причина: {Message}",
+                "Ресурс не знайдено під час виконання "
+                + "запиту {Method} {Path}. Причина: {Message}",
                 context.Request.Method,
                 context.Request.Path,
                 exception.Message);
@@ -88,62 +116,74 @@ public class ExceptionHandlingMiddleware
             await HandleExceptionAsync(
                 context,
                 StatusCodes.Status404NotFound,
-                "Ресурс не знайдено",
+                "Ресурс не знайдено.",
                 exception.Message);
         }
-        catch (OperationCanceledException)
-            when (context.RequestAborted.IsCancellationRequested)
-        {
-            // Запит було скасовано клієнтом.
-            // Це не є внутрішньою помилкою сервера.
-        }
         catch (BadHttpRequestException exception)
-            when (exception.StatusCode ==
-                  StatusCodes.Status413PayloadTooLarge)
         {
             _logger.LogWarning(
-                "Перевищено допустимий розмір запиту {Method} {Path}.",
+                "Помилка HTTP-запиту {Method} {Path}. "
+                + "StatusCode: {StatusCode}",
                 context.Request.Method,
-                context.Request.Path);
+                context.Request.Path,
+                exception.StatusCode);
 
-            await HandleExceptionAsync(
-                context,
-                StatusCodes.Status413PayloadTooLarge,
-                "Файл занадто великий",
-                "Розмір завантажуваного файлу перевищує допустиме значення.");
+            if (exception.StatusCode ==
+                StatusCodes.Status413PayloadTooLarge)
+            {
+                await HandleExceptionAsync(
+                    context,
+                    StatusCodes.Status413PayloadTooLarge,
+                    "Запит занадто великий.",
+                    "Розмір тіла запиту перевищує "
+                    + "допустиме значення.");
+            }
+            else
+            {
+                await HandleExceptionAsync(
+                    context,
+                    exception.StatusCode,
+                    "Некоректний HTTP-запит.",
+                    "Сервер не може обробити "
+                    + "переданий HTTP-запит.");
+            }
         }
         catch (Exception exception)
         {
             _logger.LogError(
                 exception,
-                "Виникла необроблена помилка під час виконання запиту {Method} {Path}.",
+                "Виникла необроблена помилка "
+                + "під час виконання запиту {Method} {Path}.",
                 context.Request.Method,
                 context.Request.Path);
 
             await HandleExceptionAsync(
                 context,
                 StatusCodes.Status500InternalServerError,
-                "Внутрішня помилка сервера",
-                "Під час виконання запиту виникла непередбачена помилка.");
+                "Внутрішня помилка сервера.",
+                "Під час виконання запиту "
+                + "виникла непередбачена помилка.");
         }
     }
 
     /// <summary>
-    /// Формує HTTP-відповідь
-    /// для помилок FluentValidation.
+    /// Формує відповідь для помилок FluentValidation.
     /// </summary>
     private static async Task HandleValidationExceptionAsync(
         HttpContext context,
         ValidationException exception)
     {
+        var failures =
+            exception.Errors.ToList();
+
         Dictionary<string, string[]> errors;
 
-        if (exception.Errors.Any())
+        if (failures.Count > 0)
         {
             errors =
-                exception.Errors
+                failures
                     .GroupBy(error =>
-                        error.PropertyName)
+                        GetFieldName(error.PropertyName))
                     .ToDictionary(
                         group => group.Key,
                         group => group
@@ -164,15 +204,14 @@ public class ExceptionHandlingMiddleware
                 };
         }
 
-        var problemDetails =
-            new ValidationProblemDetails(
-                errors)
+        var problem =
+            new ValidationProblemDetails(errors)
             {
                 Status =
                     StatusCodes.Status400BadRequest,
 
                 Title =
-                    "Помилка валідації",
+                    "Помилка валідації.",
 
                 Detail =
                     "Передані дані не пройшли перевірку.",
@@ -181,39 +220,21 @@ public class ExceptionHandlingMiddleware
                     context.Request.Path
             };
 
-        context.Response.StatusCode =
-            StatusCodes.Status400BadRequest;
-
-        context.Response.ContentType =
-            "application/problem+json";
-
-        await context.Response.WriteAsJsonAsync(
-            problemDetails);
+        await WriteProblemAsync(
+            context,
+            problem);
     }
 
     /// <summary>
-    /// Формує HTTP-відповідь
-    /// у форматі <see cref="ProblemDetails"/>.
+    /// Формує відповідь для інших оброблених винятків.
     /// </summary>
-    /// <param name="context">
-    /// Поточний HTTP-контекст.
-    /// </param>
-    /// <param name="statusCode">
-    /// HTTP-код відповіді.
-    /// </param>
-    /// <param name="title">
-    /// Короткий опис типу помилки.
-    /// </param>
-    /// <param name="detail">
-    /// Детальний опис помилки.
-    /// </param>
     private static async Task HandleExceptionAsync(
         HttpContext context,
         int statusCode,
         string title,
         string detail)
     {
-        var problemDetails =
+        var problem =
             new ProblemDetails
             {
                 Status = statusCode,
@@ -222,13 +243,79 @@ public class ExceptionHandlingMiddleware
                 Instance = context.Request.Path
             };
 
+        await WriteProblemAsync(
+            context,
+            problem);
+    }
+
+    /// <summary>
+    /// Додає тип помилки й traceId
+    /// та записує JSON-відповідь.
+    /// </summary>
+    private static async Task WriteProblemAsync<TProblem>(
+        HttpContext context,
+        TProblem problem)
+        where TProblem : ProblemDetails
+    {
+        var statusCode =
+            problem.Status
+            ?? StatusCodes.Status500InternalServerError;
+
+        problem.Status =
+            statusCode;
+
+        problem.Type =
+            statusCode switch
+            {
+                StatusCodes.Status400BadRequest =>
+                    "https://www.rfc-editor.org/rfc/rfc9110#section-15.5.1",
+
+                StatusCodes.Status404NotFound =>
+                    "https://www.rfc-editor.org/rfc/rfc9110#section-15.5.5",
+
+                StatusCodes.Status413PayloadTooLarge =>
+                    "https://www.rfc-editor.org/rfc/rfc9110#section-15.5.14",
+
+                StatusCodes.Status500InternalServerError =>
+                    "https://www.rfc-editor.org/rfc/rfc9110#section-15.6.1",
+
+                _ => "about:blank"
+            };
+
+        problem.Extensions["traceId"] =
+            Activity.Current?.Id
+            ?? context.TraceIdentifier;
+
         context.Response.StatusCode =
             statusCode;
 
-        context.Response.ContentType =
-            "application/problem+json";
+        // Прибираємо можливу довжину попередньої відповіді.
+        context.Response.ContentLength =
+            null;
 
         await context.Response.WriteAsJsonAsync(
-            problemDetails);
+            problem,
+            options: (JsonSerializerOptions?)null,
+            contentType: "application/problem+json",
+            cancellationToken: context.RequestAborted);
+    }
+
+    /// <summary>
+    /// Прибирає технічний префікс Dto
+    /// з назви поля помилки.
+    /// </summary>
+    private static string GetFieldName(
+        string? propertyName)
+    {
+        if (string.IsNullOrWhiteSpace(propertyName))
+        {
+            return "Validation";
+        }
+
+        return propertyName.StartsWith(
+                "Dto.",
+                StringComparison.Ordinal)
+            ? propertyName[4..]
+            : propertyName;
     }
 }

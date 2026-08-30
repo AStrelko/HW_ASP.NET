@@ -481,7 +481,15 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 
-logs/
+# Ігноруємо завантажені файли, крім стандартного аватара.
+/uploads/*
+!/uploads/PublicFile/
+
+/uploads/PublicFile/*
+!/uploads/PublicFile/Avatars/
+
+/uploads/PublicFile/Avatars/*
+!/uploads/PublicFile/Avatars/default.webp
 
 # Uploaded application files
 uploads/

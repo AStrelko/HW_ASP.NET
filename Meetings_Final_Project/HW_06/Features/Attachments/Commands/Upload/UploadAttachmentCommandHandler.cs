@@ -22,11 +22,9 @@ public class UploadAttachmentCommandHandler
 
     private readonly IMapper _mapper;
 
-    private readonly IWebHostEnvironment
-        _environment;
+    private readonly IWebHostEnvironment _environment;
 
-    private readonly FileStorageOptions
-        _fileStorageOptions;
+    private readonly FileStorageOptions _fileStorageOptions;
 
     private readonly ILogger<UploadAttachmentCommandHandler>
         _logger;
@@ -48,8 +46,7 @@ public class UploadAttachmentCommandHandler
     /// Налаштування файлового сховища.
     /// </param>
     /// <param name="logger">
-    /// Сервіс журналювання подій завантаження
-    /// публічних файлів.
+    /// Сервіс журналювання подій завантаження файлів.
     /// </param>
     public UploadAttachmentCommandHandler(
         DataContext context,
@@ -72,19 +69,20 @@ public class UploadAttachmentCommandHandler
     }
 
     /// <summary>
-    /// Завантажує публічний файл
+    /// Зберігає публічний файл
     /// та прикріплює його до зустрічі.
+    /// Помилка формування DTO після успішного
+    /// збереження запису в БД не спричиняє видалення файлу.
     /// </summary>
     /// <param name="request">
-    /// Команда з ідентифікатором зустрічі
-    /// та публічним файлом.
+    /// Команда з ідентифікатором зустрічі та файлом.
     /// </param>
     /// <param name="cancellationToken">
     /// Токен скасування асинхронної операції.
     /// </param>
     /// <returns>
-    /// Дані завантаженого публічного файлу
-    /// або <see langword="null"/>, якщо зустріч не знайдено.
+    /// Дані завантаженого файлу або
+    /// <see langword="null"/>, якщо зустріч не знайдено.
     /// </returns>
     public async Task<AttachmentPublicDTO?> Handle(
         UploadAttachmentCommand request,
@@ -96,8 +94,7 @@ public class UploadAttachmentCommandHandler
             await _context.Meetings
                 .AnyAsync(
                     meeting =>
-                        meeting.MeetingId ==
-                        request.MeetingId,
+                        meeting.MeetingId == request.MeetingId,
                     cancellationToken);
 
         if (!meetingExists)
@@ -113,8 +110,7 @@ public class UploadAttachmentCommandHandler
         var validationError =
             await PublicDocumentValidator.ValidateAsync(
                 request.File,
-                _fileStorageOptions
-                    .MaxPublicDocumentSizeBytes);
+                _fileStorageOptions.MaxPublicDocumentSizeBytes);
 
         if (validationError is not null)
         {
@@ -148,6 +144,35 @@ public class UploadAttachmentCommandHandler
                 documentsDirectory,
                 storedFileName);
 
+        var attachment =
+            new MeetingAttachment
+            {
+                MeetingId =
+                    request.MeetingId,
+
+                OriginalFileName =
+                    originalFileName,
+
+                StoredFileName =
+                    storedFileName,
+
+                ContentType =
+                    string.IsNullOrWhiteSpace(
+                        request.File.ContentType)
+                        ? "application/octet-stream"
+                        : request.File.ContentType,
+
+                SizeBytes =
+                    request.File.Length,
+
+                UploadedAtUtc =
+                    DateTime.UtcNow
+            };
+
+        // Видаляємо під час відкату лише файл,
+        // створений поточною операцією.
+        var fileCreated = false;
+
         try
         {
             await using (var fileStream =
@@ -155,78 +180,81 @@ public class UploadAttachmentCommandHandler
                              fullFilePath,
                              FileMode.CreateNew,
                              FileAccess.Write,
-                             FileShare.None))
+                             FileShare.None,
+                             bufferSize: 81920,
+                             useAsync: true))
             {
+                fileCreated = true;
+
                 await request.File.CopyToAsync(
                     fileStream,
                     cancellationToken);
             }
-
-            var attachment =
-                new MeetingAttachment
-                {
-                    MeetingId =
-                        request.MeetingId,
-
-                    OriginalFileName =
-                        originalFileName,
-
-                    StoredFileName =
-                        storedFileName,
-
-                    ContentType =
-                        string.IsNullOrWhiteSpace(
-                            request.File.ContentType)
-                            ? "application/octet-stream"
-                            : request.File.ContentType,
-
-                    SizeBytes =
-                        request.File.Length,
-
-                    UploadedAtUtc =
-                        DateTime.UtcNow
-                };
 
             _context.MeetingAttachments.Add(
                 attachment);
 
             await _context.SaveChangesAsync(
                 cancellationToken);
-
-            var dto =
-                _mapper.Map<AttachmentPublicDTO>(
-                    attachment);
-
-            _logger.LogInformation(
-                "Публічний файл успішно завантажено до зустрічі. "
-                + "AttachmentId: {AttachmentId}, "
-                + "MeetingId: {MeetingId}, "
-                + "SizeBytes: {SizeBytes}",
-                attachment.Id,
-                attachment.MeetingId,
-                attachment.SizeBytes);
-
-            return dto with
-            {
-                DownloadUrl =
-                    $"/api/meetings/{request.MeetingId}"
-                    + $"/attachments/{attachment.Id}/download"
-            };
         }
         catch
         {
-            if (File.Exists(fullFilePath))
+            if (fileCreated)
             {
-                File.Delete(fullFilePath);
+                try
+                {
+                    // File.Delete не кидає виняток,
+                    // якщо файл уже відсутній.
+                    File.Delete(
+                        fullFilePath);
 
-                _logger.LogWarning(
-                    "Фізичний публічний файл видалено під час відкату "
-                    + "невдалої операції завантаження. "
-                    + "MeetingId: {MeetingId}",
-                    request.MeetingId);
+                    _logger.LogWarning(
+                        "Виконано очищення публічного файлу "
+                        + "після невдалої операції завантаження. "
+                        + "MeetingId: {MeetingId}, "
+                        + "StoredFileName: {StoredFileName}",
+                        request.MeetingId,
+                        storedFileName);
+                }
+                catch (Exception cleanupException)
+                {
+                    // Помилка очищення не повинна
+                    // підміняти початковий виняток.
+                    _logger.LogError(
+                        cleanupException,
+                        "Не вдалося видалити публічний файл "
+                        + "під час очищення після помилки. "
+                        + "MeetingId: {MeetingId}, "
+                        + "StoredFileName: {StoredFileName}",
+                        request.MeetingId,
+                        storedFileName);
+                }
             }
 
             throw;
         }
+
+        // Запис успішно збережено в БД.
+        // Подальші помилки не запускають видалення файлу.
+
+        _logger.LogInformation(
+            "Публічний файл успішно завантажено до зустрічі. "
+            + "AttachmentId: {AttachmentId}, "
+            + "MeetingId: {MeetingId}, "
+            + "SizeBytes: {SizeBytes}",
+            attachment.Id,
+            attachment.MeetingId,
+            attachment.SizeBytes);
+
+        var dto =
+            _mapper.Map<AttachmentPublicDTO>(
+                attachment);
+
+        return dto with
+        {
+            DownloadUrl =
+                $"/api/meetings/{request.MeetingId}"
+                + $"/attachments/{attachment.Id}/download"
+        };
     }
 }

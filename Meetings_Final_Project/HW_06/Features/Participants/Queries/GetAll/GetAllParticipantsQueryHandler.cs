@@ -18,6 +18,7 @@ public class GetAllParticipantsQueryHandler
         PagedResult<ParticipantReadDTO>>
 {
     private readonly DataContext _context;
+
     private readonly IMapper _mapper;
 
     /// <summary>
@@ -45,6 +46,16 @@ public class GetAllParticipantsQueryHandler
     /// Отримує сторінку учасників
     /// із застосуванням пошуку та сортування.
     /// </summary>
+    /// <param name="request">
+    /// Запит із параметрами пошуку,
+    /// сортування та пагінації.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Токен скасування асинхронної операції.
+    /// </param>
+    /// <returns>
+    /// Сторінка зі списком учасників.
+    /// </returns>
     public async Task<PagedResult<ParticipantReadDTO>> Handle(
         GetAllParticipantsQuery request,
         CancellationToken cancellationToken)
@@ -53,22 +64,22 @@ public class GetAllParticipantsQueryHandler
 
         IQueryable<Participant> query =
             _context.Participants
-                .AsNoTracking()
-                .Include(participant =>
-                    participant.ApplicationUser);
+                .AsNoTracking();
 
-        query = query
-            .ApplySearch(
-                request.Parameters.SearchLastName)
-            .ApplySorting(
-                request.Parameters);
+        query =
+            query
+                .ApplySearch(
+                    request.Parameters.Search)
+                .ApplySorting(
+                    request.Parameters);
 
         return await query
             .ToPagedResultAsync<
                 Participant,
                 ParticipantReadDTO>(
-                    request.Parameters.Page,
-                    request.Parameters.PageSize,
-                    _mapper);
+                request.Parameters.Page,
+                request.Parameters.PageSize,
+                _mapper,
+                cancellationToken);
     }
 }
